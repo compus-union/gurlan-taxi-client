@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
-import { IonPage } from "@ionic/vue";
+import { IonPage, toastController } from "@ionic/vue";
 import { useRouter } from "vue-router";
 import { onBeforeMount } from "vue";
 
@@ -13,6 +13,8 @@ onBeforeMount(async () => {
   if (auth_token && clientOneId) {
     return;
   }
+
+ 
 
   router.push("/register");
 });

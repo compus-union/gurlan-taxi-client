@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { RouteRecordRaw } from "vue-router";
 
+console.log(process.env.NODE_ENV);
+
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",

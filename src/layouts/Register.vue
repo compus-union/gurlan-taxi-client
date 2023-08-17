@@ -7,12 +7,13 @@ import {
   IonCheckbox,
   IonText,
   loadingController,
+  toastController,
 } from "@ionic/vue";
 import { vMaska } from "maska";
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 
 const showPassword = ref(false);
 const nextStep = ref(false);
@@ -27,17 +28,17 @@ const showLoading = async () => {
     duration: 3000,
   });
 
-  loadingComponent.present();
+  await loadingComponent.present();
 };
 
 const handleForm = async () => {
   loading.value = true;
-  
+
   await showLoading();
 
   setTimeout(() => {
     nextStep.value = true;
-    
+
     loading.value = false;
   }, 3000);
 };
