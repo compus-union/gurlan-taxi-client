@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Preferences } from "@capacitor/preferences";
 import {
   IonPage,
   IonContent,
@@ -8,7 +9,10 @@ import {
   loadingController,
 } from "@ionic/vue";
 import { vMaska } from "maska";
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter()
 
 const showPassword = ref(false);
 const nextStep = ref(false);
@@ -37,6 +41,17 @@ const handleForm = async () => {
     loading.value = false;
   }, 3000);
 };
+
+onBeforeMount(async () => {
+  const { value: auth_token } = await Preferences.get({ key: "auth_token" });
+  const { value: clientOneId } = await Preferences.get({ key: "clientOneId" });
+
+  if (!auth_token && !clientOneId) {
+    return;
+  }
+
+  router.push("/");
+});
 </script>
 
 <template>
