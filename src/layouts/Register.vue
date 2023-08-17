@@ -33,7 +33,7 @@ const handleForm = async () => {
 
   setTimeout(() => {
     nextStep.value = true;
-
+    
     loading.value = false;
   }, 3000);
 };
