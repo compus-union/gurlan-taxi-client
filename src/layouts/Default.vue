@@ -14,10 +14,9 @@ onBeforeMount(async () => {
     return;
   }
 
- 
-
   router.push("/register");
 });
+
 </script>
 
 <template>

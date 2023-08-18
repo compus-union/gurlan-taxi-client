@@ -1,18 +1,14 @@
-import { CapacitorHttp, HttpOptions } from "@capacitor/core";
 import config from "../config";
 import { toastController } from "@ionic/vue";
-
-type RequestOptions = Omit<HttpOptions, "url">;
+import axios from "axios";
 
 export function authInstance() {
   let baseUrl = config.SERVER_URL + "/auth";
 
-  async function auth(options: RequestOptions) {
+  async function auth(data: any) {
     try {
-      const response = await CapacitorHttp.post({
-        url: baseUrl + "/auth",
-        ...options,
-      });
+      const response = await axios.post(baseUrl + "/login", data);
+      console.log(response);
 
       return response;
     } catch (error: any) {
@@ -26,12 +22,9 @@ export function authInstance() {
     }
   }
 
-  async function register(options: RequestOptions) {
+  async function register(data: any) {
     try {
-      const response = await CapacitorHttp.post({
-        url: baseUrl + "/register",
-        ...options,
-      })
+      const response = await axios.post(baseUrl + "/register", data);
 
       return response;
     } catch (error: any) {
