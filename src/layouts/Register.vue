@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
+import { useAuth } from "@/store/auth";
 import {
   IonPage,
   IonContent,
@@ -7,41 +8,17 @@ import {
   IonCheckbox,
   IonText,
   loadingController,
-  toastController,
 } from "@ionic/vue";
 import { vMaska } from "maska";
-import { onBeforeMount, onMounted, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const authStore = useAuth();
 
 const showPassword = ref(false);
 const nextStep = ref(false);
 const loading = ref(false);
-
-const showLoading = async () => {
-  loading.value = true;
-
-  const loadingComponent = await loadingController.create({
-    message: "Yuklanmoqda...",
-    animated: true,
-    duration: 3000,
-  });
-
-  await loadingComponent.present();
-};
-
-const handleForm = async () => {
-  loading.value = true;
-
-  await showLoading();
-
-  setTimeout(() => {
-    nextStep.value = true;
-
-    loading.value = false;
-  }, 3000);
-};
 
 onBeforeMount(async () => {
   const { value: auth_token } = await Preferences.get({ key: "auth_token" });
@@ -65,7 +42,7 @@ onBeforeMount(async () => {
           Gurlan <span class="marked text-brand">taxi</span>
         </h1>
         <form
-          @submit.prevent="handleForm"
+          @submit.prevent=""
           v-if="!nextStep && !loading"
           class="component-form border p-4 rounded shadow w-[90%] space-y-4 flex flex-col"
         >
@@ -77,6 +54,7 @@ onBeforeMount(async () => {
               v-maska
               data-maska="+998 ## ### ## ##"
               type="text"
+              v-model="authStore.clientDetails.phone"
               autofocus
               class="phone-number px-2 py-1 rounded outline-none bg-transparent border w-full"
             />
@@ -85,6 +63,7 @@ onBeforeMount(async () => {
             <label for="password">Parolingiz</label>
             <input
               required
+              v-model="authStore.clientDetails.password"
               id="password"
               :type="showPassword ? 'text' : 'password'"
               class="password px-2 py-1 rounded outline-none bg-transparent border w-full"
@@ -108,6 +87,7 @@ onBeforeMount(async () => {
             <label for="firstname">Ismingiz</label>
             <input
               id="firstname"
+              v-model="authStore.clientDetails.firstname"
               type="text"
               autofocus
               class="firstname px-2 py-1 rounded outline-none bg-transparent border w-full"
@@ -118,6 +98,7 @@ onBeforeMount(async () => {
             <input
               id="lastname"
               type="text"
+              v-model="authStore.clientDetails.lastname"
               class="lastname px-2 py-1 rounded outline-none bg-transparent border w-full"
             />
           </div>
