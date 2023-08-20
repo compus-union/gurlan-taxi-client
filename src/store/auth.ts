@@ -3,7 +3,6 @@ import { ref, computed } from "vue";
 import { authInstance } from "@/http/instances";
 import { toastController, loadingController } from "@ionic/vue";
 import { Preferences } from "@capacitor/preferences";
-import { useRouter } from "vue-router";
 
 // interface Client {
 //   id?: string;
@@ -94,6 +93,8 @@ export const useAuth = defineStore("auth-store", () => {
         }
 
         if (response.data.registered) {
+          console.log(response.data);
+
           const { client, token, msg } = await response.data;
 
           const toast = await toastController.create({
@@ -102,7 +103,7 @@ export const useAuth = defineStore("auth-store", () => {
           });
 
           await Promise.allSettled([
-            await toast.present(),
+            toast.present(),
             Preferences.set({ key: "auth_token", value: token }),
             Preferences.set({ key: "clientOneId", value: client.oneId }),
           ]);
@@ -194,6 +195,8 @@ export const useAuth = defineStore("auth-store", () => {
 
       //  Hammasi yaxshi
       if (response.data.status === "ok") {
+        console.log(response.data);
+
         const promises = [
           loading.dismiss(),
 

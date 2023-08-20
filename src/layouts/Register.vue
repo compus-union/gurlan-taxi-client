@@ -28,7 +28,7 @@ onBeforeMount(async () => {
     return;
   }
 
-  router.push("/");
+  router.push("/ride");
 });
 
 async function auth() {
@@ -40,10 +40,7 @@ async function auth() {
   }
 
   if (result?.status === "account-login") {
-    console.log(await Preferences.get({ key: "auth_token" }));
-    console.log(await Preferences.get({ key: "clientOneId" }));
-
-    router.push("/");
+    router.push("/ride");
 
     return;
   }
@@ -60,10 +57,7 @@ async function register() {
   const result = await authStore.register();
 
   if (result?.status === "ok") {
-    console.log(await Preferences.get({ key: "auth_token" }));
-    console.log(await Preferences.get({ key: "clientOneId" }));
-
-    router.push({ path: "/" });
+    router.push({ path: "/ride" });
 
     return;
   }

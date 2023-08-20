@@ -6,8 +6,21 @@ console.log(process.env.NODE_ENV);
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
+    name: "blank",
+    redirect: "/ride",
+  },
+  {
+    path: "/ride",
     name: "default-layout",
     component: () => import("@/layouts/Default.vue"),
+    redirect: "/ride/setDestination", 
+    children: [
+      {
+        path: "setDestination",
+        name: "layout-home-set-destination",
+        component: () => import("@/pages/HomePage.vue")
+      },
+    ],
   },
   {
     path: "/register",
