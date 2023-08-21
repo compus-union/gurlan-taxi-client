@@ -17,6 +17,7 @@ import '@ionic/vue/css/typography.css';
 import './theme/variables.css';
 import "./theme/base.css"
 
+
 const app = createApp(App)
   .use(IonicVue)
   .use(router)

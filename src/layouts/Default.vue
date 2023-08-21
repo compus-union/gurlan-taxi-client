@@ -13,6 +13,7 @@ import {
   IonTitle,
   IonToolbar,
   loadingController,
+  toastController,
 } from "@ionic/vue";
 import { useRouter } from "vue-router";
 import { defineComponent, onBeforeMount, onMounted, ref } from "vue";
@@ -43,10 +44,55 @@ onMounted(async () => {
     message: "Xarita yuklanmoqda...",
   });
 
-  await Promise.all([
-    await loading.present(),
-    await loading.dismiss(),
-  ]);
+  try {
+    await loading.present();
+    const { Map } = await mapsStore.loadMap();
+
+    map.value = new Map(document.getElementById("map") as HTMLElement, {
+      center: coordsStore.coords,
+      zoom: 17,
+      mapTypeId: "OSM",
+      mapTypeControl: false,
+      streetViewControl: false,
+      disableDefaultUI: true,
+    });
+
+    map.value.mapTypes.set(
+      "OSM",
+      new google.maps.ImageMapType({
+        getTileUrl: function (coord, zoom) {
+          var tilesPerGlobe = 1 << zoom;
+          var x = coord.x % tilesPerGlobe;
+          if (x < 0) {
+            x = tilesPerGlobe + x;
+          }
+
+          return (
+            "https://tile.openstreetmap.org/" +
+            zoom +
+            "/" +
+            x +
+            "/" +
+            coord.y +
+            ".png"
+          );
+        },
+        tileSize: new google.maps.Size(256, 256),
+        name: "OpenStreetMap",
+        maxZoom: 18,
+      })
+    );
+
+    await mapsStore.setMap(map.value);
+  } catch (error: any) {
+    const toast = await toastController.create({
+      message: error.message,
+      duration: 4000,
+    });
+    await toast.present();
+  } finally {
+    await loading.dismiss();
+  }
 });
 </script>
 
@@ -73,7 +119,7 @@ onMounted(async () => {
               </IonButton>
             </IonButtons>
             <IonTitle class="font-bricolage text-lg">
-              Bonus: 40,000 so'm</IonTitle
+              Bonus: 41,000 so'm</IonTitle
             >
           </IonToolbar>
         </IonHeader>

@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+import { Geolocation } from "@capacitor/geolocation";
 
 export const useCoords = defineStore("coords-store", () => {
   const lat = ref<number>(0);
@@ -10,7 +11,7 @@ export const useCoords = defineStore("coords-store", () => {
       (result) => {
         lat.value = result.coords.latitude;
         lng.value = result.coords.longitude;
-        console.log("hey, there some changes");
+        alert(`${lat.value} ${lng.value}`);
       },
       (err) => {
         console.log(err);
