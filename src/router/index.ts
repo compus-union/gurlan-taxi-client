@@ -27,6 +27,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "register-layout",
     component: () => import("@/layouts/Register.vue"),
   },
+  {
+    path: "/no-internet",
+    name: "no-internet",
+    component: () => import("@/pages/NoInternetPage.vue")
+  }
 ];
 
 const router = createRouter({

@@ -36,47 +36,6 @@ onBeforeMount(async () => {
   router.push("/register");
 });
 
-async function assignMap() {
-  const { Map } = await mapsStore.loadMap();
-
-  map.value = new Map(document.getElementById("map") as HTMLElement, {
-    center: coordsStore.coords,
-    zoom: 17,
-    mapTypeId: "OSM",
-    mapTypeControl: false,
-    streetViewControl: false,
-    disableDefaultUI: true,
-  });
-
-  map.value.mapTypes.set(
-    "OSM",
-    new google.maps.ImageMapType({
-      getTileUrl: function (coord, zoom) {
-        var tilesPerGlobe = 1 << zoom;
-        var x = coord.x % tilesPerGlobe;
-        if (x < 0) {
-          x = tilesPerGlobe + x;
-        }
-
-        return (
-          "https://tile.openstreetmap.org/" +
-          zoom +
-          "/" +
-          x +
-          "/" +
-          coord.y +
-          ".png"
-        );
-      },
-      tileSize: new google.maps.Size(256, 256),
-      name: "OpenStreetMap",
-      maxZoom: 18,
-    })
-  );
-
-  await mapsStore.setMap(map.value);
-}
-
 onMounted(async () => {
   await coordsStore.getCoords();
 
@@ -85,7 +44,6 @@ onMounted(async () => {
   });
 
   await Promise.all([
-    await assignMap(),
     await loading.present(),
     await loading.dismiss(),
   ]);
