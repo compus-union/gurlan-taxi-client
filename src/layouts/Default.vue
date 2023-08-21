@@ -12,11 +12,18 @@ import {
   IonSplitPane,
   IonTitle,
   IonToolbar,
+  loadingController,
 } from "@ionic/vue";
 import { useRouter } from "vue-router";
-import { onBeforeMount } from "vue";
+import { defineComponent, onBeforeMount, onMounted, ref } from "vue";
+import { useMaps } from "@/store/maps";
+import { useCoords } from "@/store/coords";
 
 const router = useRouter();
+const mapsStore = useMaps();
+const coordsStore = useCoords();
+
+const map = ref<google.maps.Map>();
 
 onBeforeMount(async () => {
   const { value: auth_token } = await Preferences.get({ key: "auth_token" });
@@ -27,6 +34,61 @@ onBeforeMount(async () => {
   }
 
   router.push("/register");
+});
+
+async function assignMap() {
+  const { Map } = await mapsStore.loadMap();
+
+  map.value = new Map(document.getElementById("map") as HTMLElement, {
+    center: coordsStore.coords,
+    zoom: 17,
+    mapTypeId: "OSM",
+    mapTypeControl: false,
+    streetViewControl: false,
+    disableDefaultUI: true,
+  });
+
+  map.value.mapTypes.set(
+    "OSM",
+    new google.maps.ImageMapType({
+      getTileUrl: function (coord, zoom) {
+        var tilesPerGlobe = 1 << zoom;
+        var x = coord.x % tilesPerGlobe;
+        if (x < 0) {
+          x = tilesPerGlobe + x;
+        }
+
+        return (
+          "https://tile.openstreetmap.org/" +
+          zoom +
+          "/" +
+          x +
+          "/" +
+          coord.y +
+          ".png"
+        );
+      },
+      tileSize: new google.maps.Size(256, 256),
+      name: "OpenStreetMap",
+      maxZoom: 18,
+    })
+  );
+
+  await mapsStore.setMap(map.value);
+}
+
+onMounted(async () => {
+  await coordsStore.getCoords();
+
+  const loading = await loadingController.create({
+    message: "Xarita yuklanmoqda...",
+  });
+
+  await Promise.all([
+    await assignMap(),
+    await loading.present(),
+    await loading.dismiss(),
+  ]);
 });
 </script>
 
@@ -58,6 +120,9 @@ onBeforeMount(async () => {
           </IonToolbar>
         </IonHeader>
         <IonRouterOutlet contentId="my-content"></IonRouterOutlet>
+        <IonContent>
+          <div id="map" class="h-[100dvh] w-full z-[99999999]"></div>
+        </IonContent>
       </div>
     </IonSplitPane>
   </IonPage>
