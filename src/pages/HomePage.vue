@@ -11,7 +11,7 @@ const coordsStore = useCoords();
 </script>
 
 <template>
-  <IonPage class="relative items-center justify-center pointer-events-none">
-    <div class="home-page">home page</div>
+  <IonPage class="z-[9999999] items-center justify-center pointer-events-none">
+    <div class="home-page text-5xl">home page</div>
   </IonPage>
 </template>

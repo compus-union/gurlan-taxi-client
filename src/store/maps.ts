@@ -76,7 +76,6 @@ export const useMaps = defineStore("maps-store", () => {
       const lat = sharedMap.value?.getCenter()?.lat()
       const lng = sharedMap.value?.getCenter()?.lng()
 
-      alert(`Your position: ${lat}, ${lng}`)
     })  
 
     return {

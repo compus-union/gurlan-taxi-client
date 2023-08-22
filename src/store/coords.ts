@@ -7,12 +7,12 @@ export const useCoords = defineStore("coords-store", () => {
   const lat = ref<number>(0);
   const lng = ref<number>(0);
 
-  async function getCoordsWithNavigator() {
+  async function getCoordsWithNavigator(): Promise<void> {
     try {
       navigator.geolocation.getCurrentPosition(
         ({ coords }) => {
           console.log(coords);
-          
+
           return { coords };
         },
         (err) => {
@@ -27,9 +27,7 @@ export const useCoords = defineStore("coords-store", () => {
   }
 
   async function getCoords() {
-    try { 
-      const resultsN = await getCoordsWithNavigator();
-
+    try {
       const results = await Geolocation.getCurrentPosition();
 
       lat.value = results.coords.latitude;
@@ -41,7 +39,7 @@ export const useCoords = defineStore("coords-store", () => {
     }
   }
 
-  async function watchCoords() {
+  async function watchCoords(): Promise<void> {
     try {
       await Geolocation.watchPosition({}, (results) => {
         lat.value = results?.coords.latitude as number;
@@ -52,9 +50,17 @@ export const useCoords = defineStore("coords-store", () => {
     }
   }
 
+  async function changeCoords(coords: {
+    lat: number;
+    lng: number;
+  }): Promise<void> {
+    lat.value = coords.lat;
+    lng.value = coords.lng;
+  }
+
   const coords = computed(() => {
     return { lat: lat.value, lng: lng.value };
   });
 
-  return { coords, getCoords, watchCoords };
+  return { coords, getCoords, watchCoords, changeCoords };
 });

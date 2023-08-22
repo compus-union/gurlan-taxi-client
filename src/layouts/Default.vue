@@ -84,9 +84,11 @@ onMounted(async () => {
             >
           </IonToolbar>
         </IonHeader>
-        <IonRouterOutlet contentId="my-content"></IonRouterOutlet>
-        <IonContent>
-          <div id="map" class="h-[100vh] w-full relative"></div>
+        <IonContent class="fixed inset-0">
+          <div id="map" class="h-[100vh] w-full"></div>
+        </IonContent>
+        <IonContent class="fixed w-auto h-[400px] bottom-0 z-[9999999999999]">
+          <IonRouterOutlet contentId="my-content"></IonRouterOutlet>
         </IonContent>
       </div>
     </IonSplitPane>
@@ -96,5 +98,13 @@ onMounted(async () => {
 <style>
 ion-menu::part(backdrop) {
   background-color: rgba(0, 0, 0, 0.694);
+}
+
+img[alt="Google"] {
+  display: none;
+}
+
+div.gmnoprint {
+  display: none;
 }
 </style>
