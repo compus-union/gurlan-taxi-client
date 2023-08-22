@@ -31,6 +31,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/no-internet",
     name: "no-internet",
     component: () => import("@/pages/NoInternetPage.vue")
+  },
+  {
+    path: "/no-gps",
+    name: "no-gps",
+    component: () => import("@/pages/NoGPSPage.vue")
   }
 ];
 
