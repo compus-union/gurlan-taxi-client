@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
 import {
+IonBackdrop,
   IonButton,
   IonButtons,
   IonContent,
@@ -71,7 +72,7 @@ onMounted(async () => {
         </IonContent>
       </IonMenu>
 
-      <div class="ion-page font-bricolage" id="my-content">
+      <div class="ion-page font-bricolage flex" id="my-content">
         <IonHeader>
           <IonToolbar class="flex">
             <IonButtons slot="start">
@@ -87,15 +88,18 @@ onMounted(async () => {
         <IonContent class="fixed inset-0">
           <div id="map" class="h-[100vh] w-full"></div>
         </IonContent>
-        <IonContent class="fixed w-auto h-[400px] bottom-0 z-[9999999999999]">
-          <IonRouterOutlet contentId="my-content"></IonRouterOutlet>
-        </IonContent>
+        <div class="ion-content fixed w-full border-t z-[99999] bg-transparent h-auto overflow-auto bottom-0 rounded-t-lg shadow">
+          <slot></slot>
+        </div>
       </div>
     </IonSplitPane>
   </IonPage>
 </template>
 
-<style>
+<style scoped>
+.ion-content {
+  background-color: var(--ion-background-color);
+}
 ion-menu::part(backdrop) {
   background-color: rgba(0, 0, 0, 0.694);
 }

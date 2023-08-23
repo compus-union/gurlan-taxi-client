@@ -12,15 +12,12 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/ride",
     name: "default-layout",
-    component: () => import("@/layouts/Default.vue"),
-    redirect: "/ride/setDestination", 
-    children: [
-      {
-        path: "setDestination",
-        name: "layout-home-set-destination",
-        component: () => import("@/pages/HomePage.vue")
-      },
-    ],
+    redirect: "/ride/setDestination",
+  },
+  {
+    path: "/ride/setDestination",
+    name: "layout-home-set-destination",
+    component: () => import("@/pages/HomePage.vue"),
   },
   {
     path: "/register",
@@ -30,13 +27,13 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/no-internet",
     name: "no-internet",
-    component: () => import("@/pages/NoInternetPage.vue")
+    component: () => import("@/pages/NoInternetPage.vue"),
   },
   {
     path: "/no-gps",
     name: "no-gps",
-    component: () => import("@/pages/NoGPSPage.vue")
-  }
+    component: () => import("@/pages/NoGPSPage.vue"),
+  },
 ];
 
 const router = createRouter({

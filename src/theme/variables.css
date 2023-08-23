@@ -76,6 +76,8 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-light-tint: #f5f6f9;
 
   --ion-font-bricolage: "Bricolage", sans-serif;
+
+  --ion-background-color: #fff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -83,6 +85,14 @@ http://ionicframework.com/docs/theming/ */
    * Dark Colors
    * -------------------------------------------
    */
+
+   .md div.ion-content {
+    --ion-background-color: #121212;
+   }
+
+   .ios div.ion-content {
+    --ion-background-color: #000000;
+   }
 
   body {
     --ion-color-primary: #ffd534;
