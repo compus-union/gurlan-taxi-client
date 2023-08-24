@@ -86,7 +86,7 @@ export function geocodingInstance() {
         message: error.message,
         duration: 2000,
       });
-
+      
       await toast.present();
     } finally {
       await loadingStore.setLoading(false);

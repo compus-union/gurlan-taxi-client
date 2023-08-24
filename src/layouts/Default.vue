@@ -88,7 +88,7 @@ onMounted(async () => {
         <IonContent class="fixed inset-0">
           <div id="map" class="h-[100vh] w-full"></div>
         </IonContent>
-        <div class="ion-content fixed w-full border-t z-[99999] bg-transparent h-auto overflow-auto bottom-0 rounded-t-lg shadow">
+        <div class="ion-content fixed w-full border-t z-[99999] bg-transparent h-auto bottom-0 rounded-t-lg shadow">
           <slot></slot>
         </div>
       </div>
