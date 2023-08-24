@@ -1,6 +1,9 @@
 import config from "../config";
 import { toastController } from "@ionic/vue";
 import axios from "axios";
+import { useLoading } from "@/store/loading";
+
+const loadingStore = useLoading();
 
 export function authInstance() {
   let baseUrl = config.SERVER_URL + "/auth";
@@ -39,4 +42,56 @@ export function authInstance() {
   }
 
   return { auth, register };
+}
+
+export function geocodingInstance() {
+  let baseUrl = `https://nominatim.openstreetmap.org/`;
+
+  async function searchPlace(q: string) {
+    try {
+      await loadingStore.setLoading(true);
+
+      const response = await axios.get(baseUrl + "/search", {
+        params: { q: `${q} Gurlan` },
+      });
+
+      return response;
+    } catch (error: any) {
+      console.log(error);
+
+      const toast = await toastController.create({
+        message: error.message,
+        duration: 2000,
+      });
+
+      await toast.present();
+    } finally {
+      await loadingStore.setLoading(false);
+    }
+  }
+
+  async function reverseGeocoding(lat: number, lng: number) {
+    try {
+      await loadingStore.setLoading(true);
+
+      const response = await axios.get(baseUrl + "/reverse", {
+        params: { lat, lng },
+      });
+
+      return response;
+    } catch (error: any) {
+      console.log(error);
+
+      const toast = await toastController.create({
+        message: error.message,
+        duration: 2000,
+      });
+
+      await toast.present();
+    } finally {
+      await loadingStore.setLoading(false);
+    }
+  }
+
+  return { searchPlace, reverseGeocoding };
 }

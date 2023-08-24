@@ -4,6 +4,7 @@ import { locateOutline, locationOutline } from "ionicons/icons";
 import { useMaps } from "@/store/maps";
 import { useCoords } from "@/store/coords";
 import Default from "@/layouts/Default.vue";
+import Loading from "@/components/Loading.vue";
 
 const mapsStore = useMaps();
 const coordsStore = useCoords();
@@ -21,6 +22,7 @@ const goBackToLocation = async () => {
 
 <template>
   <Default>
+    <Loading/>
     <div class="flex items-center justify-center h-auto">
       <div class="home-page w-full flex flex-col justify-between p-4 space-y-4">
         <IonButton @click="goBackToLocation()" fill="outline"
