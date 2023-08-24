@@ -7,21 +7,30 @@ import { ref } from "vue";
 const loader = new Loader({
   apiKey: config.GOOGLE_MAPS_API_KEY,
   version: "weekly",
+  language: "uz",
+  region: "UZ",
 });
 
 export const useMaps = defineStore("maps-store", () => {
   const sharedMap = ref<google.maps.Map>();
   const coordsStore = useCoords();
-  const markers = ref<google.maps.Marker[]>();
+  const markers = ref([]);
 
   async function setMap(payload: google.maps.Map) {
     sharedMap.value = payload;
     return;
   }
 
+  async function getMarker(title: string) {
+    const foundMarker = markers.value?.find((marker: google.maps.Marker) => {
+      return marker.getTitle() === title;
+    });
+
+    return foundMarker as unknown as google.maps.Marker;
+  }
+
   async function loadMap(id: string) {
     await coordsStore.getCoords();
-    await coordsStore.watchCoords();
 
     const { Map } = (await loader.importLibrary(
       "maps"
@@ -41,8 +50,8 @@ export const useMaps = defineStore("maps-store", () => {
       "OSM",
       new google.maps.ImageMapType({
         getTileUrl: function (coord, zoom) {
-          var tilesPerGlobe = 1 << zoom;
-          var x = coord.x % tilesPerGlobe;
+          let tilesPerGlobe = 1 << zoom;
+          let x = coord.x % tilesPerGlobe;
           if (x < 0) {
             x = tilesPerGlobe + x;
           }
@@ -66,17 +75,21 @@ export const useMaps = defineStore("maps-store", () => {
     const newMarker = new google.maps.Marker({
       map: sharedMap.value,
       position: sharedMap.value?.getCenter(),
+      title: "origin-marker",
     });
 
     sharedMap.value.addListener("drag", () => {
-      newMarker.setPosition(sharedMap.value?.getCenter())
+      newMarker.setPosition(sharedMap.value?.getCenter());
     });
 
-    sharedMap.value.addListener("dragend", () => {
-      const lat = sharedMap.value?.getCenter()?.lat()
-      const lng = sharedMap.value?.getCenter()?.lng()
+    sharedMap.value.addListener("dragend", async () => {
+      const lat = sharedMap.value?.getCenter()?.lat() as number;
+      const lng = sharedMap.value?.getCenter()?.lng() as number;
 
-    })  
+      await coordsStore.changeCoords({ lat, lng });
+    });
+
+    markers.value?.push(newMarker as unknown as never);
 
     return {
       Map,
@@ -88,5 +101,7 @@ export const useMaps = defineStore("maps-store", () => {
     loadMap,
     setMap,
     sharedMap,
+    markers,
+    getMarker,
   };
 });
