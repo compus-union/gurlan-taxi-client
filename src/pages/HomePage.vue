@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { IonButton, IonIcon } from "@ionic/vue";
+import { IonButton, IonIcon, modalController } from "@ionic/vue";
 import { locateOutline, locationOutline, searchOutline } from "ionicons/icons";
 import { useMaps } from "@/store/maps";
 import { useCoords } from "@/store/coords";
 import Default from "@/layouts/Default.vue";
 import Loading from "@/components/Loading.vue";
+import SearchPlaces from "@/components/SearchPlaces.vue";
 
 const mapsStore = useMaps();
 const coordsStore = useCoords();
@@ -18,6 +19,21 @@ const goBackToLocation = async () => {
 
   originMarker.setPosition(coordsStore.coords);
 };
+
+const openSearchPlaces = async () => {
+  const modal = await modalController.create({
+    component: SearchPlaces,
+  });
+
+  await modal.present();
+
+  const { data, role } = await modal.onWillDismiss();
+
+  if (role === "confirm") {
+    alert(data);
+    return;
+  }
+};
 </script>
 
 <template>
@@ -30,7 +46,7 @@ const goBackToLocation = async () => {
             ><IonIcon class="mr-4" slot="start" :icon="locateOutline"></IonIcon>
             Joylashuvimni ko'rsat</IonButton
           >
-          <IonButton fill="clear" class="right-5">
+          <IonButton @click="openSearchPlaces" fill="clear" class="right-5">
             <IonIcon :icon="searchOutline"></IonIcon>
           </IonButton>
         </div>

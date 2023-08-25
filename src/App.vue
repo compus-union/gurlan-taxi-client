@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { IonApp, IonRouterOutlet } from "@ionic/vue";
 import { Network } from "@capacitor/network";
-import { onBeforeMount, onMounted, ref } from "vue";
-import { useMaps } from "./store/maps";
+import { onBeforeMount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useCoords } from "@/store/coords";
 
-const mapsStore = useMaps();
 const coordsStore = useCoords();
 const router = useRouter();
 const route = useRoute();
@@ -43,12 +41,6 @@ onBeforeMount(async () => {
   };
 
   await logCurrentNetworkStatus();
-});
-
-const map = ref();
-
-onMounted(async () => {
-  
 });
 </script>
 

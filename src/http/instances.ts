@@ -45,7 +45,7 @@ export function authInstance() {
 }
 
 export function geocodingInstance() {
-  let baseUrl = `https://nominatim.openstreetmap.org/`;
+  let baseUrl = `https://nominatim.openstreetmap.org`;
 
   async function searchPlace(q: string) {
     try {
@@ -53,6 +53,7 @@ export function geocodingInstance() {
 
       const response = await axios.get(baseUrl + "/search", {
         params: { q: `${q} Gurlan` },
+        withCredentials: true
       });
 
       return response;

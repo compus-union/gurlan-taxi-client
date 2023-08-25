@@ -4,7 +4,7 @@ const loadingStore = useLoading()
 </script>
 
 <template>
-  <div v-show="loadingStore.loading" class="loading-box z-[9999999999999999] scale-[0.5] fixed -top-1 right-5 shadow">
+  <div v-show="loadingStore.loading" class="loading-box z-[9999999999999999] scale-[0.5] fixed right-5 shadow">
     <div class="lds-ripple">
       <div></div>
       <div></div>
@@ -13,6 +13,13 @@ const loadingStore = useLoading()
 </template>
 
 <style scoped>
+.ios .loading-box {
+  top: -4px;
+}
+
+.md .loading-box {
+  top: 0;
+}
 .lds-ripple {
   display: inline-block;
   position: relative;
