@@ -2,6 +2,8 @@ import config from "../config";
 import { toastController } from "@ionic/vue";
 import axios from "axios";
 import { useLoading } from "@/store/loading";
+import { Preferences } from "@capacitor/preferences";
+import { ref } from "vue";
 
 const loadingStore = useLoading();
 
@@ -45,16 +47,21 @@ export function authInstance() {
 }
 
 export function geocodingInstance() {
-  let baseUrl = `https://nominatim.openstreetmap.org`;
+  const baseUrl = config.SERVER_URL + "/geocoding";
+  let clientOneId = ref<string | null>();
 
   async function searchPlace(q: string) {
     try {
+      if (!clientOneId.value) {
+        const { value } = await Preferences.get({ key: "clientOneId" });
+        clientOneId.value = value;
+      }
+
       await loadingStore.setLoading(true);
 
-      const response = await axios.get(baseUrl + "/search", {
-        params: { q: `${q} Gurlan` },
-        withCredentials: true
-      });
+      const response = await axios.get(
+        baseUrl + `/search/${clientOneId.value}/${q}`
+      );
 
       return response;
     } catch (error: any) {
@@ -73,6 +80,11 @@ export function geocodingInstance() {
 
   async function reverseGeocoding(lat: number, lng: number) {
     try {
+      if (!clientOneId.value) {
+        const { value } = await Preferences.get({ key: "clientOneId" });
+        clientOneId.value = value;
+      }
+
       await loadingStore.setLoading(true);
 
       const response = await axios.get(baseUrl + "/reverse", {
@@ -87,7 +99,7 @@ export function geocodingInstance() {
         message: error.message,
         duration: 2000,
       });
-      
+
       await toast.present();
     } finally {
       await loadingStore.setLoading(false);
