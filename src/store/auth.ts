@@ -93,7 +93,6 @@ export const useAuth = defineStore("auth-store", () => {
         }
 
         if (response.data.registered) {
-          console.log(response.data);
 
           const { client, token, msg } = await response.data;
 
@@ -195,7 +194,6 @@ export const useAuth = defineStore("auth-store", () => {
 
       //  Hammasi yaxshi
       if (response.data.status === "ok") {
-        console.log(response.data);
 
         const promises = [
           loading.dismiss(),

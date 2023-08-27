@@ -13,7 +13,6 @@ export function authInstance() {
   async function auth(data: any) {
     try {
       const response = await axios.post(baseUrl + "/login", data);
-      console.log(response);
 
       return response;
     } catch (error: any) {
@@ -49,6 +48,7 @@ export function authInstance() {
 export function geocodingInstance() {
   const baseUrl = config.SERVER_URL + "/geocoding";
   let clientOneId = ref<string | null>();
+  let token = ref<string | null>();
 
   async function searchPlace(q: string) {
     try {
@@ -57,10 +57,16 @@ export function geocodingInstance() {
         clientOneId.value = value;
       }
 
+      if (!token.value) {
+        const { value } = await Preferences.get({ key: "auth_token" });
+        token.value = value;
+      }
+
       await loadingStore.setLoading(true);
 
       const response = await axios.get(
-        baseUrl + `/search/${clientOneId.value}/${q}`
+        baseUrl + `/search/${clientOneId.value}/${q}`,
+        { headers: { Authorization: `Bearer ${token.value}` } }
       );
 
       return response;
@@ -85,10 +91,16 @@ export function geocodingInstance() {
         clientOneId.value = value;
       }
 
+      if (!token.value) {
+        const { value } = await Preferences.get({ key: "auth_token" });
+        token.value = value;
+      }
+
       await loadingStore.setLoading(true);
 
       const response = await axios.get(baseUrl + "/reverse", {
         params: { lat, lng },
+        headers: { Authorization: `Bearer ${token.value}` },
       });
 
       return response;

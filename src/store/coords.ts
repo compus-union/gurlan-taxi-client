@@ -11,7 +11,6 @@ export const useCoords = defineStore("coords-store", () => {
     try {
       navigator.geolocation.getCurrentPosition(
         ({ coords }) => {
-          console.log(coords);
 
           return { coords };
         },

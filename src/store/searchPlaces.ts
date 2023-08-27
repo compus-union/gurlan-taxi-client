@@ -21,7 +21,6 @@ export const useSearchPlaces = defineStore("search-places-store", () => {
         }
 
         places.value = response?.data.data;
-        console.log(places.value);
 
         return;
       }
@@ -31,7 +30,6 @@ export const useSearchPlaces = defineStore("search-places-store", () => {
         notFound.value = true;
       }
 
-      console.log(response?.data);
     } catch (error) {}
   }
 
