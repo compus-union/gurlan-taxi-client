@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
 import {
-IonBackdrop,
   IonButton,
   IonButtons,
   IonContent,
@@ -9,7 +8,6 @@ IonBackdrop,
   IonMenu,
   IonMenuButton,
   IonPage,
-  IonRouterOutlet,
   IonSplitPane,
   IonTitle,
   IonToolbar,
@@ -17,26 +15,42 @@ IonBackdrop,
   toastController,
 } from "@ionic/vue";
 import { useRouter } from "vue-router";
-import { onBeforeMount, onMounted, ref } from "vue";
+import { onBeforeMount, onMounted } from "vue";
 import { useMaps } from "@/store/maps";
-import { useCoords } from "@/store/coords";
-import MarkerIcon from "@/assets/pin.png";
+import { useAuth } from "@/store/auth";
 
 const router = useRouter();
 const mapsStore = useMaps();
-const coordsStore = useCoords();
-
-const map = ref<google.maps.Map>();
+const authStore = useAuth();
 
 onBeforeMount(async () => {
-  const { value: auth_token } = await Preferences.get({ key: "auth_token" });
-  const { value: clientOneId } = await Preferences.get({ key: "clientOneId" });
+  const { value: token } = await Preferences.get({ key: "auth_token" });
+  const { value: oneId } = await Preferences.get({ key: "clientOneId" });
 
-  if (auth_token && clientOneId) {
+  if (
+    (oneId === "undefined" && token === "undefined") ||
+    (!oneId && !token) ||
+    (oneId === "null" && token === "null")
+  ) {
+    await Preferences.remove({ key: "clientOneId" });
+    await Preferences.remove({ key: "auth_token" });
+
+    router.push("/register");
+
+    return {
+      status: "forbidden",
+    };
+  }
+  
+  const check = await authStore.check();
+
+  if (check?.status === "ok") {
     return;
   }
 
   router.push("/register");
+
+  console.log(check);
 });
 
 onMounted(async () => {
@@ -88,7 +102,9 @@ onMounted(async () => {
         <IonContent class="fixed inset-0">
           <div id="map" class="h-[100vh] w-full"></div>
         </IonContent>
-        <div class="ion-content fixed w-full border-t z-[99999] bg-transparent h-auto bottom-0 rounded-t-lg shadow">
+        <div
+          class="ion-content fixed w-full border-t z-[99999] bg-transparent h-auto bottom-0 rounded-t-lg shadow"
+        >
           <slot></slot>
         </div>
       </div>

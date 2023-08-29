@@ -4,7 +4,7 @@ import axios from "axios";
 import { useLoading } from "@/store/loading";
 import { Preferences } from "@capacitor/preferences";
 import { ref } from "vue";
-
+  
 const loadingStore = useLoading();
 
 export function authInstance() {
@@ -42,7 +42,28 @@ export function authInstance() {
     }
   }
 
-  return { auth, register };
+  async function check() {
+    try {
+      const { value: oneId } = await Preferences.get({ key: "clientOneId" });
+      const { value: token } = await Preferences.get({ key: "auth_token" });
+
+      const response = await axios.get(baseUrl + `/check/${oneId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      return response;
+    } catch (error: any) {
+      console.log(error);
+      const toast = await toastController.create({
+        message: error.message,
+        duration: 2000,
+      });
+
+      await toast.present();
+    }
+  }
+
+  return { auth, register, check };
 }
 
 export function geocodingInstance() {

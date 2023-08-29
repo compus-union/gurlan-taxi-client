@@ -3,21 +3,7 @@ import { ref, computed } from "vue";
 import { authInstance } from "@/http/instances";
 import { toastController, loadingController } from "@ionic/vue";
 import { Preferences } from "@capacitor/preferences";
-
-// interface Client {
-//   id?: string;
-//   oneId?: string;
-//   fullname: string;
-//   phone: string;
-//   password: string;
-//   createdAt?: Date;
-//   bonus?: string;
-//   moneySpent?: string;
-//   rides?: object[];
-//   status?: string;
-//   ban?: object[];
-//   lastLogin?: Date;
-// }
+import router from "@/router";
 
 interface ClientDetails {
   firstname: string;
@@ -93,7 +79,6 @@ export const useAuth = defineStore("auth-store", () => {
         }
 
         if (response.data.registered) {
-
           const { client, token, msg } = await response.data;
 
           const toast = await toastController.create({
@@ -194,7 +179,6 @@ export const useAuth = defineStore("auth-store", () => {
 
       //  Hammasi yaxshi
       if (response.data.status === "ok") {
-
         const promises = [
           loading.dismiss(),
 
@@ -231,10 +215,49 @@ export const useAuth = defineStore("auth-store", () => {
     }
   }
 
+  async function check() {
+    try {
+        
+      const response = await authHttp.check();
+
+      if (response?.data.status === "forbidden") {
+        const toast = await toastController.create({
+          message: response.data.msg,
+          duration: 3000,
+        });
+
+        await Preferences.remove({ key: "clientOneId" });
+        await Preferences.remove({ key: "auth_token" });
+
+        await toast.present();
+        return {
+          status: "forbidden",
+        };
+      }
+
+      await Preferences.set({ key: "auth_token", value: response?.data.token });
+      await Preferences.set({
+        key: "clientOneId",
+        value: response?.data.client.oneId,
+      });
+
+      return {
+        status: "ok",
+      };
+    } catch (error: any) {
+      const toastError = await toastController.create({
+        message: error.message || "Serverda xatolik",
+      });
+
+      await toastError.present();
+    }
+  }
+
   return {
     clientDetails,
     auth,
     fullname,
     register,
+    check,
   };
 });
