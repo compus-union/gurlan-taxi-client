@@ -18,7 +18,7 @@ import {
 } from "@ionic/vue";
 import { locationOutline, searchOutline } from "ionicons/icons";
 import { useSearchPlaces } from "@/store/searchPlaces";
-import { ref, toRefs, watch } from "vue";
+import { ref, toRefs } from "vue";
 import { useLoading } from "@/store/loading";
 
 const loadingStore = useLoading();
@@ -42,14 +42,11 @@ const debounce = ref<Function>(createDebounce());
 const placeName = ref();
 
 const cancel = () => modalController.dismiss(null, "cancel");
-const confirm = () => modalController.dismiss(placeName.value, "confirm");
+const confirm = (coords: { lat: string | number; lon: string | number }) => {
+  modalController.dismiss(coords, "confirm");
+};
 
-const loadingRef = toRefs(loadingStore)
-
-
-watch([typing, loadingRef.loading], ([newTying, newLoading]) => {
-  console.log("changes", newTying, newLoading);
-});
+const loadingRef = toRefs(loadingStore);
 </script>
 
 <template>
@@ -58,7 +55,7 @@ watch([typing, loadingRef.loading], ([newTying, newLoading]) => {
       <ion-buttons slot="start">
         <ion-button color="medium" @click="cancel">Bekor qilish</ion-button>
       </ion-buttons>
-      <ion-title>Qidirish</ion-title>
+      <ion-title class="mr-4" slot="end">Qidirish</ion-title>
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
@@ -83,6 +80,7 @@ watch([typing, loadingRef.loading], ([newTying, newLoading]) => {
         v-for="place in (searchPlacesStore.places as any)"
         :key="place.place_id"
         button
+        @click="confirm({ lat: place.lat, lon: place.lon })"
       >
         <ion-icon class="mr-4" :icon="locationOutline"></ion-icon>
         <ion-label class="py-3">
