@@ -239,7 +239,7 @@ export const useAuth = defineStore("auth-store", () => {
       await Preferences.set({
         key: "clientOneId",
         value: response?.data.client.oneId,
-      });
+      });      
 
       return {
         status: "ok",

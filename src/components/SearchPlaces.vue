@@ -18,9 +18,10 @@ import {
 } from "@ionic/vue";
 import { locationOutline, searchOutline } from "ionicons/icons";
 import { useSearchPlaces } from "@/store/searchPlaces";
-import Loading from "./Loading.vue";
-import { ref } from "vue";
+import { ref, toRefs, watch } from "vue";
+import { useLoading } from "@/store/loading";
 
+const loadingStore = useLoading();
 const searchPlacesStore = useSearchPlaces();
 const typing = ref(false);
 
@@ -42,6 +43,13 @@ const placeName = ref();
 
 const cancel = () => modalController.dismiss(null, "cancel");
 const confirm = () => modalController.dismiss(placeName.value, "confirm");
+
+const loadingRef = toRefs(loadingStore)
+
+
+watch([typing, loadingRef.loading], ([newTying, newLoading]) => {
+  console.log("changes", newTying, newLoading);
+});
 </script>
 
 <template>
@@ -66,7 +74,9 @@ const confirm = () => modalController.dismiss(placeName.value, "confirm");
       ></ion-input>
     </ion-item>
     <ion-list
-      v-show="!typing && searchPlacesStore.places?.length"
+      v-show="
+        !typing && searchPlacesStore.places?.length && !loadingRef.loading.value
+      "
       class="items"
     >
       <ion-item
@@ -78,12 +88,12 @@ const confirm = () => modalController.dismiss(placeName.value, "confirm");
         <ion-label class="py-3">
           <h3 class="bigger-text">{{ place.name }}</h3>
           <p>
-            {{place.display_name}}
+            {{ place.display_name }}
           </p>
         </ion-label>
       </ion-item>
     </ion-list>
-    <ion-list v-show="typing">
+    <ion-list v-show="typing || loadingRef.loading.value">
       <ion-item>
         <ion-thumbnail class="w-[24px] h-[24px] mr-4" slot="start">
           <ion-skeleton-text :animated="true"></ion-skeleton-text>

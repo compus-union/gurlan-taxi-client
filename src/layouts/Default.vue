@@ -41,7 +41,7 @@ onBeforeMount(async () => {
       status: "forbidden",
     };
   }
-  
+
   const check = await authStore.check();
 
   if (check?.status === "ok") {
