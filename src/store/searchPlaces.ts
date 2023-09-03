@@ -8,6 +8,11 @@ export const useSearchPlaces = defineStore("search-places-store", () => {
   const notFound = ref<boolean>(false);
 
   async function searchPlaces(q: string) {
+    if (q.length === 0) {
+      places.value = [];
+      return;
+    }
+
     if (q.length <= 2) {
       return;
     }
@@ -29,7 +34,6 @@ export const useSearchPlaces = defineStore("search-places-store", () => {
         places.value = [];
         notFound.value = true;
       }
-
     } catch (error) {}
   }
 
