@@ -2,22 +2,22 @@
 import { IonButton, IonIcon, modalController } from "@ionic/vue";
 import { locateOutline, locationOutline, searchOutline } from "ionicons/icons";
 import { useMaps } from "@/store/maps";
-import { useCoords } from "@/store/coords";
+import { useOriginCoords } from "@/store/origin";
 import Default from "@/layouts/Default.vue";
 import Loading from "@/components/Loading.vue";
 import SearchPlaces from "@/components/SearchPlaces.vue";
 
 const mapsStore = useMaps();
-const coordsStore = useCoords();
+const originStore = useOriginCoords();
 
 const goBackToLocation = async () => {
-  await coordsStore.getCoords();
+  await originStore.getCoords();
 
-  mapsStore.sharedMap?.setCenter(coordsStore.coords);
+  mapsStore.sharedMap?.setCenter(originStore.coords);
 
   const originMarker = await mapsStore.getMarker("origin-marker");
 
-  originMarker.setPosition(coordsStore.coords);
+  originMarker.setPosition(originStore.coords);
 };
 
 const openSearchPlaces = async () => {
@@ -30,7 +30,7 @@ const openSearchPlaces = async () => {
   const { data, role } = await modal.onWillDismiss();
 
   if (role === "confirm") {
-    await coordsStore.changeCoords({ lat: +data.lat, lng: +data.lon });
+    await originStore.changeCoords({ lat: +data.lat, lng: +data.lon });
     
     mapsStore.sharedMap?.setCenter({ lat: +data.lat, lng: +data.lon });
 
@@ -64,3 +64,4 @@ const openSearchPlaces = async () => {
     </div>
   </Default>
 </template>
+@/store/origin

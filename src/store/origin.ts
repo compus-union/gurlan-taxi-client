@@ -3,15 +3,16 @@ import { computed, ref } from "vue";
 import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router";
 
-export const useCoords = defineStore("coords-store", () => {
+export const useOriginCoords = defineStore("coords-store", () => {
   const lat = ref<number>(0);
   const lng = ref<number>(0);
+
+  const watchingCoords = ref<boolean>(true);
 
   async function getCoordsWithNavigator(): Promise<void> {
     try {
       navigator.geolocation.getCurrentPosition(
         ({ coords }) => {
-
           return { coords };
         },
         (err) => {
@@ -40,10 +41,17 @@ export const useCoords = defineStore("coords-store", () => {
 
   async function watchCoords(): Promise<void> {
     try {
-      await Geolocation.watchPosition({}, (results) => {
-        lat.value = results?.coords.latitude as number;
-        lng.value = results?.coords.longitude as number;
-      });
+      if (watchingCoords.value) {
+        await Geolocation.watchPosition({}, (results) => {
+          lat.value = results?.coords.latitude as number;
+          lng.value = results?.coords.longitude as number;
+        });
+        console.log("watch coords enabled");
+
+        return;
+      }
+
+      console.log("watch coords disabled");
     } catch (error) {
       router.push("/no-gps");
     }
@@ -53,6 +61,7 @@ export const useCoords = defineStore("coords-store", () => {
     lat: number;
     lng: number;
   }): Promise<void> {
+    watchingCoords.value = false;
     lat.value = coords.lat;
     lng.value = coords.lng;
   }

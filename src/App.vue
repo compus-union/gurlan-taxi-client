@@ -3,9 +3,9 @@ import { IonApp, IonRouterOutlet } from "@ionic/vue";
 import { Network } from "@capacitor/network";
 import { onBeforeMount } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useCoords } from "@/store/coords";
+import { useOriginCoords } from "@/store/origin";
 
-const coordsStore = useCoords();
+const originStore = useOriginCoords();
 const router = useRouter();
 const route = useRoute();
 
@@ -16,7 +16,7 @@ onBeforeMount(async () => {
         router.go(-1);
       }
 
-      await coordsStore.getCoords();
+      await originStore.getCoords();
 
       return;
     }
@@ -32,7 +32,7 @@ onBeforeMount(async () => {
         router.go(-1);
       }
 
-      await coordsStore.getCoords();
+      await originStore.getCoords();
 
       return;
     }
@@ -51,3 +51,4 @@ onBeforeMount(async () => {
 </template>
 
 <style scoped></style>
+@/store/origin

@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { Loader } from "@googlemaps/js-api-loader";
 import config from "@/config";
-import { useCoords } from "./coords";
+import { useOriginCoords } from "./origin";
 import { ref } from "vue";
 
 const loader = new Loader({
@@ -13,7 +13,7 @@ const loader = new Loader({
 
 export const useMaps = defineStore("maps-store", () => {
   const sharedMap = ref<google.maps.Map>();
-  const coordsStore = useCoords();
+  const originStore = useOriginCoords();
   const markers = ref([]);
 
   async function setMap(payload: google.maps.Map) {
@@ -30,14 +30,15 @@ export const useMaps = defineStore("maps-store", () => {
   }
 
   async function loadMap(id: string) {
-    await coordsStore.getCoords();
+    await originStore.getCoords();
+    await originStore.watchCoords()
 
     const { Map } = (await loader.importLibrary(
       "maps"
     )) as google.maps.MapsLibrary;
 
     sharedMap.value = new Map(document.getElementById(id) as HTMLElement, {
-      center: { lat: coordsStore.coords.lat, lng: coordsStore.coords.lng },
+      center: { lat: originStore.coords.lat, lng: originStore.coords.lng },
       zoom: 20,
       mapTypeId: "OSM",
       mapTypeControl: false,
@@ -86,7 +87,7 @@ export const useMaps = defineStore("maps-store", () => {
       const lat = sharedMap.value?.getCenter()?.lat() as number;
       const lng = sharedMap.value?.getCenter()?.lng() as number;
 
-      await coordsStore.changeCoords({ lat, lng });
+      await originStore.changeCoords({ lat, lng });
     });
 
     markers.value?.push(newMarker as unknown as never);
