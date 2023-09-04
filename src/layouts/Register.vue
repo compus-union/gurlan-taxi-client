@@ -1,42 +1,67 @@
 <script setup lang="ts">
+import { Preferences } from "@capacitor/preferences";
+import { useAuth } from "@/store/auth";
 import {
   IonPage,
   IonContent,
   IonButton,
   IonCheckbox,
   IonText,
-  loadingController,
 } from "@ionic/vue";
 import { vMaska } from "maska";
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const authStore = useAuth();
 
 const showPassword = ref(false);
 const nextStep = ref(false);
 const loading = ref(false);
+const passwordIsIncorrect = ref(false);
 
-const showLoading = async () => {
-  loading.value = true;
+onBeforeMount(async () => {
+  const { value: auth_token } = await Preferences.get({ key: "auth_token" });
+  const { value: clientOneId } = await Preferences.get({ key: "clientOneId" });
 
-  const loadingComponent = await loadingController.create({
-    message: "Yuklanmoqda...",
-    animated: true,
-    duration: 3000,
-  });
+  if (!auth_token && !clientOneId) {
+    return;
+  }
 
-  loadingComponent.present();
-};
+  router.push("/ride");
+});
 
-const handleForm = async () => {
-  loading.value = true;
-  
-  await showLoading();
+async function auth() {
+  const result = await authStore.auth();
 
-  setTimeout(() => {
+  if (result?.status === "nextStep") {
     nextStep.value = true;
+    return;
+  }
 
-    loading.value = false;
-  }, 3000);
-};
+  if (result?.status === "account-login") {
+    router.push("/ride");
+
+    return;
+  }
+
+  if (result?.status === "incorrect-password") {
+    passwordIsIncorrect.value = true;
+    return;
+  }
+
+  return;
+}
+
+async function register() {
+  const result = await authStore.register();
+
+  if (result?.status === "ok") {
+    router.push({ path: "/ride" });
+
+    return;
+  }
+}
 </script>
 
 <template>
@@ -49,18 +74,20 @@ const handleForm = async () => {
           Gurlan <span class="marked text-brand">taxi</span>
         </h1>
         <form
-          @submit.prevent="handleForm"
-          v-if="!nextStep && !loading"
+          @submit.prevent="auth"
+          v-if="!nextStep"
           class="component-form border p-4 rounded shadow w-[90%] space-y-4 flex flex-col"
         >
           <div class="form-group">
             <label for="phone">Telefon raqamingiz</label>
             <input
+              :disabled="loading"
               required
               id="phone"
               v-maska
               data-maska="+998 ## ### ## ##"
               type="text"
+              v-model="authStore.clientDetails.phone"
               autofocus
               class="phone-number px-2 py-1 rounded outline-none bg-transparent border w-full"
             />
@@ -68,30 +95,41 @@ const handleForm = async () => {
           <div class="form-group">
             <label for="password">Parolingiz</label>
             <input
+              :disabled="loading"
               required
+              v-model="authStore.clientDetails.password"
               id="password"
               :type="showPassword ? 'text' : 'password'"
               class="password px-2 py-1 rounded outline-none bg-transparent border w-full"
+              :class="passwordIsIncorrect ? 'border-red-500' : ''"
             />
           </div>
           <IonCheckbox
             v-model="showPassword"
             label-placement="end"
             class="self-start"
+            :disabled="loading"
             >Parolni ko'rsatish</IonCheckbox
           >
-          <IonButton type="submit" class="text-white font-bold font-roboto">
+          <IonButton
+            :disabled="loading"
+            type="submit"
+            class="text-white font-bold font-roboto"
+          >
             DAVOM ETISH
           </IonButton>
         </form>
         <form
-          v-else-if="nextStep && !loading"
+          @submit.prevent="register"
+          v-else-if="nextStep"
           class="component-form border p-4 rounded shadow w-[90%] space-y-4 flex flex-col"
         >
           <div class="form-group">
             <label for="firstname">Ismingiz</label>
             <input
+              :disabled="loading"
               id="firstname"
+              v-model="authStore.clientDetails.firstname"
               type="text"
               autofocus
               class="firstname px-2 py-1 rounded outline-none bg-transparent border w-full"
@@ -100,12 +138,18 @@ const handleForm = async () => {
           <div class="form-group">
             <label for="lastname">Familiyangiz</label>
             <input
+              :disabled="loading"
               id="lastname"
               type="text"
+              v-model="authStore.clientDetails.lastname"
               class="lastname px-2 py-1 rounded outline-none bg-transparent border w-full"
             />
           </div>
-          <IonButton class="text-white font-bold font-roboto">
+          <IonButton
+            type="submit"
+            :disabled="loading"
+            class="text-white font-bold font-roboto"
+          >
             KIRISH
           </IonButton>
         </form>

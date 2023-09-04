@@ -5,8 +5,9 @@ const config: CapacitorConfig = {
   appName: 'Gurlan taxi',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
-  }
+    androidScheme: 'https',
+    allowNavigation: [ "https://nominatim.openstreetmap.org/" ]
+  },
 };
 
 export default config;

@@ -4,6 +4,11 @@
   box-sizing: border-box;
 }
 
+div[title="origin-marker"],
+div[title="origin-marker"] img {
+  transition: all 0.5s ease;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
