@@ -13,6 +13,8 @@ export const useOriginCoords = defineStore("coords-store", () => {
     try {
       navigator.geolocation.getCurrentPosition(
         ({ coords }) => {
+          lat.value = coords.latitude;
+          lng.value = coords.longitude;
           return { coords };
         },
         (err) => {
@@ -35,6 +37,7 @@ export const useOriginCoords = defineStore("coords-store", () => {
 
       return { coords: results.coords };
     } catch (error: any) {
+      console.log(error);
       router.push("/no-gps");
     }
   }
@@ -70,5 +73,11 @@ export const useOriginCoords = defineStore("coords-store", () => {
     return { lat: lat.value, lng: lng.value };
   });
 
-  return { coords, getCoords, watchCoords, changeCoords };
+  return {
+    coords,
+    getCoords,
+    watchCoords,
+    changeCoords,
+    getCoordsWithNavigator,
+  };
 });

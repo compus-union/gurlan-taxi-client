@@ -34,7 +34,7 @@ export const useSearchPlaces = defineStore("search-places-store", () => {
         places.value = [];
         notFound.value = true;
       }
-    } catch (error) {}
+    } catch (error) {}  
   }
 
   return { searchPlaces, places, notFound };
