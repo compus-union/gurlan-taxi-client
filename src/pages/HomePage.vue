@@ -41,7 +41,7 @@ const openSearchPlaces = async () => {
 
     return;
   }
-};
+}
 </script>
 
 <template>
