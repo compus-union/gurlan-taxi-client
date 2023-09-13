@@ -19,7 +19,7 @@ export const useAuth = defineStore("auth-store", () => {
   const clientDetails = ref<ClientDetails>({
     firstname: "",
     lastname: "",
-    phone: "",
+    phone: "+998",
     password: "",
   });
 
@@ -35,6 +35,7 @@ export const useAuth = defineStore("auth-store", () => {
     const toastWarning = await toastController.create({
       message: "Iltimos, hamma qatorlarni to'ldiring.",
       duration: 4000,
+      keyboardClose: true,
     });
 
     await loading.present();
@@ -84,6 +85,7 @@ export const useAuth = defineStore("auth-store", () => {
           const toast = await toastController.create({
             message: msg,
             duration: 4000,
+            keyboardClose: true,
           });
 
           await Promise.allSettled([
@@ -104,6 +106,7 @@ export const useAuth = defineStore("auth-store", () => {
         const toast = await toastController.create({
           message: response.data.msg,
           duration: 4000,
+          keyboardClose: true,
         });
 
         await toast.present();
@@ -119,6 +122,7 @@ export const useAuth = defineStore("auth-store", () => {
         const toast = await toastController.create({
           message: `Akkauntingiz ban qilingan: ${response.data.reason}`,
           duration: 4000,
+          keyboardClose: true,
         });
 
         await toast.present();
@@ -131,6 +135,7 @@ export const useAuth = defineStore("auth-store", () => {
       const toastError = await toastController.create({
         message: error.message || "Serverda xatolik",
         duration: 4000,
+        keyboardClose: true,
       });
 
       await toastError.present();
@@ -144,6 +149,8 @@ export const useAuth = defineStore("auth-store", () => {
 
     const toastWarning = await loadingController.create({
       message: "Iltimos, hamma qatorlarni to'ldiring.",
+      duration: 4000,
+      keyboardClose: true,
     });
 
     try {
@@ -172,6 +179,7 @@ export const useAuth = defineStore("auth-store", () => {
       //  Serverda xatolik yoki internet bilan aloqa bo'lmaganida
       if (!response || response.status >= 400) {
         await loading.dismiss();
+
         throw new Error(
           "Serverda xatolik, internet bilan aloqangizni tekshiring yoki boshqatdan urinib ko'ring."
         );
@@ -197,6 +205,7 @@ export const useAuth = defineStore("auth-store", () => {
 
         const toast = await toastController.create({
           message: response.data.msg,
+          duration: 4000,
         });
 
         await toast.present();
@@ -207,6 +216,8 @@ export const useAuth = defineStore("auth-store", () => {
         };
       }
     } catch (error: any) {
+      alert(JSON.stringify(error));
+
       const toastError = await toastController.create({
         message: error.message || "Serverda xatolik",
       });
@@ -217,7 +228,6 @@ export const useAuth = defineStore("auth-store", () => {
 
   async function check() {
     try {
-        
       const response = await authHttp.check();
 
       if (response?.data.status === "forbidden") {
@@ -239,7 +249,7 @@ export const useAuth = defineStore("auth-store", () => {
       await Preferences.set({
         key: "clientOneId",
         value: response?.data.client.oneId,
-      });      
+      });
 
       return {
         status: "ok",
@@ -247,6 +257,8 @@ export const useAuth = defineStore("auth-store", () => {
     } catch (error: any) {
       const toastError = await toastController.create({
         message: error.message || "Serverda xatolik",
+        duration: 4000,
+        keyboardClose: true,
       });
 
       await toastError.present();

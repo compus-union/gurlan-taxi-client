@@ -68,7 +68,7 @@ async function register() {
   <IonPage>
     <IonContent class="register-content font-bricolage">
       <div
-        class="register-component h-[100dvh] flex flex-col items-center justify-center"
+        class="register-component h-screen flex flex-col items-center justify-center"
       >
         <h1 class="text-3xl my-4">
           Gurlan <span class="marked text-brand">taxi</span>

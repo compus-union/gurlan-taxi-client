@@ -11,8 +11,10 @@ const mapsStore = useMaps();
 const originStore = useOriginCoords();
 
 const goBackToLocation = async () => {
-  await originStore.getCoords();
+  const coords = await originStore.getCoords();
 
+  console.log(coords);
+  
   mapsStore.sharedMap?.setCenter(originStore.coords);
 
   const originMarker = await mapsStore.getMarker("origin-marker");
@@ -31,15 +33,15 @@ const openSearchPlaces = async () => {
 
   if (role === "confirm") {
     await originStore.changeCoords({ lat: +data.lat, lng: +data.lon });
-    
+
     mapsStore.sharedMap?.setCenter({ lat: +data.lat, lng: +data.lon });
 
     const marker = await mapsStore.getMarker("origin-marker");
     marker.setPosition({ lat: +data.lat, lng: +data.lon });
-    
+
     return;
   }
-};
+}
 </script>
 
 <template>

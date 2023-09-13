@@ -70,6 +70,13 @@ onMounted(async () => {
     await loading.dismiss();
   }
 });
+
+const logout = async () => {
+  await Preferences.remove({key: "auth_token"})
+  await Preferences.remove({key: "clientOneId"})
+
+  await router.push("/register")
+}
 </script>
 
 <template>
@@ -83,6 +90,7 @@ onMounted(async () => {
         </IonHeader>
         <IonContent class="p-4">
           <IonTitle>Hello</IonTitle>
+          <IonButton @click="logout">logout</IonButton>
         </IonContent>
       </IonMenu>
 
