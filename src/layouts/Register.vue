@@ -28,7 +28,7 @@ onBeforeMount(async () => {
     return;
   }
 
-  router.push("/ride");
+  router.push("/ride/setDestination");
 });
 
 async function auth() {
@@ -40,7 +40,7 @@ async function auth() {
   }
 
   if (result?.status === "account-login") {
-    router.push("/ride");
+    router.push("/ride/setDestination");
 
     return;
   }
@@ -57,7 +57,7 @@ async function register() {
   const result = await authStore.register();
 
   if (result?.status === "ok") {
-    router.push({ path: "/ride" });
+    router.push({ path: "/ride/setDestination" });
 
     return;
   }
