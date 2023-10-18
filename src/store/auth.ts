@@ -64,9 +64,22 @@ export const useAuth = defineStore("auth-store", () => {
       //   Serverda xatolik yoki internet bilan aloqa bo'lmaganida
       if (!response || response.status >= 400) {
         await loading.dismiss();
-        throw new Error(
-          "Serverda xatolik, internet bilan aloqangizni tekshiring yoki boshqatdan urinib ko'ring."
-        );
+        const toast = await toastController.create({
+          message:
+            "Serverda xatolik, internet bilan aloqangizni tekshiring yoki boshqatdan urinib ko'ring.",
+          duration: 4000,
+          buttons: [
+            {
+              text: "OK",
+              async handler() {
+                await toast.dismiss();
+              },
+            },
+          ],
+        });
+
+        await toast.present();
+        return;
       }
 
       // hammasi yaxshi
@@ -230,26 +243,47 @@ export const useAuth = defineStore("auth-store", () => {
     try {
       const response = await authHttp.check();
 
+      if (!response || response.status >= 400) {
+        const toast = await toastController.create({
+          message: `Serverda xatolik yoki internet bilan aloqa mavjud emas.`,
+          duration: 3000,
+        });
+
+        await Promise.allSettled([
+          Preferences.remove({ key: "clientOneId" }),
+          Preferences.remove({ key: "auth_token" }),
+          toast.present(),
+        ]);
+
+        return {
+          status: "forbidden",
+        };
+      }
+
       if (response?.data.status === "forbidden") {
         const toast = await toastController.create({
           message: response.data.msg,
           duration: 3000,
         });
 
-        await Preferences.remove({ key: "clientOneId" });
-        await Preferences.remove({ key: "auth_token" });
+        await Promise.allSettled([
+          Preferences.remove({ key: "clientOneId" }),
+          Preferences.remove({ key: "auth_token" }),
+          toast.present(),
+        ]);
 
-        await toast.present();
         return {
           status: "forbidden",
         };
       }
 
-      await Preferences.set({ key: "auth_token", value: response?.data.token });
-      await Preferences.set({
-        key: "clientOneId",
-        value: response?.data.client.oneId,
-      });
+      await Promise.allSettled([
+        Preferences.set({ key: "auth_token", value: response?.data.token }),
+        Preferences.set({
+          key: "clientOneId",
+          value: response?.data.client.oneId,
+        }),
+      ]);
 
       return {
         status: "ok",

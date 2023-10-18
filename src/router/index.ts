@@ -1,13 +1,15 @@
+import { Preferences } from "@capacitor/preferences";
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { RouteRecordRaw } from "vue-router";
+import { useAuth } from "@/store/auth";
 
-console.log(process.env.NODE_ENV);
+const authStore = useAuth();
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "blank",
-    redirect: "/ride",
+    redirect: "/ride/setDestination",
   },
   {
     path: "/ride",
@@ -18,11 +20,62 @@ const routes: Array<RouteRecordRaw> = [
     path: "/ride/setDestination",
     name: "layout-home-set-destination",
     component: () => import("@/pages/HomePage.vue"),
+    async beforeEnter(to, from, next) {
+      const { value: token } = await Preferences.get({ key: "auth_token" });
+      const { value: oneId } = await Preferences.get({ key: "clientOneId" });
+      alert(token);
+
+      if (
+        (oneId === "undefined" && token === "undefined") ||
+        (!oneId && !token) ||
+        (oneId === "null" && token === "null") ||
+        !oneId ||
+        !token ||
+        (!oneId && !token)
+      ) {
+        await Preferences.remove({ key: "clientOneId" });
+        await Preferences.remove({ key: "auth_token" });
+
+        next("/register");
+      }
+
+      const check = await authStore.check();
+
+      if (check?.status === "ok") {
+        next();
+      }
+
+      next("/register");
+    },
   },
   {
     path: "/register",
     name: "register-layout",
     component: () => import("@/layouts/Register.vue"),
+    async beforeEnter(to, from, next) {
+      const { value: token } = await Preferences.get({ key: "auth_token" });
+      const { value: oneId } = await Preferences.get({ key: "clientOneId" });
+      alert(token);
+
+      if (
+        (oneId === "undefined" && token === "undefined") ||
+        (!oneId && !token) ||
+        (oneId === "null" && token === "null") ||
+        !oneId ||
+        !token ||
+        (!oneId && !token)
+      ) {
+        next();
+      }
+
+      const check = await authStore.check();
+
+      if (check?.status === "ok") {
+        next();
+      }
+
+      next("/register");
+    },
   },
   {
     path: "/no-internet",

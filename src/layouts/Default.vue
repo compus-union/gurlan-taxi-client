@@ -26,6 +26,7 @@ const authStore = useAuth();
 onBeforeMount(async () => {
   const { value: token } = await Preferences.get({ key: "auth_token" });
   const { value: oneId } = await Preferences.get({ key: "clientOneId" });
+  alert(token);
 
   if (
     (oneId === "undefined" && token === "undefined") ||
@@ -72,11 +73,11 @@ onMounted(async () => {
 });
 
 const logout = async () => {
-  await Preferences.remove({key: "auth_token"})
-  await Preferences.remove({key: "clientOneId"})
+  await Preferences.remove({ key: "auth_token" });
+  await Preferences.remove({ key: "clientOneId" });
 
-  await router.push("/register")
-}
+  await router.push("/register");
+};
 </script>
 
 <template>
