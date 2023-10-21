@@ -1,9 +1,6 @@
 import { Preferences } from "@capacitor/preferences";
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { RouteRecordRaw } from "vue-router";
-import { useAuth } from "@/store/auth";
-
-const authStore = useAuth();
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -23,7 +20,6 @@ const routes: Array<RouteRecordRaw> = [
     async beforeEnter(to, from, next) {
       const { value: token } = await Preferences.get({ key: "auth_token" });
       const { value: oneId } = await Preferences.get({ key: "clientOneId" });
-      alert(token);
 
       if (
         (oneId === "undefined" && token === "undefined") ||
@@ -36,16 +32,10 @@ const routes: Array<RouteRecordRaw> = [
         await Preferences.remove({ key: "clientOneId" });
         await Preferences.remove({ key: "auth_token" });
 
-        next("/register");
+        return next("/register");
       }
 
-      const check = await authStore.check();
-
-      if (check?.status === "ok") {
-        next();
-      }
-
-      next("/register");
+      next();
     },
   },
   {
@@ -55,7 +45,6 @@ const routes: Array<RouteRecordRaw> = [
     async beforeEnter(to, from, next) {
       const { value: token } = await Preferences.get({ key: "auth_token" });
       const { value: oneId } = await Preferences.get({ key: "clientOneId" });
-      alert(token);
 
       if (
         (oneId === "undefined" && token === "undefined") ||
@@ -65,16 +54,10 @@ const routes: Array<RouteRecordRaw> = [
         !token ||
         (!oneId && !token)
       ) {
-        next();
+        return next();
       }
 
-      const check = await authStore.check();
-
-      if (check?.status === "ok") {
-        next();
-      }
-
-      next("/register");
+      return next("/register");
     },
   },
   {

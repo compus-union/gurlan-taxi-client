@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router";
+import { loadingController } from "@ionic/vue";
 
 export const useOriginCoords = defineStore("coords-store", () => {
   const lat = ref<number>(0);
@@ -10,35 +11,44 @@ export const useOriginCoords = defineStore("coords-store", () => {
   const watchingCoords = ref<boolean>(true);
 
   async function getCoordsWithNavigator(): Promise<void> {
+    const newLoading = await loadingController.create({
+      message: "Xarita yuklanmoqda...",
+    });
     try {
+      await newLoading.present();
       navigator.geolocation.getCurrentPosition(
-        ({ coords }) => {
-          lat.value = coords.latitude;
-          lng.value = coords.longitude;
+        (results) => {
+          lat.value = results.coords.latitude;
+          lng.value = results.coords.longitude;
+          alert(`${results.coords.latitude} ${results.coords.longitude}`);
+
           return { coords };
         },
         (err) => {
-          if (err.message) {
-            throw new Error(err.message);
+          if (err) {
+            alert(err.message);
           }
         }
       );
     } catch (error) {
-      console.log(error);
+      alert(error);
+    } finally {
+      await newLoading.dismiss();
     }
   }
 
   async function getCoords() {
     try {
-      const results = await Geolocation.getCurrentPosition();
+      const results = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+      });
 
       lat.value = results.coords.latitude;
       lng.value = results.coords.longitude;
 
       return { coords: results.coords };
     } catch (error: any) {
-      console.log(error);
-      router.push("/no-gps");
+        alert(error.message);
     }
   }
 

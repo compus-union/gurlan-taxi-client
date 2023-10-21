@@ -51,4 +51,3 @@ onBeforeMount(async () => {
 </template>
 
 <style scoped></style>
-@/store/origin

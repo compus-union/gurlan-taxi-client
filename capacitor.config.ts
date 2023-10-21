@@ -1,12 +1,13 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'Gurlan taxi',
-  webDir: 'dist',
+  appId: "io.ionic.starter",
+  appName: "Gurlan taxi",
+  webDir: "dist",
   server: {
-    androidScheme: 'https',
-    allowNavigation: [ "https://nominatim.openstreetmap.org/" ]
+    androidScheme: "https",
+    cleartext: true,
+    allowNavigation: ["https://nominatim.openstreetmap.org/"],
   },
 };
 

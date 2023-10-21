@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Preferences } from "@capacitor/preferences";
 import { useAuth } from "@/store/auth";
 import {
   IonPage,
@@ -9,8 +8,9 @@ import {
   IonText,
 } from "@ionic/vue";
 import { vMaska } from "maska";
-import { onBeforeMount, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { ResponseStatus } from "@/constants";
 
 const router = useRouter();
 const authStore = useAuth();
@@ -18,18 +18,6 @@ const authStore = useAuth();
 const showPassword = ref(false);
 const nextStep = ref(false);
 const loading = ref(false);
-const passwordIsIncorrect = ref(false);
-
-onBeforeMount(async () => {
-  const { value: auth_token } = await Preferences.get({ key: "auth_token" });
-  const { value: clientOneId } = await Preferences.get({ key: "clientOneId" });
-
-  if (!auth_token && !clientOneId) {
-    return;
-  }
-
-  router.push("/ride/setDestination");
-});
 
 async function auth() {
   const result = await authStore.auth();
@@ -39,14 +27,18 @@ async function auth() {
     return;
   }
 
-  if (result?.status === "account-login") {
-    router.push("/ride/setDestination");
-
+  if (result?.status === ResponseStatus.BANNED) {
+    router.push("/register");
     return;
   }
 
-  if (result?.status === "incorrect-password") {
-    passwordIsIncorrect.value = true;
+  if (result?.status === ResponseStatus.CLIENT_LOGIN_DONE) {
+    router.push("/ride/setDestination");
+    return;
+  }
+
+  if (result?.status === ResponseStatus.CLIENT_READY_TO_REGISTER) {
+    nextStep.value = true;
     return;
   }
 
@@ -56,11 +48,18 @@ async function auth() {
 async function register() {
   const result = await authStore.register();
 
-  if (result?.status === "ok") {
+  if (result?.status === ResponseStatus.CLIENT_REGISTER_DONE) {
     router.push({ path: "/ride/setDestination" });
 
     return;
   }
+
+  if (result?.status === ResponseStatus.BANNED) {
+    router.push("/register");
+    return;
+  } 
+
+  return;
 }
 </script>
 
@@ -101,7 +100,6 @@ async function register() {
               id="password"
               :type="showPassword ? 'text' : 'password'"
               class="password px-2 py-1 rounded outline-none bg-transparent border w-full"
-              :class="passwordIsIncorrect ? 'border-red-500' : ''"
             />
           </div>
           <IonCheckbox

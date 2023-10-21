@@ -5,10 +5,10 @@ import { useLoading } from "@/store/loading";
 import { Preferences } from "@capacitor/preferences";
 import { ref } from "vue";
   
-const loadingStore = useLoading();
 
 export function authInstance() {
-  let baseUrl = config.SERVER_URL + "/auth";
+  const loadingStore = useLoading();
+  let baseUrl = config.SERVER_URL + "/client";
 
   async function auth(data: any) {
     try {
@@ -67,6 +67,8 @@ export function authInstance() {
 }
 
 export function geocodingInstance() {
+  const loadingStore = useLoading();
+
   const baseUrl = config.SERVER_URL + "/geocoding";
   let clientOneId = ref<string | null>();
   let token = ref<string | null>();

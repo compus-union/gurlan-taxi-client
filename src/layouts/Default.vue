@@ -18,6 +18,7 @@ import { useRouter } from "vue-router";
 import { onBeforeMount, onMounted } from "vue";
 import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
+import { ResponseStatus } from "@/constants";
 
 const router = useRouter();
 const mapsStore = useMaps();
@@ -26,26 +27,10 @@ const authStore = useAuth();
 onBeforeMount(async () => {
   const { value: token } = await Preferences.get({ key: "auth_token" });
   const { value: oneId } = await Preferences.get({ key: "clientOneId" });
-  alert(token);
-
-  if (
-    (oneId === "undefined" && token === "undefined") ||
-    (!oneId && !token) ||
-    (oneId === "null" && token === "null")
-  ) {
-    await Preferences.remove({ key: "clientOneId" });
-    await Preferences.remove({ key: "auth_token" });
-
-    router.push("/register");
-
-    return {
-      status: "forbidden",
-    };
-  }
 
   const check = await authStore.check();
 
-  if (check?.status === "ok") {
+  if (check?.status === ResponseStatus.CLIENT_CHECK_DONE) {
     return;
   }
 
