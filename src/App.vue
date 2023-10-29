@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { IonApp, IonRouterOutlet } from "@ionic/vue";
 import { Network } from "@capacitor/network";
 import { onBeforeMount } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -45,9 +44,9 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <ion-app>
-    <ion-router-outlet id="main-content"></ion-router-outlet>
-  </ion-app>
+  <div class="app">
+    <router-view></router-view>
+  </div>
 </template>
 
 <style scoped></style>

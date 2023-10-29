@@ -1,22 +1,17 @@
 import { Preferences } from "@capacitor/preferences";
-import { createRouter, createWebHistory } from "@ionic/vue-router";
-import { RouteRecordRaw } from "vue-router";
+import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "blank",
-    redirect: "/ride/setDestination",
+    redirect: "/ride/setOrigin",
   },
   {
     path: "/ride",
     name: "default-layout",
-    redirect: "/ride/setDestination",
-  },
-  {
-    path: "/ride/setDestination",
-    name: "layout-home-set-destination",
-    component: () => import("@/pages/HomePage.vue"),
+    redirect: "/ride/setOrigin",
+    component: () => import("@/layouts/Default.vue"),
     async beforeEnter(to, from, next) {
       const { value: token } = await Preferences.get({ key: "auth_token" });
       const { value: oneId } = await Preferences.get({ key: "clientOneId" });
@@ -37,6 +32,18 @@ const routes: Array<RouteRecordRaw> = [
 
       next();
     },
+    children: [
+      {
+        path: "setOrigin",
+        name: "layout-home-set-origin",
+        component: () => import("@/pages/HomePage.vue"),
+      },
+      {
+        path: "setDestination",
+        name: "layout-home-set-destination",
+        component: () => import("@/pages/SetDestinationPage.vue"),
+      },
+    ],
   },
   {
     path: "/register",
@@ -54,7 +61,7 @@ const routes: Array<RouteRecordRaw> = [
         !token ||
         (!oneId && !token)
       ) {
-        return next();
+         next();
       }
 
       return next("/register");

@@ -1,10 +1,8 @@
 import config from "../config";
-import { toastController } from "@ionic/vue";
 import axios from "axios";
 import { useLoading } from "@/store/loading";
 import { Preferences } from "@capacitor/preferences";
 import { ref } from "vue";
-  
 
 export function authInstance() {
   const loadingStore = useLoading();
@@ -17,12 +15,7 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      const toast = await toastController.create({
-        message: error.message,
-        duration: 2000,
-      });
-
-      await toast.present();
+      // show error with toast
     }
   }
 
@@ -33,12 +26,7 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      const toast = await toastController.create({
-        message: error.message,
-        duration: 2000,
-      });
-
-      await toast.present();
+      // show error with toast
     }
   }
 
@@ -54,12 +42,7 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      const toast = await toastController.create({
-        message: error.message,
-        duration: 2000,
-      });
-
-      await toast.present();
+      // show error with toast
     }
   }
 
@@ -96,12 +79,7 @@ export function geocodingInstance() {
     } catch (error: any) {
       console.log(error);
 
-      const toast = await toastController.create({
-        message: error.message,
-        duration: 2000,
-      });
-
-      await toast.present();
+      // show error with toast
     } finally {
       await loadingStore.setLoading(false);
     }
@@ -130,12 +108,7 @@ export function geocodingInstance() {
     } catch (error: any) {
       console.log(error);
 
-      const toast = await toastController.create({
-        message: error.message,
-        duration: 2000,
-      });
-
-      await toast.present();
+      // show error with toast
     } finally {
       await loadingStore.setLoading(false);
     }

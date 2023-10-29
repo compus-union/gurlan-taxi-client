@@ -1,8 +1,8 @@
 import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "io.ionic.starter",
-  appName: "Gurlan taxi",
+  appId: "io.compuss.taxi.starter",
+  appName: "Compuss taxi",
   webDir: "dist",
   server: {
     androidScheme: "https",

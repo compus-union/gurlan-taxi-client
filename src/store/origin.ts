@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router";
-import { loadingController } from "@ionic/vue";
 
 export const useOriginCoords = defineStore("coords-store", () => {
   const lat = ref<number>(0);
@@ -11,11 +10,9 @@ export const useOriginCoords = defineStore("coords-store", () => {
   const watchingCoords = ref<boolean>(true);
 
   async function getCoordsWithNavigator(): Promise<void> {
-    const newLoading = await loadingController.create({
-      message: "Xarita yuklanmoqda...",
-    });
+    //  set up loading
     try {
-      await newLoading.present();
+      // show loading
       navigator.geolocation.getCurrentPosition(
         (results) => {
           lat.value = results.coords.latitude;
@@ -32,8 +29,9 @@ export const useOriginCoords = defineStore("coords-store", () => {
       );
     } catch (error) {
       alert(error);
+      // use own toast instead of `alert`
     } finally {
-      await newLoading.dismiss();
+      // dismiss loading
     }
   }
 
@@ -48,7 +46,7 @@ export const useOriginCoords = defineStore("coords-store", () => {
 
       return { coords: results.coords };
     } catch (error: any) {
-        alert(error.message);
+      alert(error.message);
     }
   }
 

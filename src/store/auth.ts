@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { authInstance } from "@/http/instances";
-import { toastController, loadingController } from "@ionic/vue";
 import { Preferences } from "@capacitor/preferences";
 import { Network } from "@capacitor/network";
 import { ResponseStatus } from "@/constants";
@@ -33,42 +32,48 @@ export const useAuth = defineStore("auth-store", () => {
   > {
     const networkStatus = await Network.getStatus();
 
-    const loading = await loadingController.create({
-      message: "Yuklanmoqda...",
-    });
+    // set up loading
 
-    const toastWarning = await toastController.create({
-      message: "Iltimos, hamma qatorlarni to'ldiring.",
-      duration: 4000,
-      keyboardClose: true,
-    });
+    // const toastWarning = await toastController.create({
+    //   message: "Iltimos, hamma qatorlarni to'ldiring.",
+    //   duration: 4000,
+    //   keyboardClose: true,
+    // });
 
-    await loading.present();
+    // set up warning toast
 
     try {
       if (!clientDetails.value.phone) {
-        await loading.dismiss();
-        await toastWarning.present();
+        // await loading.dismiss();
+        // dismiss loading
+
+        // await toastWarning.present();
+        // show warning toast
         return {
           status: ResponseStatus.AUTH_WARNING,
         };
       }
 
       if (!clientDetails.value.password) {
-        await loading.dismiss();
-        await toastWarning.present();
+        // await loading.dismiss();
+        // dismiss loading
+
+        // await toastWarning.present();
+        // show warning toast
         return {
           status: ResponseStatus.AUTH_WARNING,
         };
       }
 
       if (!networkStatus.connected) {
-        const noInternetToast = await toastController.create({
-          message: "Server bilan aloqa mavjud emas",
-          duration: 4000,
-        });
+        // const noInternetToast = await toastController.create({
+        //   message: "Server bilan aloqa mavjud emas",
+        //   duration: 4000,
+        // });
 
-        await noInternetToast.present();
+        // await noInternetToast.present();
+
+        // no internet toast
         return {
           status: ResponseStatus.NETWORK_ERR,
         };
@@ -78,26 +83,13 @@ export const useAuth = defineStore("auth-store", () => {
         client: { ...clientDetails.value, fullname: fullname.value },
       });
 
-      alert(JSON.stringify(response));
-
       // Serverda xatolik yoki internet bilan aloqa bo'lmaganida
       if (!response || response.status >= 400) {
-        await loading.dismiss();
-        const toast = await toastController.create({
-          message:
-            "Serverda xatolik, internet bilan aloqangizni tekshiring yoki boshqatdan urinib ko'ring.",
-          duration: 4000,
-          buttons: [
-            {
-              text: "OK",
-              async handler() {
-                await toast.dismiss();
-              },
-            },
-          ],
-        });
+        // await loading.dismiss();
 
-        await toast.present();
+        // dismiss loading
+        // no internet toast
+
         return;
       }
 
@@ -106,7 +98,7 @@ export const useAuth = defineStore("auth-store", () => {
         response.data.status === ResponseStatus.CLIENT_READY_TO_REGISTER &&
         !response.data.registered
       ) {
-        await loading.dismiss();
+        // dismiss loading
 
         return {
           status: "nextStep",
@@ -114,37 +106,20 @@ export const useAuth = defineStore("auth-store", () => {
       }
 
       if (response.data.status === ResponseStatus.AUTH_WARNING) {
-        await loading.dismiss();
+        // dismiss loading
 
-        const newToast = await toastController.create({
-          message: response.data.msg,
-          duration: 4000,
-          buttons: [
-            {
-              text: "OK",
-              async handler() {
-                await newToast.dismiss();
-              },
-            },
-          ],
-        });
-
-        await newToast.present();
+        // show msg in the toast
 
         return;
       }
 
       if (response.data.status === ResponseStatus.BANNED) {
-        await loading.dismiss();
+        // dismiss loading
 
-        const toast = await toastController.create({
-          message: response.data.msg,
-          duration: 4000,
-          keyboardClose: true,
-        });
+        // show msg in the toast
 
         await Promise.allSettled([
-          toast.present(),
+          // toast.present(),
           Preferences.remove({ key: "clientOneId" }),
           Preferences.remove({ key: "auth_token" }),
         ]);
@@ -155,16 +130,12 @@ export const useAuth = defineStore("auth-store", () => {
       }
 
       if (response.data.status === ResponseStatus.CLIENT_LOGIN_DONE) {
-        await loading.dismiss();
+        // dismisss loading
 
-        const toast = await toastController.create({
-          message: response.data.msg,
-          duration: 4000,
-          keyboardClose: true,
-        });
+        // show msg in the toast
 
         await Promise.allSettled([
-          toast.present(),
+          // toast.present(),
           Preferences.set({
             key: "clientOneId",
             value: response.data.client.oneId,
@@ -177,14 +148,7 @@ export const useAuth = defineStore("auth-store", () => {
         };
       }
     } catch (error: any) {
-      const toastError = await toastController.create({
-        message:
-          error.message || "Serverda xatolik, boshqatdan urinib ko'ring.",
-        duration: 4000,
-        keyboardClose: true,
-      });
-
-      await toastError.present();
+      // show msg in the toast
 
       return {
         status: ResponseStatus.UNKNOWN_ERR,
@@ -201,44 +165,38 @@ export const useAuth = defineStore("auth-store", () => {
   > {
     const networkStatus = await Network.getStatus();
 
-    const loading = await loadingController.create({
-      message: "Yuklanmoqda...",
-    });
+    // set up loading
 
-    const toastWarning = await loadingController.create({
-      message: "Iltimos, hamma qatorlarni to'ldiring.",
-      duration: 4000,
-      keyboardClose: true,
-    });
+    // const toastWarning = await toastController.create({
+    //   message: "Iltimos, hamma qatorlarni to'ldiring.",
+    //   duration: 4000,
+    //   keyboardClose: true,
+    // });
 
+    // set up warning toast
     try {
-      await loading.present();
+      // set up loading
 
       if (!clientDetails.value.firstname) {
-        await loading.dismiss();
-        await toastWarning.present();
+        // dismiss loading
+        // show toast
         return {
           status: ResponseStatus.AUTH_WARNING,
         };
       }
 
       if (!clientDetails.value.lastname) {
-        await loading.dismiss();
-        await toastWarning.present();
+        // dismiss loading
+        // show toast
         return {
           status: ResponseStatus.AUTH_WARNING,
         };
       }
 
       if (!networkStatus.connected) {
-        await loading.dismiss();
+        // dismiss loading
 
-        const noInternetToast = await toastController.create({
-          message: "Server bilan aloqa mavjud emas",
-          duration: 4000,
-        });
-
-        await noInternetToast.present();
+        // show toast
         return {
           status: ResponseStatus.NETWORK_ERR,
         };
@@ -250,7 +208,7 @@ export const useAuth = defineStore("auth-store", () => {
 
       //  Serverda xatolik yoki internet bilan aloqa bo'lmaganida
       if (!response || response.status >= 400) {
-        await loading.dismiss();
+        // dismiss loading
 
         throw new Error(
           "Serverda xatolik, internet bilan aloqangizni tekshiring yoki boshqatdan urinib ko'ring."
@@ -260,7 +218,7 @@ export const useAuth = defineStore("auth-store", () => {
       //  Hammasi yaxshi
       if (response.data.status === ResponseStatus.CLIENT_REGISTER_DONE) {
         const promises = [
-          loading.dismiss(),
+          // dismiss loading
 
           Preferences.set({
             key: "auth_token",
@@ -275,12 +233,7 @@ export const useAuth = defineStore("auth-store", () => {
 
         await Promise.allSettled(promises);
 
-        const toast = await toastController.create({
-          message: response.data.msg,
-          duration: 4000,
-        });
-
-        await toast.present();
+        // show toast
 
         return {
           status: ResponseStatus.CLIENT_REGISTER_DONE,
@@ -289,14 +242,9 @@ export const useAuth = defineStore("auth-store", () => {
       }
 
       if (response.data.status === ResponseStatus.BANNED) {
-        await loading.dismiss();
+        // dismiss loading
 
-        const toast = await toastController.create({
-          message: response.data.msg,
-          duration: 4000,
-        });
-
-        await toast.present();
+        //  show toast
 
         return {
           status: ResponseStatus.BANNED,
@@ -305,15 +253,9 @@ export const useAuth = defineStore("auth-store", () => {
 
       return;
     } catch (error: any) {
-      await loading.dismiss();
-      const toastError = await toastController.create({
-        message:
-          error.message ||
-          "Serverda xatolik, dasturni boshqatdan ishga tushiring.",
-        duration: 4000,
-      });
+      // dismiss loading
 
-      await toastError.present();
+      //  show toast
 
       return {
         status: ResponseStatus.UNKNOWN_ERR,
@@ -331,24 +273,14 @@ export const useAuth = defineStore("auth-store", () => {
       const networkStatus = await Network.getStatus();
 
       if (!networkStatus.connected) {
-        const toast = await toastController.create({
-          message: "Internet bilan aloqa mavjud emas",
-          duration: 4000,
-        });
-
-        await toast.present();
+        // show toast
 
         return { status: ResponseStatus.NETWORK_ERR };
       }
       const response = await authHttp.check();
 
       if (!response || response.status >= 400) {
-        const toast = await toastController.create({
-          message: `Serverda xatolik yoki internet bilan aloqa mavjud emas.`,
-          duration: 3000,
-        });
-
-        await toast.present();
+        // show toast
 
         return {
           status: ResponseStatus.NETWORK_ERR,
@@ -361,17 +293,13 @@ export const useAuth = defineStore("auth-store", () => {
         response.data.status === ResponseStatus.TOKEN_NOT_VALID ||
         response.data.status === ResponseStatus.BANNED
       ) {
-        const toast = await toastController.create({
-          message: response.data.msg,
-          duration: 3000,
-        });
+        // show toast
 
         await Promise.allSettled([
           Preferences.remove({ key: "clientOneId" }),
           Preferences.remove({ key: "auth_token" }),
-          toast.present(),
         ]);
-        
+
         return {
           status: response.data.status,
         };
@@ -391,16 +319,7 @@ export const useAuth = defineStore("auth-store", () => {
         };
       }
     } catch (error: any) {
-      const toastError = await toastController.create({
-        message:
-          error.message ||
-          "Serverda xatolik yoki internet bilan aloqa mavjud emas",
-        duration: 4000,
-        keyboardClose: true,
-      });
-
-      await toastError.present();
-
+      //  show toast
       return { status: ResponseStatus.UNKNOWN_ERR };
     }
   }
