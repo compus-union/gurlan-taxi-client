@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router";
+import { loadingController } from "@ionic/vue";
+import { toast } from "vue3-toastify";
 
 export const useOriginCoords = defineStore("coords-store", () => {
   const lat = ref<number>(0);
@@ -10,35 +12,55 @@ export const useOriginCoords = defineStore("coords-store", () => {
   const watchingCoords = ref<boolean>(true);
 
   async function getCoordsWithNavigator(): Promise<void> {
+    const loading = await loadingController.create({
+      message: "Joylashuvingiz aniqlanmoqda...",
+    });
     try {
-      navigator.geolocation.getCurrentPosition(
-        ({ coords }) => {
-          lat.value = coords.latitude;
-          lng.value = coords.longitude;
-          return { coords };
-        },
-        (err) => {
-          if (err.message) {
-            throw new Error(err.message);
-          }
+      await loading.present();
+      navigator.permissions.query({name: "geolocation"}).then(permissionStatus => {
+        if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
+          navigator.geolocation.getCurrentPosition(
+            (results) => {
+              lat.value = results.coords.latitude;
+              lng.value = results.coords.longitude;
+              alert(`${results.coords.latitude} ${results.coords.longitude}`);
+              console.log(lat.value);
+              return { coords };
+            },
+            (err) => {
+              if (err) {
+                console.log(err);
+                
+                toast("Joylashuvni aniqlashni iloji bo'lmadi");
+                return;
+              }
+            }
+          );
+        }  else {
+          router.push('/no-gps')
         }
-      );
-    } catch (error) {
-      console.log(error);
+      })
+        
+     
+    } catch (error: any) {
+      toast(error);
+    } finally {
+      await loading.dismiss();
     }
   }
 
   async function getCoords() {
     try {
-      const results = await Geolocation.getCurrentPosition();
+      const results = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+      });
 
       lat.value = results.coords.latitude;
       lng.value = results.coords.longitude;
 
       return { coords: results.coords };
     } catch (error: any) {
-      console.log(error);
-      router.push("/no-gps");
+      alert(error.message);
     }
   }
 

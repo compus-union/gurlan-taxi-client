@@ -1,14 +1,12 @@
 import config from "../config";
-import { toastController } from "@ionic/vue";
 import axios from "axios";
 import { useLoading } from "@/store/loading";
 import { Preferences } from "@capacitor/preferences";
 import { ref } from "vue";
-  
-const loadingStore = useLoading();
+import { toast } from "vue3-toastify";
 
 export function authInstance() {
-  let baseUrl = config.SERVER_URL + "/auth";
+  let baseUrl = config.SERVER_URL + "/client";
 
   async function auth(data: any) {
     try {
@@ -17,12 +15,11 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      const toast = await toastController.create({
-        message: error.message,
-        duration: 2000,
-      });
-
-      await toast.present();
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
     }
   }
 
@@ -33,12 +30,11 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      const toast = await toastController.create({
-        message: error.message,
-        duration: 2000,
-      });
-
-      await toast.present();
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
     }
   }
 
@@ -54,19 +50,35 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      const toast = await toastController.create({
-        message: error.message,
-        duration: 2000,
-      });
-
-      await toast.present();
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
     }
   }
 
-  return { auth, register, check };
+  async function confirmation(code: string, oneId: string) {
+    try {
+      const response = await axios.put(baseUrl + `/confirm/${oneId}`, { code });
+
+      return response;
+    } catch (error: any) {
+      console.log(error);
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
+    }
+  }
+
+  return { auth, register, check, confirmation };
 }
 
 export function geocodingInstance() {
+  const loadingStore = useLoading();
+
   const baseUrl = config.SERVER_URL + "/geocoding";
   let clientOneId = ref<string | null>();
   let token = ref<string | null>();
@@ -94,12 +106,11 @@ export function geocodingInstance() {
     } catch (error: any) {
       console.log(error);
 
-      const toast = await toastController.create({
-        message: error.message,
-        duration: 2000,
-      });
-
-      await toast.present();
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
     } finally {
       await loadingStore.setLoading(false);
     }
@@ -128,12 +139,11 @@ export function geocodingInstance() {
     } catch (error: any) {
       console.log(error);
 
-      const toast = await toastController.create({
-        message: error.message,
-        duration: 2000,
-      });
-
-      await toast.present();
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
     } finally {
       await loadingStore.setLoading(false);
     }

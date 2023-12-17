@@ -30,72 +30,76 @@ export const useMaps = defineStore("maps-store", () => {
   }
 
   async function loadMap(id: string) {
-    await originStore.getCoords();
-    await originStore.watchCoords()
+    try {
+      await originStore.getCoords();
+      await originStore.watchCoords();
 
-    const { Map } = (await loader.importLibrary(
-      "maps"
-    )) as google.maps.MapsLibrary;
+      const { Map } = (await loader.importLibrary(
+        "maps"
+      )) as google.maps.MapsLibrary;
 
-    sharedMap.value = new Map(document.getElementById(id) as HTMLElement, {
-      center: { lat: originStore.coords.lat, lng: originStore.coords.lng },
-      zoom: 20,
-      mapTypeId: "OSM",
-      mapTypeControl: false,
-      streetViewControl: false,
-      disableDefaultUI: true,
-      rotateControl: true,
-    });
+      sharedMap.value = new Map(document.getElementById(id) as HTMLElement, {
+        center: { lat: originStore.coords.lat, lng: originStore.coords.lng },
+        zoom: 20,
+        mapTypeId: "OSM",
+        mapTypeControl: false,
+        streetViewControl: false,
+        disableDefaultUI: true,
+        rotateControl: true,
+      });
 
-    sharedMap.value.mapTypes.set(
-      "OSM",
-      new google.maps.ImageMapType({
-        getTileUrl: function (coord, zoom) {
-          let tilesPerGlobe = 1 << zoom;
-          let x = coord.x % tilesPerGlobe;
-          if (x < 0) {
-            x = tilesPerGlobe + x;
-          }
+      sharedMap.value.mapTypes.set(
+        "OSM",
+        new google.maps.ImageMapType({
+          getTileUrl: function (coord, zoom) {
+            let tilesPerGlobe = 1 << zoom;
+            let x = coord.x % tilesPerGlobe;
+            if (x < 0) {
+              x = tilesPerGlobe + x;
+            }
 
-          return (
-            "https://tile.openstreetmap.org/" +
-            zoom +
-            "/" +
-            x +
-            "/" +
-            coord.y +
-            ".png"
-          );
-        },
-        tileSize: new google.maps.Size(256, 256),
-        name: "OpenStreetMap",
-        maxZoom: 18,
-      })
-    );
+            return (
+              "https://tile.openstreetmap.org/" +
+              zoom +
+              "/" +
+              x +
+              "/" +
+              coord.y +
+              ".png"
+            );
+          },
+          tileSize: new google.maps.Size(256, 256),
+          name: "OpenStreetMap",
+          maxZoom: 18,
+        })
+      );
 
-    const newMarker = new google.maps.Marker({
-      map: sharedMap.value,
-      position: sharedMap.value?.getCenter(),
-      title: "origin-marker",
-    });
+      const newMarker = new google.maps.Marker({
+        map: sharedMap.value,
+        position: sharedMap.value?.getCenter(),
+        title: "origin-marker",
+      });
 
-    sharedMap.value.addListener("drag", () => {
-      newMarker.setPosition(sharedMap.value?.getCenter());
-    });
+      sharedMap.value.addListener("drag", () => {
+        newMarker.setPosition(sharedMap.value?.getCenter());
+      });
 
-    sharedMap.value.addListener("dragend", async () => {
-      const lat = sharedMap.value?.getCenter()?.lat() as number;
-      const lng = sharedMap.value?.getCenter()?.lng() as number;
+      sharedMap.value.addListener("dragend", async () => {
+        const lat = sharedMap.value?.getCenter()?.lat() as number;
+        const lng = sharedMap.value?.getCenter()?.lng() as number;
 
-      await originStore.changeCoords({ lat, lng });
-    });
+        await originStore.changeCoords({ lat, lng });
+      });
 
-    markers.value?.push(newMarker as unknown as never);
+      markers.value?.push(newMarker as unknown as never);
 
-    return {
-      Map,
-      sharedMap,
-    };
+      return {
+        Map,
+        sharedMap,
+      };
+    } catch (error) {
+      alert(error);
+    }
   }
 
   return {
