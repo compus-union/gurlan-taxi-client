@@ -3,9 +3,9 @@ import axios from "axios";
 import { useLoading } from "@/store/loading";
 import { Preferences } from "@capacitor/preferences";
 import { ref } from "vue";
+import { toast } from "vue3-toastify";
 
 export function authInstance() {
-  const loadingStore = useLoading();
   let baseUrl = config.SERVER_URL + "/client";
 
   async function auth(data: any) {
@@ -15,7 +15,11 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      // show error with toast
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
     }
   }
 
@@ -26,7 +30,11 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      // show error with toast
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
     }
   }
 
@@ -42,11 +50,30 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      // show error with toast
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
     }
   }
 
-  return { auth, register, check };
+  async function confirmation(code: string, oneId: string) {
+    try {
+      const response = await axios.put(baseUrl + `/confirm/${oneId}`, { code });
+
+      return response;
+    } catch (error: any) {
+      console.log(error);
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
+    }
+  }
+
+  return { auth, register, check, confirmation };
 }
 
 export function geocodingInstance() {
@@ -79,7 +106,11 @@ export function geocodingInstance() {
     } catch (error: any) {
       console.log(error);
 
-      // show error with toast
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
     } finally {
       await loadingStore.setLoading(false);
     }
@@ -108,7 +139,11 @@ export function geocodingInstance() {
     } catch (error: any) {
       console.log(error);
 
-      // show error with toast
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
     } finally {
       await loadingStore.setLoading(false);
     }

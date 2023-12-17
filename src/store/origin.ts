@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router";
+import { loadingController } from "@ionic/vue";
+import { toast } from "vue3-toastify";
 
 export const useOriginCoords = defineStore("coords-store", () => {
   const lat = ref<number>(0);
@@ -10,28 +12,40 @@ export const useOriginCoords = defineStore("coords-store", () => {
   const watchingCoords = ref<boolean>(true);
 
   async function getCoordsWithNavigator(): Promise<void> {
-    //  set up loading
+    const loading = await loadingController.create({
+      message: "Joylashuvingiz aniqlanmoqda...",
+    });
     try {
-      // show loading
-      navigator.geolocation.getCurrentPosition(
-        (results) => {
-          lat.value = results.coords.latitude;
-          lng.value = results.coords.longitude;
-          alert(`${results.coords.latitude} ${results.coords.longitude}`);
-
-          return { coords };
-        },
-        (err) => {
-          if (err) {
-            alert(err.message);
-          }
+      await loading.present();
+      navigator.permissions.query({name: "geolocation"}).then(permissionStatus => {
+        if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
+          navigator.geolocation.getCurrentPosition(
+            (results) => {
+              lat.value = results.coords.latitude;
+              lng.value = results.coords.longitude;
+              alert(`${results.coords.latitude} ${results.coords.longitude}`);
+              console.log(lat.value);
+              return { coords };
+            },
+            (err) => {
+              if (err) {
+                console.log(err);
+                
+                toast("Joylashuvni aniqlashni iloji bo'lmadi");
+                return;
+              }
+            }
+          );
+        }  else {
+          router.push('/no-gps')
         }
-      );
-    } catch (error) {
-      alert(error);
-      // use own toast instead of `alert`
+      })
+        
+     
+    } catch (error: any) {
+      toast(error);
     } finally {
-      // dismiss loading
+      await loading.dismiss();
     }
   }
 

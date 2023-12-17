@@ -1,14 +1,152 @@
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
-div[title="origin-marker"],
-div[title="origin-marker"] img {
-  transition: all 0.5s ease;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+ion-loading {
+  background: #000000ac;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  inset: 0;
+}
+
+ion-loading .loading-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 10px;
+  width: 70%;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Toastify__toast {
+  padding: 6px 10px;
+  border-radius: 10px;
+  min-height: auto;
+  max-height: auto;
+  height: auto;
+}
+
+@media (prefers-color-scheme: light) {
+  .Toastify__toast {
+    background: #000;
+    color: #fff;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .Toastify__toast {
+    background: #fff;
+    color: #000;
+  }
+}
+
+.Toastify__toast-container {
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  width: calc(100vw - 20px);
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 500;
+  @apply space-y-2;
+}
+
+@media (prefers-color-scheme: light) {
+  ion-loading .loading-wrapper {
+    background: #000;
+    color: #fff;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  ion-loading .loading-wrapper {
+    background: #fff;
+    color: #000;
+  }
+}

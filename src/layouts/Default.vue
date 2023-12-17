@@ -14,7 +14,7 @@ onBeforeMount(async () => {
   const check = await authStore.check();
 
   if (check?.status !== ResponseStatus.CLIENT_CHECK_DONE) {
-    router.push("/register");
+    router.push("/auth/login");
     return;
   }
 

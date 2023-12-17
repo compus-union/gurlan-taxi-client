@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Network } from "@capacitor/network";
-import { onBeforeMount } from "vue";
+import { onBeforeMount, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
+import { debounce } from "@/utils/debounce";
 
 const originStore = useOriginCoords();
 const router = useRouter();
@@ -41,10 +42,45 @@ onBeforeMount(async () => {
 
   await logCurrentNetworkStatus();
 });
+
+const isDarkMode = ref(false);
+
+const checkDarkMode = () => {
+  isDarkMode.value = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  if (isDarkMode.value) {
+    if (!document.querySelector("body")?.classList.contains("dark")) {
+      document.querySelector("body")?.classList.add("dark");
+    }
+    return;
+  }
+
+  if (!isDarkMode.value) {
+    if (document.querySelector("body")?.classList.contains("dark")) {
+      document.querySelector("body")?.classList.remove("dark");
+    }
+    return;
+  }
+};
+
+onMounted(() => {
+  checkDarkMode();
+
+  const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+  const debouncedCheckDarkMode = debounce(checkDarkMode, 100);
+
+  darkModeMediaQuery.addEventListener("change", debouncedCheckDarkMode);
+});
 </script>
 
 <template>
   <div class="app">
+    <div
+      class="fixed bg-primary text-primary-foreground rounded px-2 text-sm opacity-50 bottom-5 left-[60%] right-[50%] w-full"
+    >
+      {{ route.fullPath }}
+    </div>
     <router-view></router-view>
   </div>
 </template>

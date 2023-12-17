@@ -27,10 +27,10 @@ const routes: Array<RouteRecordRaw> = [
         await Preferences.remove({ key: "clientOneId" });
         await Preferences.remove({ key: "auth_token" });
 
-        return next("/register");
+        return next("/auth");
       }
 
-      next();
+      return next();
     },
     children: [
       {
@@ -46,9 +46,10 @@ const routes: Array<RouteRecordRaw> = [
     ],
   },
   {
-    path: "/register",
-    name: "register-layout",
-    component: () => import("@/layouts/Register.vue"),
+    path: "/auth/",
+    name: "auth-layout",
+    component: () => import("@/layouts/Auth.vue"),
+    redirect: "/auth/login",
     async beforeEnter(to, from, next) {
       const { value: token } = await Preferences.get({ key: "auth_token" });
       const { value: oneId } = await Preferences.get({ key: "clientOneId" });
@@ -61,11 +62,47 @@ const routes: Array<RouteRecordRaw> = [
         !token ||
         (!oneId && !token)
       ) {
-         next();
+        return next();
       }
 
-      return next("/register");
+      return next("/ride/setOrigin");
     },
+    children: [
+      {
+        name: "auth-login",
+        path: "login",
+        component: () => import("@/pages/Auth/LoginPage.vue"),
+      },
+      {
+        name: "auth-register",
+        path: "register",
+        component: () => import("@/pages/Auth/RegisterPage.vue"),
+      },
+      {
+        name: "auth-confirmation",
+        path: "confirmation",
+        component: () => import("@/pages/Auth/ConfirmationPage.vue"),
+        async beforeEnter(to, from, next) {
+          const { value: confirmation } = await Preferences.get({
+            key: "confirmation",
+          });
+
+          if (confirmation && confirmation === "false") {
+            return next();
+          }
+
+          if (confirmation === "true") {
+            return next("/ride/setOrigin");
+          }
+
+          if (!confirmation || confirmation === "undefined") {
+            return next("/auth/login");
+          }
+
+          return next();
+        },
+      },
+    ],
   },
   {
     path: "/no-internet",
