@@ -100,7 +100,7 @@ const buttonDisabled = computed(() => {
           id="phone"
           autofocus
           type="text"
-          v-model="authStore.clientDetails.phone"
+          v-model.trim.lazy="authStore.clientDetails.phone"
         />
       </div>
       <div class="form-group">
@@ -113,7 +113,7 @@ const buttonDisabled = computed(() => {
           "
           placeholder="******"
           id="password"
-          v-model="authStore.clientDetails.password"
+          v-model.trim.lazy="authStore.clientDetails.password"
           :type="showPassword === true ? 'text' : 'password'"
         />
       </div>

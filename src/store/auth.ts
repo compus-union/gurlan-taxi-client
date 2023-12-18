@@ -191,6 +191,12 @@ export const useAuth = defineStore("auth-store", () => {
         );
       }
 
+      if (response.data.status === ResponseStatus.AUTH_WARNING) {
+        toast(response.data.msg);
+
+        return;
+      }
+
       //  Hammasi yaxshi
       if (response.data.status === ResponseStatus.CONFIRMATION_CODE_SENT) {
         const promises = [
@@ -198,6 +204,7 @@ export const useAuth = defineStore("auth-store", () => {
             key: "confirmation",
             value: "false",
           }),
+          Preferences.set({ key: "oneId", value: response.data.client.oneId }),
         ];
 
         await Promise.allSettled(promises);
@@ -365,7 +372,15 @@ export const useAuth = defineStore("auth-store", () => {
       }
 
       if (res.data.status === ResponseStatus.CONFIRMATION_DONE) {
-        await Preferences.set({ key: "confirmation", value: "true" });
+        const promises = [
+          Preferences.set({ key: "confirmation", value: "true" }),
+          Preferences.set({ key: "auth_token", value: res.data.token }),
+          Preferences.set({ key: "clientOneId", value: res.data.client.oneId }),
+          Preferences.remove({ key: "oneId" }),
+        ];
+        
+        await Promise.allSettled(promises);
+
         toast(res.data.msg);
 
         return { status: res.data.status };
@@ -380,7 +395,7 @@ export const useAuth = defineStore("auth-store", () => {
       );
       return { status: ResponseStatus.UNKNOWN_ERR };
     } finally {
-      await loading.dismiss()
+      await loading.dismiss();
     }
   }
 
@@ -390,5 +405,6 @@ export const useAuth = defineStore("auth-store", () => {
     fullname,
     register,
     check,
+    confirmAccount,
   };
 });

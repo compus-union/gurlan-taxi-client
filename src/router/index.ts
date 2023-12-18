@@ -15,17 +15,24 @@ const routes: Array<RouteRecordRaw> = [
     async beforeEnter(to, from, next) {
       const { value: token } = await Preferences.get({ key: "auth_token" });
       const { value: oneId } = await Preferences.get({ key: "clientOneId" });
+      const { value: confirmation } = await Preferences.get({
+        key: "confirmation",
+      });
 
       if (
-        (oneId === "undefined" && token === "undefined") ||
-        (!oneId && !token) ||
-        (oneId === "null" && token === "null") ||
+        (oneId === "undefined" &&
+          token === "undefined" &&
+          confirmation === "undefined") ||
+        (!oneId && !token && !confirmation) ||
+        (oneId === "null" && token === "null" && confirmation === "null") ||
         !oneId ||
         !token ||
-        (!oneId && !token)
+        !confirmation ||
+        (!oneId && !token && !confirmation)
       ) {
         await Preferences.remove({ key: "clientOneId" });
         await Preferences.remove({ key: "auth_token" });
+        await Preferences.remove({ key: "confirmation" });
 
         return next("/auth");
       }

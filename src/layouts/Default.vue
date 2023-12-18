@@ -61,7 +61,11 @@ const logout = async () => {
 };
 </script>
 
-<template></template>
+<template>
+  <div class="default-layout">
+    <RouterView></RouterView>
+  </div>
+</template>
 
 <style scoped>
 img[alt="Google"] {

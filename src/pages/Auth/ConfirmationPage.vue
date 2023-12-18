@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent } from "vue";
 import { useAuth } from "@/store/auth";
+import { ResponseStatus } from "@/constants";
+import { useRouter } from "vue-router";
 
 const authStore = useAuth();
+const router = useRouter();
 
 const Card = defineAsyncComponent(
   () => import("../../components/ui/card/Card.vue")
@@ -29,7 +32,25 @@ const Button = defineAsyncComponent(
   () => import("../../components/ui/button/Button.vue")
 );
 
-async function confirm() {}
+async function confirm() {
+  const result = await authStore.confirmAccount();
+
+  if (
+    result?.status === ResponseStatus.CLIENT_NOT_FOUND ||
+    result?.status === ResponseStatus.BANNED
+  ) {
+    await router.push({ path: "/auth/login" });
+
+    return;
+  }
+
+  if (result?.status === ResponseStatus.CONFIRMATION_DONE) {
+    await router.push({ path: "/ride/setOrigin" });
+    return;
+  }
+
+  return;
+}
 
 const buttonDisabled = computed(() => {
   const pattern = /^[0-9]+$/;
@@ -62,12 +83,14 @@ const buttonDisabled = computed(() => {
           id="confirmationCode"
           autofocus
           type="text"
-          v-model="authStore.clientDetails.confirmationCode"
+          v-model.trim.lazy="authStore.clientDetails.confirmationCode"
         />
       </div>
 
       <div class="form-group mt-4 flex items-center space-x-4">
-        <Button :disabled="buttonDisabled" @click="confirm" class="w-full">Jo'natish</Button>
+        <Button :disabled="buttonDisabled" @click="confirm" class="w-full"
+          >Jo'natish</Button
+        >
       </div>
     </CardContent>
   </Card>
