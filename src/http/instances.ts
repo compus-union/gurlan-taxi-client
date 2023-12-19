@@ -7,12 +7,14 @@ import { toast } from "vue3-toastify";
 
 export function authInstance() {
   let baseUrl = config.SERVER_URL + "/client";
-  let defaultTimeout = 150000;
+  let defaultTimeout = 5000;
+  let defaultTimeoutMessage = "Kutish vaqti tugadi, serverdan javob yo'q"
 
   async function auth(data: any) {
     try {
       const response = await axios.post(baseUrl + "/login", data, {
         timeout: defaultTimeout,
+        timeoutErrorMessage: defaultTimeoutMessage
       });
 
       return response;
@@ -30,6 +32,7 @@ export function authInstance() {
     try {
       const response = await axios.post(baseUrl + "/register", data, {
         timeout: defaultTimeout,
+        timeoutErrorMessage: defaultTimeoutMessage
       });
 
       return response;
@@ -50,8 +53,8 @@ export function authInstance() {
 
       const response = await axios.get(baseUrl + `/check/${oneId}`, {
         headers: { Authorization: `Bearer ${token}` },
-        timeout: 5000,
-        timeoutErrorMessage: "Kutish vaqti tugadi, serverdan javob yo'q"
+        timeout: defaultTimeout,
+        timeoutErrorMessage: defaultTimeoutMessage
       });
 
       return response;

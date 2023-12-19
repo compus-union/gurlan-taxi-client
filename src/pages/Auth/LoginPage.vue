@@ -45,24 +45,24 @@ const handleShowPassword = (e: boolean) => {
 };
 
 async function login() {
-
   const result = await authStore.login();
 
   if (
     result?.status === "nextStep" ||
     result?.status === ResponseStatus.CLIENT_READY_TO_REGISTER
   ) {
-    router.push("/auth/register");
+    await router.push("/auth/register");
     return;
   }
 
   if (result?.status === ResponseStatus.BANNED) {
-    router.push("/register");
+    await router.push("/register");
     return;
   }
 
   if (result?.status === ResponseStatus.CLIENT_LOGIN_DONE) {
-    router.push("/ride/setOrigin");
+    console.log('Redirecting to the page');
+    await router.push("/ride/setOrigin");
     return;
   }
 

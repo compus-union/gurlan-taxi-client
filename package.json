@@ -34,7 +34,7 @@
     "google-maps": "^4.3.3",
     "maska": "^2.1.10",
     "pinia": "^2.1.6",
-    "radix-vue": "^1.2.4",
+    "radix-vue": "^1.2.5",
     "tailwind-merge": "^2.1.0",
     "tailwindcss-animate": "^1.0.7",
     "vue": "^3.2.45",

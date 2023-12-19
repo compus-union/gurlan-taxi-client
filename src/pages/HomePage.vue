@@ -49,7 +49,7 @@ const navigateNextPage = async () => {
 </script>
 
 <template>
-  <div class="home-page h-auto bg-red-400">
-    home
+  <div class="home-page h-auto text-foreground">
+    Home page
   </div>
 </template>

@@ -116,7 +116,9 @@ export const useAuth = defineStore("auth-store", () => {
             value: response.data.client.oneId,
           }),
           Preferences.set({ key: "auth_token", value: response.data.token }),
+          Preferences.set({ key: "confirmation", value: "true" }),
         ]);
+        console.log("Login is done");
 
         return {
           status: ResponseStatus.CLIENT_LOGIN_DONE,
@@ -378,7 +380,7 @@ export const useAuth = defineStore("auth-store", () => {
           Preferences.set({ key: "clientOneId", value: res.data.client.oneId }),
           Preferences.remove({ key: "oneId" }),
         ];
-        
+
         await Promise.allSettled(promises);
 
         toast(res.data.msg);

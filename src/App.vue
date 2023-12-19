@@ -4,7 +4,9 @@ import { onBeforeMount, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
 import { debounce } from "@/utils/debounce";
+import { useDarkMode } from "@/composables/useDarkMode";
 
+const { isDarkMode, enableDarkMode, disableDarkMode } = useDarkMode();
 const originStore = useOriginCoords();
 const router = useRouter();
 const route = useRoute();
@@ -41,36 +43,6 @@ onBeforeMount(async () => {
   };
 
   await logCurrentNetworkStatus();
-});
-
-const isDarkMode = ref(false);
-
-const checkDarkMode = () => {
-  isDarkMode.value = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-  if (isDarkMode.value) {
-    if (!document.querySelector("body")?.classList.contains("dark")) {
-      document.querySelector("body")?.classList.add("dark");
-    }
-    return;
-  }
-
-  if (!isDarkMode.value) {
-    if (document.querySelector("body")?.classList.contains("dark")) {
-      document.querySelector("body")?.classList.remove("dark");
-    }
-    return;
-  }
-};
-
-onMounted(() => {
-  checkDarkMode();
-
-  const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-  const debouncedCheckDarkMode = debounce(checkDarkMode, 100);
-
-  darkModeMediaQuery.addEventListener("change", debouncedCheckDarkMode);
 });
 </script>
 
