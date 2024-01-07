@@ -3,6 +3,10 @@ import { useMaps } from "@/store/maps";
 import { useOriginCoords } from "@/store/origin";
 import SearchPlaces from "@/components/SearchPlaces.vue";
 import { useRouter } from "vue-router";
+import { Preferences } from "@capacitor/preferences";
+import { defineAsyncComponent } from "vue";
+
+const Button = defineAsyncComponent(() => import("@/components/ui/button/Button.vue"))
 
 const mapsStore = useMaps();
 const originStore = useOriginCoords();
@@ -43,6 +47,11 @@ const openSearchPlaces = async () => {
   }
 };
 
+const logout = async () => {
+  await Preferences.clear();
+  await router.push({ path: "/auth/login" });
+};
+
 const navigateNextPage = async () => {
   await router.push("/ride/setDestination");
 };
@@ -50,6 +59,6 @@ const navigateNextPage = async () => {
 
 <template>
   <div class="home-page h-auto text-foreground">
-    Home page
+    <Button @click="logout">Log out</Button>
   </div>
 </template>

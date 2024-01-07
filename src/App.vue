@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { Network } from "@capacitor/network";
-import { onBeforeMount, onMounted, ref } from "vue";
+import { onBeforeMount, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
-import { debounce } from "@/utils/debounce";
-import { useDarkMode } from "@/composables/useDarkMode";
+// import { useDarkMode } from "@/composables/useDarkMode";
 
-const { isDarkMode, enableDarkMode, disableDarkMode } = useDarkMode();
+// const { isDarkMode, enableDarkMode, disableDarkMode, checkDarkMode } = useDarkMode();
 const originStore = useOriginCoords();
 const router = useRouter();
 const route = useRoute();

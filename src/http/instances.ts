@@ -28,24 +28,6 @@ export function authInstance() {
     }
   }
 
-  async function register(data: any) {
-    try {
-      const response = await axios.post(baseUrl + "/register", data, {
-        timeout: defaultTimeout,
-        timeoutErrorMessage: defaultTimeoutMessage
-      });
-
-      return response;
-    } catch (error: any) {
-      console.log(error);
-      toast(
-        error.message ||
-          error.response.data.msg ||
-          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
-      );
-    }
-  }
-
   async function check() {
     try {
       const { value: oneId } = await Preferences.get({ key: "clientOneId" });
@@ -87,7 +69,26 @@ export function authInstance() {
     }
   }
 
-  return { auth, register, check, confirmation };
+  async function sendConfirmationCodeAgain(oneId: string) {
+    try {
+      const response = await axios.put(
+        baseUrl + `/send-code-again/${oneId}`,
+        { timeout: defaultTimeout }
+      );
+
+      return response;
+    } catch (error: any) {
+      console.log(error);
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
+    }
+  }
+
+
+  return { auth, check, confirmation, sendConfirmationCodeAgain };
 }
 
 export function geocodingInstance() {

@@ -6,7 +6,7 @@ import { Network } from "@capacitor/network";
 import { ResponseStatus } from "@/constants";
 import { loadingController } from "@ionic/vue";
 import { toast } from "vue3-toastify";
-import { GenericAbortSignal } from "axios";
+import { useRouter } from "vue-router";
 
 interface ClientDetails {
   firstname: string;
@@ -20,11 +20,12 @@ interface ClientDetails {
 
 export const useAuth = defineStore("auth-store", () => {
   const authHttp = authInstance();
+  const router = useRouter();
 
   const clientDetails = ref<ClientDetails>({
     firstname: "",
     lastname: "",
-    phone: "+998",
+    phone: "998",
     password: "",
     email: "",
     confirmationCode: "",
@@ -78,20 +79,9 @@ export const useAuth = defineStore("auth-store", () => {
       // Serverda xatolik yoki internet bilan aloqa bo'lmaganida
       if (!response || response.status >= 400) {
         await loading.dismiss();
-        alert("aloqa yoq");
         toast("Server bilan aloqa mavjud emas, boshqatdan urinib ko'ring");
 
         return;
-      }
-
-      // hammasi yaxshi, register qilsa bo'ladi
-      if (
-        response.data.status === ResponseStatus.CLIENT_READY_TO_REGISTER &&
-        !response.data.registered
-      ) {
-        return {
-          status: "nextStep",
-        };
       }
 
       if (response.data.status === ResponseStatus.AUTH_WARNING) {
@@ -99,12 +89,27 @@ export const useAuth = defineStore("auth-store", () => {
         return;
       }
 
+      // hammasi yaxshi, tizigma kiriladi
+      if (
+        response.data.status === ResponseStatus.CONFIRMATION_CODE_SENT &&
+        response.data.clientStatus === "CONFIRMING"
+      ) {
+        await Preferences.set({ key: "confirmation", value: "false" });
+        await Preferences.set({ key: "oneId", value: response.data.oneId });
+
+        toast(response.data.msg, { autoClose: 10000 });
+
+        return {
+          status: ResponseStatus.CONFIRMATION_CODE_SENT,
+        };
+      }
+
       if (response.data.status === ResponseStatus.BANNED) {
         toast(response.data.msg);
         await Promise.allSettled([Preferences.clear()]);
 
         return {
-          status: ResponseStatus.BANNED,
+          status: response.data.status,
         };
       }
 
@@ -117,118 +122,13 @@ export const useAuth = defineStore("auth-store", () => {
           }),
           Preferences.set({ key: "auth_token", value: response.data.token }),
           Preferences.set({ key: "confirmation", value: "true" }),
+          Preferences.remove({ key: "oneId" }),
         ]);
-        console.log("Login is done");
 
         return {
           status: ResponseStatus.CLIENT_LOGIN_DONE,
         };
       }
-    } catch (error: any) {
-      if (error.name === "AbortError") {
-        toast("Amal bekor qilindi.");
-        return;
-      }
-
-      toast(
-        error.response.data.msg ||
-          error.message ||
-          "Qandaydir xatolik yuzaga keldi, boshqatdan urinib ko'ring"
-      );
-
-      return {
-        status: ResponseStatus.UNKNOWN_ERR,
-      };
-    } finally {
-      await loading.dismiss();
-    }
-  }
-
-  async function register() {
-    const networkStatus = await Network.getStatus();
-
-    const loading = await loadingController.create({
-      message: "Yuklanmoqda...",
-    });
-
-    try {
-      await loading.present();
-
-      if (!clientDetails.value.firstname) {
-        toast("Ismingizni kiriting");
-
-        return {
-          status: ResponseStatus.AUTH_WARNING,
-        };
-      }
-
-      if (!clientDetails.value.lastname) {
-        toast("Familiyangizni kiriting");
-
-        return {
-          status: ResponseStatus.AUTH_WARNING,
-        };
-      }
-
-      if (!networkStatus.connected) {
-        toast(
-          "Internet bilan aloqa borligini tekshirib, boshqatdan urinib ko'ring"
-        );
-
-        return {
-          status: ResponseStatus.NETWORK_ERR,
-        };
-      }
-
-      const response = await authHttp.register({
-        client: { ...clientDetails.value, fullname: fullname.value },
-      });
-
-      //  Serverda xatolik yoki internet bilan aloqa bo'lmaganida
-      if (!response || response.status >= 400) {
-        toast("Server bilan aloqa mavjud emas, boshqatdan urinib ko'ring");
-
-        throw new Error(
-          "Serverda xatolik, internet bilan aloqangizni tekshiring yoki boshqatdan urinib ko'ring."
-        );
-      }
-
-      if (response.data.status === ResponseStatus.AUTH_WARNING) {
-        toast(response.data.msg);
-
-        return;
-      }
-
-      //  Hammasi yaxshi
-      if (response.data.status === ResponseStatus.CONFIRMATION_CODE_SENT) {
-        const promises = [
-          Preferences.set({
-            key: "confirmation",
-            value: "false",
-          }),
-          Preferences.set({ key: "oneId", value: response.data.client.oneId }),
-        ];
-
-        await Promise.allSettled(promises);
-
-        toast(response.data.msg);
-
-        return {
-          status: ResponseStatus.CONFIRMATION_CODE_SENT,
-          login: true,
-        };
-      }
-
-      if (response.data.status === ResponseStatus.BANNED) {
-        await Preferences.clear();
-        toast(response.data.msg);
-
-        return {
-          status: ResponseStatus.BANNED,
-        };
-      }
-
-      return;
     } catch (error: any) {
       if (error.name === "AbortError") {
         toast("Amal bekor qilindi.");
@@ -333,6 +233,16 @@ export const useAuth = defineStore("auth-store", () => {
 
       const { value: oneId } = await Preferences.get({ key: "oneId" });
 
+      if (!oneId) {
+        toast(
+          "Sizda bu amalni bajarish uchun malumotlar yetarli emas, boshqatdan ro'yxatdan urining"
+        );
+
+        return {
+          status: ResponseStatus.AUTH_WARNING,
+        };
+      }
+
       if (
         !clientDetails.value.confirmationCode ||
         clientDetails.value.confirmationCode.length < 6
@@ -401,12 +311,74 @@ export const useAuth = defineStore("auth-store", () => {
     }
   }
 
+  async function sendConfirmationCodeAgain() {
+    const loading = await loadingController.create({
+      message: "Yuklanmoqda...",
+    });
+    try {
+      await loading.present();
+      const networkStatus = await Network.getStatus();
+
+      if (!networkStatus.connected) {
+        toast(
+          "Internet bilan aloqa mavjud emas, internetingizni tekshirib, dasturga boshqatdan kiring"
+        );
+
+        return { status: ResponseStatus.NETWORK_ERR };
+      }
+
+      const { value: oneId } = await Preferences.get({ key: "oneId" });
+
+      if (!oneId) {
+        toast(
+          "Kodni boshqatdan olish uchun sizdagi malumotlar yetarli emas, boshqatdan ro'yxatdan o'ting."
+        );
+        await Preferences.clear();
+        await router.push({ path: "/auth/login" });
+        return;
+      }
+
+      const response = await authHttp.sendConfirmationCodeAgain(
+        oneId as string
+      );
+
+      if (!response || response.data.status >= 400) {
+        toast("Serverdan javob yo'q, boshqatdan urinib ko'ring");
+
+        return {
+          status: ResponseStatus.NETWORK_ERR,
+        };
+      }
+
+      if (
+        response.data.status === ResponseStatus.CONFIRMATION_DONE ||
+        response.data.status === ResponseStatus.AUTH_WARNING ||
+        response.data.status === ResponseStatus.CONFIRMATION_CODE_SENT
+      ) {
+        toast(response.data.msg);
+
+        return {
+          status: response.data.status,
+        };
+      }
+    } catch (error: any) {
+      toast(
+        error.response.data.msg ||
+          error.message ||
+          "Qandaydir xato yuzaga keldi, dasturni boshqatdan ishga tushiring"
+      );
+      return { status: ResponseStatus.UNKNOWN_ERR };
+    } finally {
+      await loading.dismiss();
+    }
+  }
+
   return {
     clientDetails,
     login,
     fullname,
-    register,
     check,
     confirmAccount,
+    sendConfirmationCodeAgain,
   };
 });

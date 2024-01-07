@@ -1,68 +1,66 @@
 <script setup lang="ts">
 import { vMaska } from "maska";
 import { cn } from "../../lib/utils";
-import { computed, defineAsyncComponent, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "../../store/auth";
 import { ResponseStatus } from "@/constants";
+import { Preferences } from "@capacitor/preferences";
 
-const Card = defineAsyncComponent(
-  () => import("../../components/ui/card/Card.vue")
-);
-const CardContent = defineAsyncComponent(
-  () => import("../../components/ui/card/CardContent.vue")
-);
-const CardDescription = defineAsyncComponent(
-  () => import("../../components/ui/card/CardDescription.vue")
-);
-const CardHeader = defineAsyncComponent(
-  () => import("../../components/ui/card/CardHeader.vue")
-);
-const CardTitle = defineAsyncComponent(
-  () => import("../../components/ui/card/CardTitle.vue")
-);
-const Label = defineAsyncComponent(
-  () => import("../../components/ui/label/Label.vue")
-);
-const Input = defineAsyncComponent(
-  () => import("../../components/ui/input/Input.vue")
-);
-const Button = defineAsyncComponent(
-  () => import("../../components/ui/button/Button.vue")
-);
-const Checkbox = defineAsyncComponent(
-  () => import("../../components/ui/checkbox/Checkbox.vue")
-);
+import Card from "../../components/ui/card/Card.vue";
+import CardContent from "../../components/ui/card/CardContent.vue";
+import CardDescription from "../../components/ui/card/CardDescription.vue";
+import CardHeader from "../../components/ui/card/CardHeader.vue";
+import CardTitle from "../../components/ui/card/CardTitle.vue";
+import Label from "../../components/ui/label/Label.vue";
+import Input from "../../components/ui/input/Input.vue";
+import Button from "../../components/ui/button/Button.vue";
+import Checkbox from "../../components/ui/checkbox/Checkbox.vue";
 
 const router = useRouter();
 const authStore = useAuth();
 
 const showPassword = ref(false);
-const loading = ref(false);
 
 const handleShowPassword = (e: boolean) => {
   showPassword.value = e;
 };
 
+onMounted(async () => {
+  const [
+    { value: confirmation },
+    { value: oneId },
+    { value: clientOneId },
+    { value: auth_token },
+  ] = await Promise.all([
+    Preferences.get({
+      key: "confirmation",
+    }),
+    Preferences.get({
+      key: "oneId",
+    }),
+    Preferences.get({
+      key: "clientOneId",
+    }),
+    Preferences.get({
+      key: "auth_token",
+    }),
+  ]);
+
+  alert(`${confirmation}, ${oneId}, ${clientOneId}, ${auth_token}`);
+});
+
 async function login() {
   const result = await authStore.login();
 
-  if (
-    result?.status === "nextStep" ||
-    result?.status === ResponseStatus.CLIENT_READY_TO_REGISTER
-  ) {
-    await router.push("/auth/register");
-    return;
-  }
-
-  if (result?.status === ResponseStatus.BANNED) {
-    await router.push("/register");
+  if (result?.status === ResponseStatus.CONFIRMATION_CODE_SENT) {
+    await router.push({ path: "/auth/confirmation" });
     return;
   }
 
   if (result?.status === ResponseStatus.CLIENT_LOGIN_DONE) {
-    console.log('Redirecting to the page');
-    await router.push("/ride/setOrigin");
+    console.log("Redirecting to the page");
+    await router.push({ path: "/ride/setOrigin" });
     return;
   }
 
@@ -71,7 +69,7 @@ async function login() {
 
 const buttonDisabled = computed(() => {
   if (
-    authStore.clientDetails.phone.length < 19 ||
+    authStore.clientDetails.phone.length < 12 ||
     authStore.clientDetails.password.length < 8
   ) {
     return true;
@@ -94,13 +92,13 @@ const buttonDisabled = computed(() => {
       <div class="form-group mb-4">
         <Label for="phone"> Telefon raqam </Label>
         <Input
-          data-maska="+998 (##) ### ## ##"
+          data-maska="998#########"
           v-maska
-          placeholder="+998 (99) 999 99 99"
+          placeholder="998999447613"
           id="phone"
           autofocus
           type="text"
-          v-model.trim.lazy="authStore.clientDetails.phone"
+          v-model.trim="authStore.clientDetails.phone"
         />
       </div>
       <div class="form-group">
@@ -113,7 +111,7 @@ const buttonDisabled = computed(() => {
           "
           placeholder="******"
           id="password"
-          v-model.trim.lazy="authStore.clientDetails.password"
+          v-model.trim="authStore.clientDetails.password"
           :type="showPassword === true ? 'text' : 'password'"
         />
       </div>

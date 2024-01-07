@@ -1,11 +1,12 @@
-import { debounce } from '@/utils/debounce';
-import { ref, onMounted, Ref } from 'vue';
+import { debounce } from "@/utils/debounce";
+import { ref, onMounted, Ref } from "vue";
 
 // Interface for the composable return type
 interface DarkModeComposable {
   isDarkMode: Ref<boolean>;
   enableDarkMode: () => void;
   disableDarkMode: () => void;
+  checkDarkMode: () => Promise<void>
 }
 
 // Main function to create the useDarkMode composable
@@ -14,8 +15,10 @@ export const useDarkMode = (): DarkModeComposable => {
   const isDarkMode = ref(false);
 
   // Function to check and update dark mode state
-  const checkDarkMode = () => {
-    isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const checkDarkMode = async () => {
+    isDarkMode.value = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
 
     // Enable or disable dark mode based on the result
     if (isDarkMode.value) {
@@ -26,28 +29,33 @@ export const useDarkMode = (): DarkModeComposable => {
   };
 
   // Function to enable dark mode by adding the 'dark' class to the body
-  const enableDarkMode = () => {
-    if (!document.body.classList.contains('dark')) {
-      document.body.classList.add('dark');
+  const enableDarkMode = async () => {
+    if (!document.body.classList.contains("dark")) {
+      document.body.classList.add("dark");
     }
   };
 
   // Function to disable dark mode by removing the 'dark' class from the body
-  const disableDarkMode = () => {
-    if (document.body.classList.contains('dark')) {
-      document.body.classList.remove('dark');
+  const disableDarkMode = async () => {
+    if (document.body.classList.contains("dark")) {
+      document.body.classList.remove("dark");
     }
   };
 
   // Run the initial check on component mount
-  onMounted(() => {
-    checkDarkMode();
+  onMounted(async () => {
+    await checkDarkMode();
 
     // Listen for changes in the prefers-color-scheme media query
-    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeMediaQuery = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    );
+
+    alert(`Darkmode: ${darkModeMediaQuery.matches}`);
+    
     const debouncedCheckDarkMode = debounce(checkDarkMode, 100);
 
-    darkModeMediaQuery.addEventListener('change', debouncedCheckDarkMode);
+    darkModeMediaQuery.addEventListener("change", debouncedCheckDarkMode);
   });
 
   // Return the composable's public API
@@ -55,5 +63,6 @@ export const useDarkMode = (): DarkModeComposable => {
     isDarkMode,
     enableDarkMode,
     disableDarkMode,
+    checkDarkMode,
   };
 };
