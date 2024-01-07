@@ -7,25 +7,15 @@ import { toast } from "vue3-toastify";
 
 export function authInstance() {
   let baseUrl = config.SERVER_URL + "/client";
+  let defaultTimeout = 5000;
+  let defaultTimeoutMessage = "Kutish vaqti tugadi, serverdan javob yo'q"
 
   async function auth(data: any) {
     try {
-      const response = await axios.post(baseUrl + "/login", data);
-
-      return response;
-    } catch (error: any) {
-      console.log(error);
-      toast(
-        error.message ||
-          error.response.data.msg ||
-          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
-      );
-    }
-  }
-
-  async function register(data: any) {
-    try {
-      const response = await axios.post(baseUrl + "/register", data);
+      const response = await axios.post(baseUrl + "/login", data, {
+        timeout: defaultTimeout,
+        timeoutErrorMessage: defaultTimeoutMessage
+      });
 
       return response;
     } catch (error: any) {
@@ -45,6 +35,8 @@ export function authInstance() {
 
       const response = await axios.get(baseUrl + `/check/${oneId}`, {
         headers: { Authorization: `Bearer ${token}` },
+        timeout: defaultTimeout,
+        timeoutErrorMessage: defaultTimeoutMessage
       });
 
       return response;
@@ -60,7 +52,11 @@ export function authInstance() {
 
   async function confirmation(code: string, oneId: string) {
     try {
-      const response = await axios.put(baseUrl + `/confirm/${oneId}`, { code });
+      const response = await axios.put(
+        baseUrl + `/confirm/${oneId}`,
+        { code },
+        { timeout: defaultTimeout }
+      );
 
       return response;
     } catch (error: any) {
@@ -73,7 +69,26 @@ export function authInstance() {
     }
   }
 
-  return { auth, register, check, confirmation };
+  async function sendConfirmationCodeAgain(oneId: string) {
+    try {
+      const response = await axios.put(
+        baseUrl + `/send-code-again/${oneId}`,
+        { timeout: defaultTimeout }
+      );
+
+      return response;
+    } catch (error: any) {
+      console.log(error);
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
+    }
+  }
+
+
+  return { auth, check, confirmation, sendConfirmationCodeAgain };
 }
 
 export function geocodingInstance() {

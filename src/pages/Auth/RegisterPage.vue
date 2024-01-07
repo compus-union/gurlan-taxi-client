@@ -68,7 +68,7 @@ async function register() {
           id="firstname"
           autofocus
           type="text"
-          v-model="authStore.clientDetails.firstname"
+          v-model.trim.lazy="authStore.clientDetails.firstname"
         />
       </div>
       <div class="form-group">
@@ -81,7 +81,7 @@ async function register() {
           "
           placeholder="Aminov"
           id="lastname"
-          v-model="authStore.clientDetails.lastname"
+          v-model.trim.lazy="authStore.clientDetails.lastname"
           type="text"
         />
       </div>
@@ -95,7 +95,7 @@ async function register() {
           "
           placeholder="sardor@gmail.com"
           id="email"
-          v-model="authStore.clientDetails.email"
+          v-model.trim.lazy="authStore.clientDetails.email"
           type="text"
         />
       </div>

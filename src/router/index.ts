@@ -15,19 +15,20 @@ const routes: Array<RouteRecordRaw> = [
     async beforeEnter(to, from, next) {
       const { value: token } = await Preferences.get({ key: "auth_token" });
       const { value: oneId } = await Preferences.get({ key: "clientOneId" });
+      const { value: confirmation } = await Preferences.get({
+        key: "confirmation",
+      });
 
-      if (
-        (oneId === "undefined" && token === "undefined") ||
-        (!oneId && !token) ||
-        (oneId === "null" && token === "null") ||
-        !oneId ||
-        !token ||
-        (!oneId && !token)
-      ) {
-        await Preferences.remove({ key: "clientOneId" });
-        await Preferences.remove({ key: "auth_token" });
+      if (!oneId && !token && !confirmation) {
+        return next({ path: "/auth/login" });
+      }
 
-        return next("/auth");
+      if (!oneId && !token && confirmation === "false") {
+        return next({ path: "/auth/confirmation" });
+      }
+
+      if (confirmation === "true" && oneId && token) {
+        return next();
       }
 
       return next();
@@ -50,33 +51,30 @@ const routes: Array<RouteRecordRaw> = [
     name: "auth-layout",
     component: () => import("@/layouts/Auth.vue"),
     redirect: "/auth/login",
-    async beforeEnter(to, from, next) {
-      const { value: token } = await Preferences.get({ key: "auth_token" });
-      const { value: oneId } = await Preferences.get({ key: "clientOneId" });
-
-      if (
-        (oneId === "undefined" && token === "undefined") ||
-        (!oneId && !token) ||
-        (oneId === "null" && token === "null") ||
-        !oneId ||
-        !token ||
-        (!oneId && !token)
-      ) {
-        return next();
-      }
-
-      return next("/ride/setOrigin");
-    },
     children: [
       {
         name: "auth-login",
         path: "login",
         component: () => import("@/pages/Auth/LoginPage.vue"),
-      },
-      {
-        name: "auth-register",
-        path: "register",
-        component: () => import("@/pages/Auth/RegisterPage.vue"),
+        async beforeEnter(to, from, next) {
+          const { value: confirmation } = await Preferences.get({
+            key: "confirmation",
+          });
+          const { value: token } = await Preferences.get({ key: "auth_token" });
+          const { value: oneId } = await Preferences.get({
+            key: "clientOneId",
+          });
+
+          if (oneId && token && confirmation === "true") {
+            return next({ path: "/ride/setOrigin" });
+          }
+
+          if (confirmation === "false") {
+            return next({ path: "/auth/confirmation" });
+          }
+
+          return next();
+        },
       },
       {
         name: "auth-confirmation",
@@ -86,17 +84,17 @@ const routes: Array<RouteRecordRaw> = [
           const { value: confirmation } = await Preferences.get({
             key: "confirmation",
           });
+          const { value: token } = await Preferences.get({ key: "auth_token" });
+          const { value: oneId } = await Preferences.get({
+            key: "clientOneId",
+          });
 
-          if (confirmation && confirmation === "false") {
-            return next();
+          if (oneId && token && confirmation === "true") {
+            return next({ path: "/ride/setOrigin" });
           }
 
-          if (confirmation === "true") {
-            return next("/ride/setOrigin");
-          }
-
-          if (!confirmation || confirmation === "undefined") {
-            return next("/auth/login");
+          if (!confirmation && !oneId && !token) {
+            return next({ path: "/auth/login" });
           }
 
           return next();

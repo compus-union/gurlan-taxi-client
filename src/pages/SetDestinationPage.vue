@@ -1,6 +1,5 @@
 <script setup lang="ts">
-
-alert("jell ");
+alert("jell");
 </script>
 
 <template>
