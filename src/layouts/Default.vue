@@ -8,6 +8,8 @@ import { ResponseStatus } from "@/constants";
 import { loadingController } from "@ionic/vue";
 import { toast } from "vue3-toastify";
 import { HamburgerMenuIcon } from "@radix-icons/vue";
+import "leaflet/dist/leaflet.css";
+import leaflet from "leaflet";
 
 const AsideComponent = defineAsyncComponent(
   () => import("@/components/Aside.vue")
@@ -79,7 +81,8 @@ onBeforeMount(async () => {
       throw new Error("Xaritani yuklashni imkoni yo'q");
     }
 
-    // await mapsStore.loadMap("map");
+    await mapsStore.loadMap("map");
+    await mapsStore.attachMoveChangingEvents()
   } catch (error: any) {
     toast(
       error.response?.data?.msg ||
@@ -112,15 +115,21 @@ const closeAside = () => {
   <div class="default-layout">
     <header
       v-if="displayErrorMessage === false"
-      class="header bg-primary-foreground fixed top-0 w-full h-auto z-10"
+      class="header bg-primary-foreground fixed top-0 w-full h-auto z-[9999999999999999999999999]"
     >
       <nav class="navbar container mx-auto px-1 flex items-center border-b">
         <div class="left">
-          <Button @click="openAside" size="icon" variant="ghost" class="hover:bg-none"
+          <Button
+            @click="openAside"
+            size="icon"
+            variant="ghost"
+            class="hover:bg-none"
             ><HamburgerMenuIcon class="h-4 w-4"
           /></Button>
         </div>
-        <div class="right my-4 ml-2 text-lg font-semibold">Bonus: 45,000 so'm</div>
+        <div class="right my-4 ml-2 text-lg font-semibold">
+          Bonus: 45,000 so'm
+        </div>
       </nav>
       <transition name="slide-left">
         <AsideComponent
@@ -129,7 +138,7 @@ const closeAside = () => {
         />
       </transition>
     </header>
-    <div id="map" class="h-screen">
+    <div id="map" class="map h-screen">
       <div v-if="displayErrorMessage" class="error-message mt-10 text-center">
         <h1 class="title text-foreground text-2xl font-bold">
           Xatolik yuzaga keldi
@@ -139,7 +148,7 @@ const closeAside = () => {
     </div>
     <RouterView
       v-if="displayErrorMessage === false"
-      class="h-auto fixed bottom-0 w-full bg-primary-foreground"
+      class="h-auto fixed bottom-0 w-full bg-primary-foreground z-[99999999]"
     ></RouterView>
   </div>
 </template>

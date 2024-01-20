@@ -40,7 +40,7 @@ onClickOutside(asideTarget, () => emit("update:closeAside"));
   <aside
     v-show="props.showAside"
     ref="asideTarget"
-    class="aside fixed h-screen left-0 top-0 bg-primary-foreground w-[300px] container mx-auto px-2 shadow-lg z-50 flex flex-col justify-between"
+    class="aside fixed h-screen left-0 top-0 bg-primary-foreground w-[300px] container mx-auto px-2 shadow-lg flex flex-col justify-between"
   >
     <ScrollArea class="first-part mb-4 mt-3 space-y-2 h-[585px]">
       <h2 class="title font-bold text-2xl mb-4">Menu</h2>
