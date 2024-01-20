@@ -16,7 +16,7 @@ const app = createApp(App)
     position: toast.POSITION.BOTTOM_CENTER,
     closeButton: false,
     theme: "dark",
-    closeOnClick: true
+    closeOnClick: true,
   } as ToastContainerOptions)
   .use(createPinia())
   .use(router);

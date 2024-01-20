@@ -6,7 +6,9 @@ import { useRouter } from "vue-router";
 import { Preferences } from "@capacitor/preferences";
 import { defineAsyncComponent } from "vue";
 
-const Button = defineAsyncComponent(() => import("@/components/ui/button/Button.vue"))
+const Button = defineAsyncComponent(
+  () => import("@/components/ui/button/Button.vue"),
+);
 
 const mapsStore = useMaps();
 const originStore = useOriginCoords();
@@ -55,10 +57,15 @@ const logout = async () => {
 const navigateNextPage = async () => {
   await router.push("/ride/setDestination");
 };
+
+const sayHi = () => {
+  alert("hi man");
+};
 </script>
 
 <template>
   <div class="home-page h-auto text-foreground">
-    <Button @click="logout">Log out</Button>
+    <h1 class="text-foreground">Hi man, wtf is this</h1>
+    <Button @click="sayHi">Log out</Button>
   </div>
 </template>
