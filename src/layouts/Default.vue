@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
 import { useRouter } from "vue-router";
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { useMaps } from "@/store/maps";
+import { defineAsyncComponent, onBeforeMount, onMounted, ref } from "vue";
+import { useMaps, CustomMarker } from "@/store/maps";
 import { useAuth } from "@/store/auth";
+import { useOriginCoords } from "@/store/origin";
 import { ResponseStatus } from "@/constants";
 import { loadingController } from "@ionic/vue";
 import { toast } from "vue3-toastify";
 import { HamburgerMenuIcon } from "@radix-icons/vue";
-import "leaflet/dist/leaflet.css";
-import leaflet from "leaflet";
+import { storeToRefs } from "pinia";
+import { Marker } from "leaflet";
 
 const AsideComponent = defineAsyncComponent(
   () => import("@/components/Aside.vue")
@@ -22,8 +23,14 @@ const Button = defineAsyncComponent(
 const router = useRouter();
 const mapsStore = useMaps();
 const authStore = useAuth();
+const originStore = useOriginCoords();
 const displayErrorMessage = ref(false);
 const showAside = ref(false);
+const canMapLoaded = ref(false);
+
+const { sharedMap, markers } = storeToRefs(mapsStore);
+
+const mapRef = ref(sharedMap);
 
 const createLoading = async (message: string) => {
   const loading = await loadingController.create({ message });
@@ -38,6 +45,7 @@ const checkClient = async () => {
     const check = await authStore.check();
 
     if (!check) {
+      canMapLoaded.value = false;
       throw new Error(
         "Qadnaydir xatolik yuzaga keldi, dasturni boshqatdan ishga tushiring"
       );
@@ -50,18 +58,23 @@ const checkClient = async () => {
       check.status === ResponseStatus.BANNED
     ) {
       displayErrorMessage.value = true;
+      canMapLoaded.value = false;
+
       await router.push({ path: "/auth/login" });
       return { status: "no" };
     } else if (
       check.status === ResponseStatus.UNKNOWN_ERR ||
       check.status === ResponseStatus.NETWORK_ERR
     ) {
+      canMapLoaded.value = false;
       displayErrorMessage.value = true;
       return { status: "no" };
     } else {
+      canMapLoaded.value = true;
       return { status: "ok" };
     }
   } catch (error: any) {
+    canMapLoaded.value = false;
     displayErrorMessage.value = true;
 
     toast(error);
@@ -82,7 +95,8 @@ onBeforeMount(async () => {
     }
 
     await mapsStore.loadMap("map");
-    await mapsStore.attachMoveChangingEvents()
+    // await mapsStore.attachMoveChangingEvents();
+    return;
   } catch (error: any) {
     toast(
       error.response?.data?.msg ||
@@ -92,6 +106,11 @@ onBeforeMount(async () => {
   } finally {
     await mapLoading.dismiss();
   }
+});
+
+onMounted(() => {
+  mapRef.value?.invalidateSize();
+  console.log(mapRef.value);
 });
 
 const logout = async () => {
@@ -109,6 +128,8 @@ const closeAside = () => {
   if (!showAside.value) return;
   showAside.value = false;
 };
+
+
 </script>
 
 <template>
@@ -117,7 +138,9 @@ const closeAside = () => {
       v-if="displayErrorMessage === false"
       class="header bg-primary-foreground fixed top-0 w-full h-auto z-[9999999999999999999999999]"
     >
-      <nav class="navbar container mx-auto px-1 flex items-center border-b">
+      <nav
+        class="navbar container mx-auto px-1 flex items-center border-b shadow-lg"
+      >
         <div class="left">
           <Button
             @click="openAside"
@@ -138,8 +161,11 @@ const closeAside = () => {
         />
       </transition>
     </header>
-    <div id="map" class="map h-screen">
-      <div v-if="displayErrorMessage" class="error-message mt-10 text-center">
+    <div id="map" class="map h-screen w-full">
+      <div
+        v-if="displayErrorMessage || !canMapLoaded"
+        class="error-message mt-10 text-center"
+      >
         <h1 class="title text-foreground text-2xl font-bold">
           Xatolik yuzaga keldi
         </h1>
@@ -147,8 +173,8 @@ const closeAside = () => {
       </div>
     </div>
     <RouterView
-      v-if="displayErrorMessage === false"
-      class="h-auto fixed bottom-0 w-full bg-primary-foreground z-[99999999]"
+      v-if="displayErrorMessage === false && canMapLoaded"
+      class="h-auto fixed bottom-0 w-full z-[99999999]"
     ></RouterView>
   </div>
 </template>

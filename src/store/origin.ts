@@ -17,31 +17,22 @@ export const useOriginCoords = defineStore("coords-store", () => {
     });
     try {
       await loading.present();
-      navigator.permissions.query({name: "geolocation"}).then(permissionStatus => {
-        if (permissionStatus.state === 'granted' || permissionStatus.state === 'prompt') {
-          navigator.geolocation.getCurrentPosition(
-            (results) => {
-              lat.value = results.coords.latitude;
-              lng.value = results.coords.longitude;
-              alert(`${results.coords.latitude} ${results.coords.longitude}`);
-              console.log(lat.value);
-              return { coords };
-            },
-            (err) => {
-              if (err) {
-                console.log(err);
-                
-                toast("Joylashuvni aniqlashni iloji bo'lmadi");
-                return;
-              }
-            }
-          );
-        }  else {
-          router.push('/no-gps')
+
+      navigator.geolocation.getCurrentPosition(
+        (results) => {
+          lat.value = results.coords.latitude;
+          lng.value = results.coords.longitude;
+          return { coords };
+        },
+        (err) => {
+          if (err) {
+            console.log(err);
+
+            toast("Joylashuvni aniqlashni iloji bo'lmadi");
+            return;
+          }
         }
-      })
-        
-     
+      );
     } catch (error: any) {
       toast(error);
     } finally {
@@ -101,5 +92,7 @@ export const useOriginCoords = defineStore("coords-store", () => {
     watchCoords,
     changeCoords,
     getCoordsWithNavigator,
+    lat,
+    lng,
   };
 });
