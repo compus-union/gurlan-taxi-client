@@ -1,102 +1,85 @@
-import { defineStore } from "pinia";
-import { Loader } from "@googlemaps/js-api-loader";
+import { defineStore, storeToRefs } from "pinia";
 import config from "@/config";
 import { useOriginCoords } from "./origin";
 import { ref } from "vue";
+import leaflet from "leaflet";
+import { LayerGroup, Map } from "leaflet";
 
-const loader = new Loader({
-  apiKey: config.GOOGLE_MAPS_API_KEY,
-  version: "weekly",
-  language: "uz",
-  region: "UZ",
-});
+export interface CustomMarker extends leaflet.Marker {
+  latLng?: leaflet.LatLng;
+  _custom_id?: string;
+}
 
 export const useMaps = defineStore("maps-store", () => {
-  const sharedMap = ref<google.maps.Map>();
+  const sharedMap = ref<leaflet.Map>();
   const originStore = useOriginCoords();
-  const markers = ref([]);
+  const markers = ref<CustomMarker[]>([]);
+  const defaultZoom = ref(16);
 
-  async function setMap(payload: google.maps.Map) {
+  const { coords: originCoords } = storeToRefs(originStore);
+
+  async function setMap(payload: leaflet.Map) {
     sharedMap.value = payload;
     return;
   }
 
-  async function getMarker(title: string) {
-    const foundMarker = markers.value?.find((marker: google.maps.Marker) => {
-      return marker.getTitle() === title;
-    });
-
-    return foundMarker as unknown as google.maps.Marker;
-  }
-
   async function loadMap(id: string) {
     try {
-      await originStore.getCoords();
-      await originStore.watchCoords();
+      // get origin coords, where user is located
+      await Promise.allSettled([
+        originStore.getCoords(),
+        originStore.watchCoords(),
+      ]);
 
-      const { Map } = (await loader.importLibrary(
-        "maps"
-      )) as google.maps.MapsLibrary;
+      // initalise the map
+      sharedMap.value = leaflet
+        .map(id, { zoomControl: false, maxZoom: 19, attributionControl: false })
+        .setView(
+          [originCoords.value.lat, originCoords.value.lng],
+          defaultZoom.value
+        );
 
-      sharedMap.value = new Map(document.getElementById(id) as HTMLElement, {
-        center: { lat: originStore.coords.lat, lng: originStore.coords.lng },
-        zoom: 20,
-        mapTypeId: "OSM",
-        mapTypeControl: false,
-        streetViewControl: false,
-        disableDefaultUI: true,
-        rotateControl: true,
-      });
+      // add layers to the map
+      leaflet
+        .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+        .addTo(sharedMap.value);
 
-      sharedMap.value.mapTypes.set(
-        "OSM",
-        new google.maps.ImageMapType({
-          getTileUrl: function (coord, zoom) {
-            let tilesPerGlobe = 1 << zoom;
-            let x = coord.x % tilesPerGlobe;
-            if (x < 0) {
-              x = tilesPerGlobe + x;
-            }
+      // add origin marker to the map
+      const originMarker = leaflet
+        .marker([originCoords.value.lat, originCoords.value.lng], {})
+        .addTo(sharedMap.value);
 
-            return (
-              "https://tile.openstreetmap.org/" +
-              zoom +
-              "/" +
-              x +
-              "/" +
-              coord.y +
-              ".png"
-            );
-          },
-          tileSize: new google.maps.Size(256, 256),
-          name: "OpenStreetMap",
-          maxZoom: 18,
-        })
-      );
+      // @ts-ignore
+      originMarker._custom_id = "origin-marker";
+      markers.value.push(originMarker as CustomMarker);
+      console.log(markers.value);
 
-      const newMarker = new google.maps.Marker({
-        map: sharedMap.value,
-        position: sharedMap.value?.getCenter(),
-        title: "origin-marker",
-      });
+      async function moveEvent() {
+        sharedMap.value?.addEventListener("move", async (e) => {
+          const lat = sharedMap.value?.getCenter().lat as number;
+          const lng = sharedMap.value?.getCenter().lng as number;
 
-      sharedMap.value.addListener("drag", () => {
-        newMarker.setPosition(sharedMap.value?.getCenter());
-      });
+          originMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
 
-      sharedMap.value.addListener("dragend", async () => {
-        const lat = sharedMap.value?.getCenter()?.lat() as number;
-        const lng = sharedMap.value?.getCenter()?.lng() as number;
+          await originStore.changeCoords({ lat, lng });
+        });
+      }
 
-        await originStore.changeCoords({ lat, lng });
-      });
+      
 
-      markers.value?.push(newMarker as unknown as never);
+      await moveEvent();
+      return;
+    } catch (error) {
+      alert(error);
+      return error;
+    }
+  }
 
-      return {
-        Map,
-        sharedMap,
-      };
+  async function attachMoveChangingEvents() {
+    try {
+      // await moveEvent();
     } catch (error) {
       alert(error);
     }
@@ -104,9 +87,10 @@ export const useMaps = defineStore("maps-store", () => {
 
   return {
     loadMap,
+    attachMoveChangingEvents,
     setMap,
     sharedMap,
     markers,
-    getMarker,
+    defaultZoom,
   };
 });

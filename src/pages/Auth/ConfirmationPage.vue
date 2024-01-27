@@ -100,7 +100,7 @@ async function resetLogin() {
 
     await Preferences.clear();
     await router.push({ path: "/auth/login" });
-    toast("Boshqatdan ro'yxatdan o'tishingiz mumkin")
+    toast("Boshqatdan ro'yxatdan o'tishingiz mumkin");
   } catch (error) {
     alert(error);
   } finally {

@@ -4,6 +4,7 @@ import router from "./router";
 import { createPinia } from "pinia";
 import Vue3Toasity, { toast, type ToastContainerOptions } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import "leaflet/dist/leaflet.css"
 
 /* Theme variables */
 import "./theme/variables.css";
@@ -16,11 +17,11 @@ const app = createApp(App)
     position: toast.POSITION.BOTTOM_CENTER,
     closeButton: false,
     theme: "dark",
-    closeOnClick: true
+    closeOnClick: true,
   } as ToastContainerOptions)
   .use(createPinia())
   .use(router);
 
 router.isReady().then(() => {
-  app.mount("#app");
+  app.mount("#app");  
 });
