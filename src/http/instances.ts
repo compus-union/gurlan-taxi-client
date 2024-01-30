@@ -7,14 +7,14 @@ import { toast } from "vue3-toastify";
 
 export function authInstance() {
   let baseUrl = config.SERVER_URL + "/client";
-  let defaultTimeout = 5000;
-  let defaultTimeoutMessage = "Kutish vaqti tugadi, serverdan javob yo'q"
+  let defaultTimeout: undefined;
+  let defaultTimeoutMessage = "Kutish vaqti tugadi, serverdan javob yo'q";
 
   async function auth(data: any) {
     try {
       const response = await axios.post(baseUrl + "/login", data, {
         timeout: defaultTimeout,
-        timeoutErrorMessage: defaultTimeoutMessage
+        timeoutErrorMessage: defaultTimeoutMessage,
       });
 
       return response;
@@ -36,7 +36,7 @@ export function authInstance() {
       const response = await axios.get(baseUrl + `/check/${oneId}`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: defaultTimeout,
-        timeoutErrorMessage: defaultTimeoutMessage
+        timeoutErrorMessage: defaultTimeoutMessage,
       });
 
       return response;
@@ -71,10 +71,9 @@ export function authInstance() {
 
   async function sendConfirmationCodeAgain(oneId: string) {
     try {
-      const response = await axios.put(
-        baseUrl + `/send-code-again/${oneId}`,
-        { timeout: defaultTimeout }
-      );
+      const response = await axios.put(baseUrl + `/send-code-again/${oneId}`, {
+        timeout: defaultTimeout,
+      });
 
       return response;
     } catch (error: any) {
@@ -86,7 +85,6 @@ export function authInstance() {
       );
     }
   }
-
 
   return { auth, check, confirmation, sendConfirmationCodeAgain };
 }

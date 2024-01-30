@@ -136,7 +136,7 @@ const closeAside = () => {
   <div class="default-layout">
     <header
       v-if="displayErrorMessage === false"
-      class="header bg-primary-foreground fixed top-0 w-full h-auto z-[9999999999999999999999999]"
+      class="header bg-primary-foreground fixed top-0 w-full h-auto z-50"
     >
       <nav
         class="navbar container mx-auto px-1 flex items-center border-b shadow-lg"
@@ -161,7 +161,7 @@ const closeAside = () => {
         />
       </transition>
     </header>
-    <div id="map" class="map h-screen w-full">
+    <div id="map" class="map h-screen w-full z-[49]">
       <div
         v-if="displayErrorMessage || !canMapLoaded"
         class="error-message mt-10 text-center"
@@ -174,7 +174,7 @@ const closeAside = () => {
     </div>
     <RouterView
       v-if="displayErrorMessage === false && canMapLoaded"
-      class="h-auto fixed bottom-0 w-full z-[99999999]"
+      class="h-auto fixed bottom-0 w-full z-[49]"
     ></RouterView>
   </div>
 </template>
