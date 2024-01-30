@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { useMaps, CustomMarker } from "@/store/maps";
+import { useMaps } from "@/store/maps";
 import { useOriginCoords } from "@/store/origin";
 import SearchPlaces from "@/components/SearchPlaces.vue";
 import { useRouter } from "vue-router";
 import { Preferences } from "@capacitor/preferences";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { Locate, MapPin, Search } from "lucide-vue-next";
 import { storeToRefs } from "pinia";
-import { Layer, Marker } from "leaflet";
+import VueBottomSheet from "@webzlodimir/vue-bottom-sheet";
+import "@webzlodimir/vue-bottom-sheet/dist/style.css";
 import { loadingController } from "@ionic/vue";
 
 const Button = defineAsyncComponent(
@@ -20,6 +21,8 @@ const router = useRouter();
 
 const { sharedMap, defaultZoom, markers } = storeToRefs(mapsStore);
 const { coords: originCoords, lat, lng } = storeToRefs(originStore);
+
+const searchPlaceBottomSheet = ref<InstanceType<typeof VueBottomSheet>>();
 
 const goBackToLocation = async () => {
   const loading = await loadingController.create({
@@ -39,7 +42,13 @@ const goBackToLocation = async () => {
   }
 };
 
-const openSearchPlaces = async () => {};
+const openSearchPlaces = async () => {
+  searchPlaceBottomSheet.value?.open();
+};
+
+const closeSearchPlaces = () => {
+  searchPlaceBottomSheet.value?.close();
+};
 
 const logout = async () => {
   await Preferences.clear();
@@ -53,7 +62,17 @@ const navigateNextPage = async () => {
 
 <template>
   <div class="home-page h-auto flex flex-col">
-    <Button class="mb-4 justify-self-end self-end mr-4"
+    <vue-bottom-sheet
+      :max-height="1400"
+      :max-width="1000"
+      ref="searchPlaceBottomSheet"
+      class="z-[100] h-[90%]"
+    >
+      <SearchPlaces class="z-[100] h-screen w-full" />
+    </vue-bottom-sheet>
+    <Button
+      @click="openSearchPlaces"
+      class="mb-4 justify-self-end self-end mr-4"
       ><Search class="w-4 h-4 mr-2" /> Qidirish</Button
     >
     <div
