@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { vMaska } from "maska";
 import { cn } from "../../lib/utils";
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "../../store/auth";
 import { ResponseStatus } from "@/constants";
-import { Preferences } from "@capacitor/preferences";
 
 import Card from "../../components/ui/card/Card.vue";
 import CardContent from "../../components/ui/card/CardContent.vue";
@@ -25,30 +24,6 @@ const showPassword = ref(false);
 const handleShowPassword = (e: boolean) => {
   showPassword.value = e;
 };
-
-onMounted(async () => {
-  const [
-    { value: confirmation },
-    { value: oneId },
-    { value: clientOneId },
-    { value: auth_token },
-  ] = await Promise.all([
-    Preferences.get({
-      key: "confirmation",
-    }),
-    Preferences.get({
-      key: "oneId",
-    }),
-    Preferences.get({
-      key: "clientOneId",
-    }),
-    Preferences.get({
-      key: "auth_token",
-    }),
-  ]);
-
-  alert(`${confirmation}, ${oneId}, ${clientOneId}, ${auth_token}`);
-});
 
 async function login() {
   const result = await authStore.login();

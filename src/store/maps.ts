@@ -67,12 +67,9 @@ export const useMaps = defineStore("maps-store", () => {
         });
       }
 
-      
-
       await moveEvent();
       return;
     } catch (error) {
-      alert(error);
       return error;
     }
   }

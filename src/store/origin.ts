@@ -42,15 +42,18 @@ export const useOriginCoords = defineStore("coords-store", () => {
 
   async function getCoords() {
     try {
-      const results = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-      });
+      const results = await Geolocation.getCurrentPosition();
 
-      lat.value = results.coords.latitude;
-      lng.value = results.coords.longitude;
+      await changeCoords({
+        lat: results.coords.latitude,
+        lng: results.coords.longitude,
+      });
 
       return { coords: results.coords };
     } catch (error: any) {
+      if (error.message === "location disabled") {
+        return router.push({ path: "/no-gps" });
+      }
       alert(error.message);
     }
   }

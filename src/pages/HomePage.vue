@@ -27,14 +27,11 @@ const goBackToLocation = async () => {
   });
   try {
     await loading.present();
-    navigator.geolocation.getCurrentPosition((results) => {
-      sharedMap.value?.setView(
-        [results.coords.latitude, results.coords.longitude],
-        defaultZoom.value
-      );
+    await originStore.getCoords();
 
-      console.log(results.coords);
-    });
+    sharedMap.value?.setView([lat.value, lng.value], defaultZoom.value);
+
+    return;
   } catch (error) {
     alert(error);
   } finally {
