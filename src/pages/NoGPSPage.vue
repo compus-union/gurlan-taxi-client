@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import NoLocationImg from "@/assets/location.png";
 import CatSad from "@/components/custom-illustrations/CatSad.vue";
 </script>
 
