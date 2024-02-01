@@ -1,10 +1,16 @@
 <script lang="ts" setup>
 import { useSearchPlaces } from "@/store/searchPlaces";
-import { ref } from "vue";
+import { defineAsyncComponent, onMounted, ref } from "vue";
 import { useLoading } from "@/store/loading";
 import { storeToRefs } from "pinia";
 import { loadingController } from "@ionic/vue";
-import { Button } from "./ui/button";
+
+const Button = defineAsyncComponent(
+  () => import("@/components/ui/button/Button.vue")
+);
+const Input = defineAsyncComponent(
+  () => import("@/components/ui/input/Input.vue")
+);
 
 const loadingStore = useLoading();
 const searchPlacesStore = useSearchPlaces();
@@ -14,28 +20,47 @@ const { notFound, places } = storeToRefs(searchPlacesStore);
 const { loading } = storeToRefs(loadingStore);
 
 function createDebounce() {
-  let timeout = ref<any>();
-  return function (fnc: Function, delayMs: number) {
+  let timeout: any;
+  return function (fnc?: () => Promise<void>, delayMs?: number) {
+    notFound.value = false;
     typing.value = true;
-    clearTimeout(timeout.value);
-    timeout.value = setTimeout(() => {
-      fnc();
-      typing.value = false;
-    }, delayMs || 500);
+    return new Promise<void>((resolve) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(async () => {
+        if (fnc) await fnc();
+        typing.value = false;
+        resolve();
+      }, delayMs || 500);
+    });
   };
 }
 
-const debounce = ref<Function>(createDebounce());
-
-const placeName = ref();
+const debounce = ref<
+  (fnc?: () => Promise<void>, delayMs?: number) => Promise<void>
+>(createDebounce());
+const placeName = ref<string>("");
 </script>
 
 <template>
-  <div
-    class="search-place-modal w-full bg-primary-foreground"
-  >
-    <h1 class="title text-3xl">Search places</h1>
-    <Button class="mt-8">Display</Button>
+  <div class="search-place-modal w-full bg-primary-foreground px-4">
+    <div class="form-group">
+      <Input
+        type="text"
+        v-model="placeName"
+        @input="
+          debounce(
+            async () => await searchPlacesStore.searchPlaces(placeName),
+            1000
+          )
+        "
+        placeholder="Masalan: Eski bozor"
+      />
+      <div class="typing" v-show="typing">Searching...</div>
+      <div class="results" v-show="places?.length && !typing">Results</div>
+      <div class="not-found" v-show="!places?.length && !typing && notFound">
+        Not found
+      </div>
+    </div>
   </div>
 </template>
 

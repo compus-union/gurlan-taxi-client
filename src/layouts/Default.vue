@@ -47,7 +47,7 @@ const checkClient = async () => {
     if (!check) {
       canMapLoaded.value = false;
       throw new Error(
-        "Qadnaydir xatolik yuzaga keldi, dasturni boshqatdan ishga tushiring"
+        "Qandaydir xatolik yuzaga keldi, dasturni boshqatdan ishga tushiring"
       );
     }
 
@@ -58,7 +58,6 @@ const checkClient = async () => {
       check.status === ResponseStatus.BANNED
     ) {
       displayErrorMessage.value = true;
-      canMapLoaded.value = false;
 
       await router.push({ path: "/auth/login" });
       return { status: "no" };
@@ -66,15 +65,13 @@ const checkClient = async () => {
       check.status === ResponseStatus.UNKNOWN_ERR ||
       check.status === ResponseStatus.NETWORK_ERR
     ) {
-      canMapLoaded.value = false;
       displayErrorMessage.value = true;
       return { status: "no" };
     } else {
-      canMapLoaded.value = true;
+      displayErrorMessage.value = false;
       return { status: "ok" };
     }
   } catch (error: any) {
-    canMapLoaded.value = false;
     displayErrorMessage.value = true;
 
     toast(error);
@@ -108,10 +105,6 @@ onBeforeMount(async () => {
   }
 });
 
-onMounted(() => {
-  mapRef.value?.invalidateSize();
-  console.log(mapRef.value);
-});
 
 const logout = async () => {
   await Preferences.clear();
@@ -128,8 +121,6 @@ const closeAside = () => {
   if (!showAside.value) return;
   showAside.value = false;
 };
-
-
 </script>
 
 <template>
@@ -162,10 +153,7 @@ const closeAside = () => {
       </transition>
     </header>
     <div id="map" class="map h-screen w-full z-[49]">
-      <div
-        v-if="displayErrorMessage || !canMapLoaded"
-        class="error-message mt-10 text-center"
-      >
+      <div v-if="displayErrorMessage" class="error-message mt-10 text-center">
         <h1 class="title text-foreground text-2xl font-bold">
           Xatolik yuzaga keldi
         </h1>
@@ -173,7 +161,7 @@ const closeAside = () => {
       </div>
     </div>
     <RouterView
-      v-if="displayErrorMessage === false && canMapLoaded"
+      v-if="!displayErrorMessage"
       class="h-auto fixed bottom-0 w-full z-[49]"
     ></RouterView>
   </div>

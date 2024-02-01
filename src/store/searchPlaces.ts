@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { geocodingInstance } from "@/http/instances";
+import { toastController } from "@ionic/vue";
 
 export const useSearchPlaces = defineStore("search-places-store", () => {
   const places = ref<[]>();
@@ -20,7 +21,7 @@ export const useSearchPlaces = defineStore("search-places-store", () => {
     try {
       const response = await searchPlace(q);
 
-      if (response?.data.data.length) {
+      if (response?.data.status !== 'not-found') {
         if (notFound.value) {
           notFound.value = false;
         }
@@ -30,11 +31,18 @@ export const useSearchPlaces = defineStore("search-places-store", () => {
         return;
       }
 
-      if (!response?.data.data.length) {
+      if (response?.data.status === 'not-found') {
         places.value = [];
         notFound.value = true;
       }
-    } catch (error) {}  
+    } catch (error: any) {
+      const toast = await toastController.create({
+        message:
+          error.message || error.response.data.msg || "Xatolik yuzaga keldi",
+      });
+
+      await toast.present();
+    }
   }
 
   return { searchPlaces, places, notFound };

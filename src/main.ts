@@ -3,12 +3,12 @@ import App from "./App.vue";
 import router from "./router";
 import { createPinia } from "pinia";
 import Vue3Toasity, { toast, type ToastContainerOptions } from "vue3-toastify";
-import "vue3-toastify/dist/index.css";
-import "leaflet/dist/leaflet.css"
 
 /* Theme variables */
 import "./theme/variables.css";
 import "./theme/base.css";
+import "leaflet/dist/leaflet.css";
+import "vue3-toastify/dist/index.css";
 
 const app = createApp(App)
   .use(Vue3Toasity, {
@@ -19,9 +19,9 @@ const app = createApp(App)
     theme: "dark",
     closeOnClick: true,
   } as ToastContainerOptions)
-  .use(createPinia())
+  .use(createPinia()) 
   .use(router);
 
 router.isReady().then(() => {
-  app.mount("#app");  
+  app.mount("#app");
 });
