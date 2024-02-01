@@ -55,7 +55,64 @@ const placeName = ref<string>("");
         "
         placeholder="Masalan: Eski bozor"
       />
-      <div class="typing" v-show="typing">Searching...</div>
+      <div v-show="typing" class="typing mt-6">
+        <div
+          class="skeleton-loading mb-8 space-x-4 my-4 flex items-center justify-between w-full h-[40px]"
+        >
+          <div
+            class="icon-part h-full w-[16%] flex items-center justify-center"
+          >
+            <div class="bg-gray-100 w-full h-full animate-pulse"></div>
+          </div>
+          <div class="text-part h-full w-full">
+            <div class="h-4 mb-2 w-[50%] bg-gray-100 animate-pulse"></div>
+            <div class="h-2 mb-2 w-full bg-gray-100 animate-pulse"></div>
+            <div class="h-2 w-full bg-gray-100 animate-pulse"></div>
+          </div>
+        </div>
+        <div
+          class="skeleton-loading mb-8 space-x-4 my-4 flex items-center justify-between w-full h-[40px]"
+        >
+          <div
+            class="icon-part h-full w-[16%] flex items-center justify-center"
+          >
+            <div class="bg-gray-100 w-full h-full animate-pulse"></div>
+          </div>
+          <div class="text-part h-full w-full">
+            <div class="h-4 mb-2 w-[50%] bg-gray-100 animate-pulse"></div>
+            <div class="h-2 mb-2 w-full bg-gray-100 animate-pulse"></div>
+            <div class="h-2 w-full bg-gray-100 animate-pulse"></div>
+          </div>
+        </div>
+        <div
+          class="skeleton-loading mb-8 space-x-4 my-4 flex items-center justify-between w-full h-[40px]"
+        >
+          <div
+            class="icon-part h-full w-[16%] flex items-center justify-center"
+          >
+            <div class="bg-gray-100 w-full h-full animate-pulse"></div>
+          </div>
+          <div class="text-part h-full w-full">
+            <div class="h-4 mb-2 w-[50%] bg-gray-100 animate-pulse"></div>
+            <div class="h-2 mb-2 w-full bg-gray-100 animate-pulse"></div>
+            <div class="h-2 w-full bg-gray-100 animate-pulse"></div>
+          </div>
+        </div>
+        <div
+          class="skeleton-loading space-x-4 my-4 flex items-center justify-between w-full h-[40px]"
+        >
+          <div
+            class="icon-part h-full w-[16%] flex items-center justify-center"
+          >
+            <div class="bg-gray-100 w-full h-full animate-pulse"></div>
+          </div>
+          <div class="text-part h-full w-full">
+            <div class="h-4 mb-2 w-[50%] bg-gray-100 animate-pulse"></div>
+            <div class="h-2 mb-2 w-full bg-gray-100 animate-pulse"></div>
+            <div class="h-2 w-full bg-gray-100 animate-pulse"></div>
+          </div>
+        </div>
+      </div>
       <div class="results" v-show="places?.length && !typing">Results</div>
       <div class="not-found" v-show="!places?.length && !typing && notFound">
         Not found
