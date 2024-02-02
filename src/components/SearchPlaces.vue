@@ -17,7 +17,6 @@ const searchPlacesStore = useSearchPlaces();
 const typing = ref(false);
 
 const { notFound, places } = storeToRefs(searchPlacesStore);
-const { loading } = storeToRefs(loadingStore);
 
 function createDebounce() {
   let timeout: any;
