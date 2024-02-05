@@ -19,7 +19,7 @@ const app = createApp(App)
     theme: "dark",
     closeOnClick: true,
   } as ToastContainerOptions)
-  .use(createPinia()) 
+  .use(createPinia())
   .use(router);
 
 router.isReady().then(() => {
