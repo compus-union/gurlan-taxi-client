@@ -2,7 +2,7 @@
 import { useSearchPlaces } from "@/store/searchPlaces";
 import { defineAsyncComponent, ref } from "vue";
 import { storeToRefs } from "pinia";
-import { CircleSlash2, MapPin, Copy } from "lucide-vue-next";
+import { CircleSlash2, MapPin } from "lucide-vue-next";
 
 const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -46,10 +46,8 @@ const placeName = ref<string>("");
 </script>
 
 <template>
-  <div
-    class="search-place-modal w-full bg-primary-foreground mt-3 "
-  >
-    <div class="form-group ">
+  <div class="search-place-modal w-full bg-primary-foreground mt-3">
+    <div class="form-group">
       <Input
         type="text"
         v-model="placeName"
@@ -65,7 +63,7 @@ const placeName = ref<string>("");
         <SkeletonLoading v-for="i in 5" :key="i" />
       </div>
       <ScrollArea
-        class="results mt-4 overflow-x-hidden overflow-y-scroll h-[900px] w-full"
+        class="results mt-4 overflow-x-hidden overflow-y-scroll w-full"
       >
         <!-- @vue-skip -->
         <div
@@ -80,32 +78,18 @@ const placeName = ref<string>("");
               <MapPin class="w-8 h-8" />
             </div>
             <div class="overflow-x-hidden text-left w-full">
-              <h3
-                class="place-name font-bold text-ellipsis whitespace-nowrap overflow-hidden text-left w-full"
+              <TextClamp
+                :max-lines="1"
+                text="Lorem, ipsum dolor sit amet consectetur"
+                class="place-name font-bold text-left"
               >
-                Lorem, ipsum dolor sit amet consectetur
-              </h3>
+              </TextClamp>
 
               <p
                 class="place-detailed text-ellipsis whitespace-nowrap overflow-hidden text-sm w-full"
               >
                 {{ place.display_name }}
               </p>
-            </div>
-          </button>
-        </div>
-        <!-- @vue-skip-->
-        <div v-for="place in places" :key="place.place_id" class="result">
-          <button class="flex items-start justify-start">
-            <div class="icon mr-2">
-              <MapPin class="w-8 h-8" />
-            </div>
-            <div class="text overflow-hidden">
-              <h3
-                class="place-name text-lg font-bold text-ellipsis whitespace-nowrap overflow-hidden"
-              >
-                {{ place.name }}
-              </h3>
             </div>
           </button>
         </div>
