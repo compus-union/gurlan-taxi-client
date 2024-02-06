@@ -80,13 +80,7 @@ const navigateNextPage = async () => {
           ><Search class="w-4 h-4 mr-2" /> Qidirish</Button
         >
       </SheetTrigger>
-      <SheetContent class="h-screen" side="bottom">
-        <SheetHeader>
-          <SheetTitle> Joy qidirish </SheetTitle>
-          <SheetDescription>
-            O'zingizga kerakli joyni izlang
-          </SheetDescription>
-        </SheetHeader>
+      <SheetContent class="h-screen overflow-hidden flex" side="bottom">
         <SearchPlaces class="z-[100] w-full" />
       </SheetContent>
     </Sheet>

@@ -46,7 +46,9 @@ const placeName = ref<string>("");
 </script>
 
 <template>
-  <div class="search-place-modal w-full bg-primary-foreground mt-3">
+  <div
+    class="search-place-modal w-full bg-primary-foreground mt-3 overflow-y-auto h-screen"
+  >
     <div class="form-group">
       <Input
         type="text"
@@ -57,50 +59,52 @@ const placeName = ref<string>("");
             1000
           )
         "
-        placeholder="Masalan: Eski bozor"
+        placeholder="Joy izlash"
+        class="outline-none focus-visible:ring-0 focus-visible:outline-none"
       />
-      <div v-show="typing" class="typing mt-6">
-        <SkeletonLoading v-for="i in 5" :key="i" />
-      </div>
-      <ScrollArea
-        class="results mt-4 overflow-x-hidden overflow-y-scroll w-full"
-      >
-        <!-- @vue-skip -->
-        <div
-          v-for="place in places"
-          :key="place.place_id"
-          class="result overflow-x-hidden w-full"
-        >
-          <button
-            class="flex items-start justify-start py-4 border-t overflow-x-hidden w-full"
-          >
-            <div class="icon mr-2">
-              <MapPin class="w-8 h-8" />
-            </div>
-            <div class="overflow-x-hidden text-left w-full">
-              <TextClamp
-                :max-lines="1"
-                text="Lorem, ipsum dolor sit amet consectetur"
-                class="place-name font-bold text-left"
-              >
-              </TextClamp>
-
-              <p
-                class="place-detailed text-ellipsis whitespace-nowrap overflow-hidden text-sm w-full"
-              >
-                {{ place.display_name }}
-              </p>
-            </div>
-          </button>
-        </div>
-      </ScrollArea>
+    </div>
+    <div v-show="!typing && !places?.length && !notFound" class="suggestion text-center mt-4">
+      O'zingizga kerakli joy nomini izlang, masalan: <b>dehqon bozor</b>,
+      <b>hokimiyat</b>
+    </div>
+    <div v-show="typing" class="typing mt-6">
+      <SkeletonLoading v-for="i in 5" :key="i" />
+    </div>
+    <div
+      v-show="places?.length && !typing && !notFound"
+      class="results mt-4 overflow-x-hidden overflow-y-scroll h-[80%] w-full"
+    >
+      <!-- @vue-skip -->
       <div
-        v-show="!places?.length && !typing && notFound"
-        class="not-found my-10 text-center flex flex-col items-center justify-center"
+        v-for="place in places"
+        :key="place.place_id"
+        class="result overflow-x-hidden w-full"
       >
-        <CircleSlash2 class="w-16 h-16 text-[#71717A]" />
-        <h4 class="text-xl font-semibold text-[#71717A] mt-4">Joy topilmadi</h4>
+        <button
+          class="flex items-start justify-start py-4 border-t overflow-x-hidden w-full"
+        >
+          <div class="icon mr-2">
+            <MapPin class="w-8 h-8" />
+          </div>
+          <div class="overflow-x-hidden text-left w-full">
+            <h3 class="place-name font-bold text-left overflow-hidden text-ellipsis whitespace-nowrap">
+              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio odit eum, accusamus doloribus explicabo, ea minima quo at quidem saepe, autem tempore assumenda quos laborum ipsum? Laboriosam tempora sapiente et?
+            </h3>
+            <p
+              class="place-detailed text-ellipsis whitespace-nowrap overflow-hidden text-sm w-full"
+            >
+              {{ place.display_name }}
+            </p>
+          </div>
+        </button>
       </div>
+    </div>
+    <div
+      v-show="!places?.length && !typing && notFound"
+      class="not-found my-10 text-center flex flex-col items-center justify-center"
+    >
+      <CircleSlash2 class="w-16 h-16 text-[#71717A]" />
+      <h4 class="text-xl font-semibold text-[#71717A] mt-4">Joy topilmadi</h4>
     </div>
   </div>
 </template>
