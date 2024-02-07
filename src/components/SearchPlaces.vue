@@ -17,6 +17,7 @@ const ScrollArea = defineAsyncComponent(
   () => import("@/components/ui/scroll-area/ScrollArea.vue")
 );
 
+
 const searchPlacesStore = useSearchPlaces();
 const typing = ref(false);
 
@@ -63,7 +64,10 @@ const placeName = ref<string>("");
         class="outline-none focus-visible:ring-0 focus-visible:outline-none"
       />
     </div>
-    <div v-show="!typing && !places?.length && !notFound" class="suggestion text-center mt-4">
+    <div
+      v-show="!typing && !places?.length && !notFound"
+      class="suggestion text-center mt-4"
+    >
       O'zingizga kerakli joy nomini izlang, masalan: <b>dehqon bozor</b>,
       <b>hokimiyat</b>
     </div>
@@ -81,14 +85,19 @@ const placeName = ref<string>("");
         class="result overflow-x-hidden w-full"
       >
         <button
+          @click="
+            emit('update:originCoords', { lat: +place.lat, lng: +place.lon })
+          "
           class="flex items-start justify-start py-4 border-t overflow-x-hidden w-full"
         >
           <div class="icon mr-2">
             <MapPin class="w-8 h-8" />
           </div>
           <div class="overflow-x-hidden text-left w-full">
-            <h3 class="place-name font-bold text-left overflow-hidden text-ellipsis whitespace-nowrap">
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio odit eum, accusamus doloribus explicabo, ea minima quo at quidem saepe, autem tempore assumenda quos laborum ipsum? Laboriosam tempora sapiente et?
+            <h3
+              class="place-name font-bold text-left overflow-hidden text-ellipsis whitespace-nowrap"
+            >
+              {{ place.name }}
             </h3>
             <p
               class="place-detailed text-ellipsis whitespace-nowrap overflow-hidden text-sm w-full"
@@ -99,6 +108,12 @@ const placeName = ref<string>("");
         </button>
       </div>
     </div>
+    <p
+      v-show="places?.length && !typing && !notFound"
+      class="text-sm text-gray-400 text-center mt-2"
+    >
+      Ko'proq ko'rish uchun pastga torting
+    </p>
     <div
       v-show="!places?.length && !typing && notFound"
       class="not-found my-10 text-center flex flex-col items-center justify-center"
