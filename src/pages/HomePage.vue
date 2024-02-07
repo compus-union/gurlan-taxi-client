@@ -86,7 +86,41 @@ const navigateNextPage = async () => {
 
 const changeOriginCoords = async (coords: { lat: number; lng: number }) => {
   await originStore.changeCoords({ lat: coords.lat, lng: coords.lng });
-  sharedMap.value?.setView([coords.lat, coords.lng], defaultZoom.value)
+  sharedMap.value?.setView([coords.lat, coords.lng], defaultZoom.value);
+};
+
+const addToSavedPlaces = async (place: {
+  lat: number;
+  lng: number;
+  name: string;
+  displayName: string;
+}) => {
+  const id = Math.floor(Math.random() * 1000000);
+  const { value } = await Preferences.get({ key: "savedPlaces" });
+
+  if (!value || !JSON.parse(value).length) {
+    let savedPlaces = [];
+
+    savedPlaces.push({ ...place, id });
+
+    await Preferences.set({
+      key: "savedPlaces",
+      value: JSON.stringify(savedPlaces),
+    });
+
+    return;
+  }
+
+  let savedPlaces = JSON.parse(value);
+
+  savedPlaces.push({ ...place, id });
+
+  await Preferences.set({
+    key: "savedPlaces",
+    value: JSON.stringify(savedPlaces),
+  });
+
+  return
 };
 </script>
 
