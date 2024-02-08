@@ -24,8 +24,8 @@ const Input = defineAsyncComponent(
 const SkeletonLoading = defineAsyncComponent(
   () => import("@/components/functional/SkeletonLoading.vue")
 );
-const ScrollArea = defineAsyncComponent(
-  () => import("@/components/ui/scroll-area/ScrollArea.vue")
+const ReverseGeocoding = defineAsyncComponent(
+  () => import("@/components/functional/ReverseGeocoding.vue")
 );
 
 const mapsStore = useMaps();
@@ -35,8 +35,8 @@ const searchPlacesStore = useSearchPlaces();
 
 const typing = ref(false);
 
-const { sharedMap, defaultZoom, markers } = storeToRefs(mapsStore);
-const { coords: originCoords, lat, lng } = storeToRefs(originStore);
+const { sharedMap, defaultZoom } = storeToRefs(mapsStore);
+const { lat, lng } = storeToRefs(originStore);
 const { notFound, places } = storeToRefs(searchPlacesStore);
 
 function createDebounce() {
@@ -120,7 +120,7 @@ const addToSavedPlaces = async (place: {
     value: JSON.stringify(savedPlaces),
   });
 
-  return
+  return;
 };
 </script>
 
