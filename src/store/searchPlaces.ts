@@ -4,7 +4,7 @@ import { geocodingInstance } from "@/http/instances";
 import { toastController } from "@ionic/vue";
 
 export const useSearchPlaces = defineStore("search-places-store", () => {
-  const places = ref<[]>();
+  const places = ref([]);
   const { searchPlace } = geocodingInstance();
   const notFound = ref<boolean>(false);
 

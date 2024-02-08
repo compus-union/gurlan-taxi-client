@@ -143,10 +143,13 @@ export function geocodingInstance() {
 
       await loadingStore.setLoading(true);
 
-      const response = await axios.get(baseUrl + "/reverse", {
-        params: { lat, lng },
-        headers: { Authorization: `Bearer ${token.value}` },
-      });
+      const response = await axios.get(
+        baseUrl + `/reverse/${clientOneId.value}`,
+        {
+          headers: { Authorization: `Bearer ${token.value}` },
+          data: { coords: { lat, lng } },
+        }
+      );
 
       return response;
     } catch (error: any) {
