@@ -1,5 +1,4 @@
 import { defineStore, storeToRefs } from "pinia";
-import config from "@/config";
 import { useOriginCoords } from "./origin";
 import { ref } from "vue";
 import leaflet from "leaflet";
@@ -15,6 +14,7 @@ export const useMaps = defineStore("maps-store", () => {
   const originStore = useOriginCoords();
   const markers = ref<CustomMarker[]>([]);
   const defaultZoom = ref(16);
+  const mapMoving = ref(false);
 
   const { coords: originCoords } = storeToRefs(originStore);
 
@@ -58,6 +58,7 @@ export const useMaps = defineStore("maps-store", () => {
 
       async function moveEvent() {
         sharedMap.value?.addEventListener("move", async (e) => {
+          mapMoving.value = true;
           const lat = sharedMap.value?.getCenter().lat as number;
           const lng = sharedMap.value?.getCenter().lng as number;
 
@@ -66,6 +67,8 @@ export const useMaps = defineStore("maps-store", () => {
             .addTo(sharedMap.value as Map | LayerGroup<any>);
         });
         sharedMap.value?.addEventListener("zoom", async (e) => {
+          mapMoving.value = true;
+
           const lat = sharedMap.value?.getCenter().lat as number;
           const lng = sharedMap.value?.getCenter().lng as number;
 
@@ -75,11 +78,22 @@ export const useMaps = defineStore("maps-store", () => {
         });
 
         sharedMap.value?.addEventListener("zoomend", async (e) => {
+          mapMoving.value = false;
+
           const lat = sharedMap.value?.getCenter().lat as number;
           const lng = sharedMap.value?.getCenter().lng as number;
           await originStore.changeCoords({ lat, lng });
         });
         sharedMap.value?.addEventListener("dragend", async (e) => {
+          mapMoving.value = false;
+
+          const lat = sharedMap.value?.getCenter().lat as number;
+          const lng = sharedMap.value?.getCenter().lng as number;
+          await originStore.changeCoords({ lat, lng });
+        });
+        sharedMap.value?.addEventListener("moveend", async (e) => {
+          mapMoving.value = false;
+
           const lat = sharedMap.value?.getCenter().lat as number;
           const lng = sharedMap.value?.getCenter().lng as number;
           await originStore.changeCoords({ lat, lng });
@@ -99,5 +113,6 @@ export const useMaps = defineStore("maps-store", () => {
     sharedMap,
     markers,
     defaultZoom,
+    mapMoving,
   };
 });

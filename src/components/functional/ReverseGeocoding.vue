@@ -4,7 +4,7 @@ import { useMaps } from "@/store/maps";
 import { useLoading } from "@/store/loading";
 import { useOriginCoords } from "@/store/origin";
 import { storeToRefs } from "pinia";
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
 
 type ComponentType = "origin" | "destination";
 
@@ -19,14 +19,21 @@ const originStore = useOriginCoords();
 
 const { destinationAddress, originAddress, notFound, errorMessage } =
   storeToRefs(geocodingStore);
-const { sharedMap, markers } = storeToRefs(mapsStore);
+const { sharedMap, markers, mapMoving } = storeToRefs(mapsStore);
 const { loading } = storeToRefs(loadingStore);
-const { lat, lng } = storeToRefs(originStore);
+const { lat, lng, coords: originCoords } = storeToRefs(originStore);
 
 onMounted(async () => {
   if (props.componentType === "origin") await originStore.getCoords();
   await geocodingStore.geocoding(lat.value, lng.value, props.componentType);
 });
+
+watch(
+  () => originCoords.value,
+  async (newOne, oldOne) => {
+    await geocodingStore.geocoding(newOne.lat, newOne.lng, props.componentType);
+  }
+);
 </script>
 
 <template>
@@ -39,8 +46,8 @@ onMounted(async () => {
         {{
           notFound
             ? errorMessage
-            : loading
-            ? "Yuklanmoqda"
+            : loading || mapMoving
+            ? "Aniqlanmoqda..."
             : originAddress?.name || originAddress?.displayName
         }}
       </h3>
