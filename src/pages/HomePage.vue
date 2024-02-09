@@ -126,6 +126,7 @@ const addToSavedPlaces = async (place: {
 
 <template>
   <div class="home-page h-auto flex flex-col">
+    <ReverseGeocoding component-type="origin" />
     <Sheet>
       <SheetTrigger as-child>
         <Button class="mb-4 justify-self-end self-end mr-4"

@@ -33,7 +33,7 @@ export const useMaps = defineStore("maps-store", () => {
 
       // initalise the map
       sharedMap.value = leaflet
-        .map(id, { zoomControl: false, maxZoom: 19, attributionControl: false })
+        .map(id, { zoomControl: false, maxZoom: 20, attributionControl: false })
         .setView(
           [originCoords.value.lat, originCoords.value.lng],
           defaultZoom.value
@@ -41,7 +41,9 @@ export const useMaps = defineStore("maps-store", () => {
 
       // add layers to the map
       leaflet
-        .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+        .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 20,
+        })
         .addTo(sharedMap.value);
 
       // add origin marker to the map
@@ -62,7 +64,24 @@ export const useMaps = defineStore("maps-store", () => {
           originMarker
             .setLatLng([lat, lng])
             .addTo(sharedMap.value as Map | LayerGroup<any>);
+        });
+        sharedMap.value?.addEventListener("zoom", async (e) => {
+          const lat = sharedMap.value?.getCenter().lat as number;
+          const lng = sharedMap.value?.getCenter().lng as number;
 
+          originMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+        });
+
+        sharedMap.value?.addEventListener("zoomend", async (e) => {
+          const lat = sharedMap.value?.getCenter().lat as number;
+          const lng = sharedMap.value?.getCenter().lng as number;
+          await originStore.changeCoords({ lat, lng });
+        });
+        sharedMap.value?.addEventListener("dragend", async (e) => {
+          const lat = sharedMap.value?.getCenter().lat as number;
+          const lng = sharedMap.value?.getCenter().lng as number;
           await originStore.changeCoords({ lat, lng });
         });
       }
@@ -74,17 +93,8 @@ export const useMaps = defineStore("maps-store", () => {
     }
   }
 
-  async function attachMoveChangingEvents() {
-    try {
-      // await moveEvent();
-    } catch (error) {
-      alert(error);
-    }
-  }
-
   return {
     loadMap,
-    attachMoveChangingEvents,
     setMap,
     sharedMap,
     markers,
