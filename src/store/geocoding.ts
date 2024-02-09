@@ -4,19 +4,19 @@ import { geocodingInstance } from "@/http/instances";
 import { toastController } from "@ionic/vue";
 
 export interface Address {
-  lat: number;
-  lng: number;
-  name: string;
-  displayName: string;
-  placeId: string;
-  road: string;
+  lat?: number;
+  lng?: number;
+  name?: string;
+  displayName?: string;
+  placeId?: string;
+  road?: string;
   houseNumber?: string;
 }
 
 export const useGeocoding = defineStore("geocoding-store", () => {
   const id = ref("geocoding-store");
-  const originAddress = ref<Address | {}>();
-  const destinationAddress = ref<Address | {}>();
+  const originAddress = ref<Address>();
+  const destinationAddress = ref<Address>();
   const { reverseGeocoding } = geocodingInstance();
   const notFound = ref(false);
   const errorMessage = ref("");
@@ -34,6 +34,7 @@ export const useGeocoding = defineStore("geocoding-store", () => {
         if (type === "destination") destinationAddress.value = {};
 
         notFound.value = true;
+        errorMessage.value = "Manzil topilmadi";
       }
 
       if (response?.data.status === "ok") {
