@@ -1,6 +1,4 @@
-<script setup lang="ts">
-alert("jell");
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <div>Set destination</div>
