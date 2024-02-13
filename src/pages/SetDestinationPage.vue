@@ -4,7 +4,7 @@ import { storeToRefs } from "pinia";
 
 const geocodingStore = useGeocoding();
 
-const { originAddress } = storeToRefs(geocodingStore);
+const { originAddress } = storeToRefs(geocodingStore); 
 </script>
 
 <template>
