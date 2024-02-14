@@ -3,7 +3,13 @@ import { useMaps } from "@/store/maps";
 import { useOriginCoords } from "@/store/origin";
 import { useRouter } from "vue-router";
 import { Preferences } from "@capacitor/preferences";
-import { defineAsyncComponent, onMounted, ref } from "vue";
+import {
+  defineAsyncComponent,
+  onBeforeMount,
+  ref,
+  onBeforeUnmount,
+  onMounted,
+} from "vue";
 import { CircleSlash2, Locate, MapPin, Search } from "lucide-vue-next";
 import { storeToRefs } from "pinia";
 import { loadingController } from "@ionic/vue";
@@ -35,7 +41,7 @@ const searchPlacesStore = useSearchPlaces();
 
 const typing = ref(false);
 
-const { sharedMap, defaultZoom } = storeToRefs(mapsStore);
+const { sharedMap, defaultZoom, markers } = storeToRefs(mapsStore);
 const { lat, lng } = storeToRefs(originStore);
 const { notFound, places } = storeToRefs(searchPlacesStore);
 
@@ -123,9 +129,10 @@ const addToSavedPlaces = async (place: {
   return;
 };
 
-onMounted(async () => {
-  await mapsStore.moveEventOriginMarker()
-})
+onBeforeUnmount(async () => {
+  // Remove event listeners when the component is unmounted to prevent memory leaks
+  alert("unmounted: HomePage");
+});
 </script>
 
 <template>

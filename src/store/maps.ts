@@ -54,7 +54,6 @@ export const useMaps = defineStore("maps-store", () => {
       // @ts-ignore
       originMarker._custom_id = "origin-marker";
       markers.value.push(originMarker as CustomMarker);
-      console.log(markers.value);
 
       return;
     } catch (error) {
@@ -66,6 +65,8 @@ export const useMaps = defineStore("maps-store", () => {
     const originMarker = markers.value.find(
       (m: any) => m._custom_id === "origin-marker"
     ) as CustomMarker;
+
+    console.log(originMarker);
 
     sharedMap.value?.addEventListener("move", async (e) => {
       mapMoving.value = true;
