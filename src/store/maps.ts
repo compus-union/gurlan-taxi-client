@@ -1,7 +1,7 @@
 import { defineStore, storeToRefs } from "pinia";
 import { useOriginCoords } from "./origin";
 import { ref } from "vue";
-import leaflet from "leaflet";
+import leaflet, { Marker } from "leaflet";
 import { LayerGroup, Map } from "leaflet";
 
 export interface CustomMarker extends leaflet.Marker {
@@ -56,55 +56,58 @@ export const useMaps = defineStore("maps-store", () => {
       markers.value.push(originMarker as CustomMarker);
       console.log(markers.value);
 
-      async function moveEvent() {
-        sharedMap.value?.addEventListener("move", async (e) => {
-          mapMoving.value = true;
-          const lat = sharedMap.value?.getCenter().lat as number;
-          const lng = sharedMap.value?.getCenter().lng as number;
-
-          originMarker
-            .setLatLng([lat, lng])
-            .addTo(sharedMap.value as Map | LayerGroup<any>);
-        });
-        sharedMap.value?.addEventListener("zoom", async (e) => {
-          mapMoving.value = true;
-
-          const lat = sharedMap.value?.getCenter().lat as number;
-          const lng = sharedMap.value?.getCenter().lng as number;
-
-          originMarker
-            .setLatLng([lat, lng])
-            .addTo(sharedMap.value as Map | LayerGroup<any>);
-        });
-
-        sharedMap.value?.addEventListener("zoomend", async (e) => {
-          mapMoving.value = false;
-
-          const lat = sharedMap.value?.getCenter().lat as number;
-          const lng = sharedMap.value?.getCenter().lng as number;
-          await originStore.changeCoords({ lat, lng });
-        });
-        sharedMap.value?.addEventListener("dragend", async (e) => {
-          mapMoving.value = false;
-
-          const lat = sharedMap.value?.getCenter().lat as number;
-          const lng = sharedMap.value?.getCenter().lng as number;
-          await originStore.changeCoords({ lat, lng });
-        });
-        sharedMap.value?.addEventListener("moveend", async (e) => {
-          mapMoving.value = false;
-
-          const lat = sharedMap.value?.getCenter().lat as number;
-          const lng = sharedMap.value?.getCenter().lng as number;
-          await originStore.changeCoords({ lat, lng });
-        });
-      }
-
-      await moveEvent();
       return;
     } catch (error) {
       return error;
     }
+  }
+
+  async function moveEventOriginMarker() {
+    const originMarker = markers.value.find(
+      (m: any) => m._custom_id === "origin-marker"
+    ) as CustomMarker;
+
+    sharedMap.value?.addEventListener("move", async (e) => {
+      mapMoving.value = true;
+      const lat = sharedMap.value?.getCenter().lat as number;
+      const lng = sharedMap.value?.getCenter().lng as number;
+
+      originMarker
+        .setLatLng([lat, lng])
+        .addTo(sharedMap.value as Map | LayerGroup<any>);
+    });
+    sharedMap.value?.addEventListener("zoom", async (e) => {
+      mapMoving.value = true;
+
+      const lat = sharedMap.value?.getCenter().lat as number;
+      const lng = sharedMap.value?.getCenter().lng as number;
+
+      originMarker
+        .setLatLng([lat, lng])
+        .addTo(sharedMap.value as Map | LayerGroup<any>);
+    });
+
+    sharedMap.value?.addEventListener("zoomend", async (e) => {
+      mapMoving.value = false;
+
+      const lat = sharedMap.value?.getCenter().lat as number;
+      const lng = sharedMap.value?.getCenter().lng as number;
+      await originStore.changeCoords({ lat, lng });
+    });
+    sharedMap.value?.addEventListener("dragend", async (e) => {
+      mapMoving.value = false;
+
+      const lat = sharedMap.value?.getCenter().lat as number;
+      const lng = sharedMap.value?.getCenter().lng as number;
+      await originStore.changeCoords({ lat, lng });
+    });
+    sharedMap.value?.addEventListener("moveend", async (e) => {
+      mapMoving.value = false;
+
+      const lat = sharedMap.value?.getCenter().lat as number;
+      const lng = sharedMap.value?.getCenter().lng as number;
+      await originStore.changeCoords({ lat, lng });
+    });
   }
 
   return {
@@ -114,5 +117,6 @@ export const useMaps = defineStore("maps-store", () => {
     markers,
     defaultZoom,
     mapMoving,
+    moveEventOriginMarker,
   };
 });
