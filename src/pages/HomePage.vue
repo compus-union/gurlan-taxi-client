@@ -3,7 +3,7 @@ import { useMaps } from "@/store/maps";
 import { useOriginCoords } from "@/store/origin";
 import { useRouter } from "vue-router";
 import { Preferences } from "@capacitor/preferences";
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, onMounted, ref } from "vue";
 import { CircleSlash2, Locate, MapPin, Search } from "lucide-vue-next";
 import { storeToRefs } from "pinia";
 import { loadingController } from "@ionic/vue";
@@ -122,6 +122,10 @@ const addToSavedPlaces = async (place: {
 
   return;
 };
+
+onMounted(async () => {
+  await mapsStore.moveEventOriginMarker()
+})
 </script>
 
 <template>
