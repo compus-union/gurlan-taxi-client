@@ -92,7 +92,7 @@ onBeforeMount(async () => {
     }
 
     await mapsStore.loadMap("map");
-    // await mapsStore.attachMoveChangingEvents();
+    await mapsStore.moveEventOriginMarker();
     return;
   } catch (error: any) {
     toast(
