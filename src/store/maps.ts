@@ -19,6 +19,7 @@ export const useMaps = defineStore("maps-store", () => {
   const destinationStore = useDestination();
 
   const { coords: originCoords } = storeToRefs(originStore);
+  const { coords: destinationCoords } = storeToRefs(destinationStore);
 
   async function setMap(payload: leaflet.Map) {
     sharedMap.value = payload;
@@ -81,8 +82,14 @@ export const useMaps = defineStore("maps-store", () => {
       ) as CustomMarker;
 
       if (!originMarker) {
+        const originMarkerIcon = leaflet.icon({
+          iconUrl: "./assets/origin-marker-icon.svg",
+          iconSize: [25, 41],
+        });
         originMarker = leaflet
-          .marker([originCoords.value.lat, originCoords.value.lng], {})
+          .marker([originCoords.value.lat, originCoords.value.lng], {
+            icon: originMarkerIcon,
+          })
           .addTo(sharedMap.value as Map | LayerGroup<any>);
 
         originMarker._custom_id = "origin-marker";
@@ -190,9 +197,19 @@ export const useMaps = defineStore("maps-store", () => {
         });
 
         destinationMarker = leaflet
-          .marker([originCoords.value.lat, originCoords.value.lng], {
-            icon: destinationIcon,
-          })
+          .marker(
+            [
+              destinationCoords.value.lat
+                ? destinationCoords.value.lat
+                : originCoords.value.lat,
+              destinationCoords.value.lng
+                ? destinationCoords.value.lng
+                : originCoords.value.lng,
+            ],
+            {
+              icon: destinationIcon,
+            }
+          )
           .addTo(sharedMap.value as Map | LayerGroup<any>);
 
         destinationMarker._custom_id = "origin-marker";
@@ -201,7 +218,9 @@ export const useMaps = defineStore("maps-store", () => {
         destinationMarker._custom_id = "destination-marker";
         markers.value.push(destinationMarker);
       }
-    } catch (error) {}
+    } catch (error) {
+      alert(error);
+    }
   }
 
   return {
