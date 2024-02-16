@@ -1,7 +1,8 @@
 import { defineStore, storeToRefs } from "pinia";
 import { useOriginCoords } from "./origin";
+import { useDestination } from "./destination";
 import { ref } from "vue";
-import leaflet, { Marker } from "leaflet";
+import leaflet from "leaflet";
 import { LayerGroup, Map } from "leaflet";
 
 export interface CustomMarker extends leaflet.Marker {
@@ -15,6 +16,7 @@ export const useMaps = defineStore("maps-store", () => {
   const markers = ref<CustomMarker[]>([]);
   const defaultZoom = ref(16);
   const mapMoving = ref(false);
+  const destinationStore = useDestination();
 
   const { coords: originCoords } = storeToRefs(originStore);
 
@@ -61,11 +63,31 @@ export const useMaps = defineStore("maps-store", () => {
     }
   }
 
-  async function moveEventOriginMarker() {
+  async function addOriginMarker() {
     try {
-      const originMarker = markers.value.find(
+      const originMarkerFixed = markers.value.find((m: any) => {
+        return m._custom_id === "origin-marker-fixed";
+      }) as CustomMarker;
+
+      if (originMarkerFixed) {
+        sharedMap.value?.removeLayer(originMarkerFixed);
+        markers.value = markers.value.filter(
+          (m) => m._custom_id !== "origin-marker-fixed"
+        );
+      }
+
+      let originMarker = markers.value.find(
         (m: any) => m._custom_id === "origin-marker"
       ) as CustomMarker;
+
+      if (!originMarker) {
+        originMarker = leaflet
+          .marker([originCoords.value.lat, originCoords.value.lng], {})
+          .addTo(sharedMap.value as Map | LayerGroup<any>);
+
+        originMarker._custom_id = "origin-marker";
+        markers.value.push(originMarker as CustomMarker);
+      }
 
       sharedMap.value?.addEventListener("move", async (e) => {
         mapMoving.value = true;
@@ -145,66 +167,41 @@ export const useMaps = defineStore("maps-store", () => {
     }
   }
 
-  async function recreateOriginMarker() {
+  async function addDestinationMarker() {
     try {
-      const originMarkerFound = markers.value.find(
-        (m: any) => m._custom_id === "origin-marker"
+      const destinationMarkerFixed = markers.value.find(
+        (m: any) => m._custom_id === "destination-marker-fixed"
       ) as CustomMarker;
 
-      if (originMarkerFound) return;
+      if (destinationMarkerFixed) {
+        sharedMap.value?.removeLayer(destinationMarkerFixed);
+        markers.value = markers.value.filter(
+          (m) => m._custom_id !== "destination-marker-fixed"
+        );
+      }
+      let destinationMarker = markers.value.find(
+        (m: any) => m._custom_id === "destination-marker"
+      ) as CustomMarker;
 
-      // add origin marker to the map
-      const originMarker = leaflet
-        .marker([originCoords.value.lat, originCoords.value.lng], {})
-        .addTo(sharedMap.value as Map | LayerGroup<any>) as CustomMarker;
+      if (!destinationMarker) {
+        const destinationIcon = leaflet.icon({
+          iconUrl: "./assets/destination-marker.svg",
+          iconSize: [25, 41],
+        });
 
-      originMarker._custom_id = "origin-marker";
-      markers.value.push(originMarker as CustomMarker);
-
-      sharedMap.value?.addEventListener("move", async (e) => {
-        mapMoving.value = true;
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
-
-        originMarker
-          .setLatLng([lat, lng])
+        destinationMarker = leaflet
+          .marker([originCoords.value.lat, originCoords.value.lng], {
+            icon: destinationIcon,
+          })
           .addTo(sharedMap.value as Map | LayerGroup<any>);
-      });
-      sharedMap.value?.addEventListener("zoom", async (e) => {
-        mapMoving.value = true;
 
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
+        destinationMarker._custom_id = "origin-marker";
+        markers.value.push(destinationMarker as CustomMarker);
 
-        originMarker
-          .setLatLng([lat, lng])
-          .addTo(sharedMap.value as Map | LayerGroup<any>);
-      });
-
-      sharedMap.value?.addEventListener("zoomend", async (e) => {
-        mapMoving.value = false;
-
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
-        await originStore.changeCoords({ lat, lng });
-      });
-      sharedMap.value?.addEventListener("dragend", async (e) => {
-        mapMoving.value = false;
-
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
-        await originStore.changeCoords({ lat, lng });
-      });
-      sharedMap.value?.addEventListener("moveend", async (e) => {
-        mapMoving.value = false;
-
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
-        await originStore.changeCoords({ lat, lng });
-      });
-    } catch (error) {
-      alert(error)
-    }
+        destinationMarker._custom_id = "destination-marker";
+        markers.value.push(destinationMarker);
+      }
+    } catch (error) {}
   }
 
   return {
@@ -214,8 +211,7 @@ export const useMaps = defineStore("maps-store", () => {
     markers,
     defaultZoom,
     mapMoving,
-    moveEventOriginMarker,
-    recreateOriginMarker,
-    clearEventsOfOriginMarker
+    addOriginMarker,
+    clearEventsOfOriginMarker,
   };
 });

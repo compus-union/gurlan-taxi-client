@@ -134,6 +134,12 @@ onBeforeUnmount(async () => {
   alert("unmounted: HomePage");
   await mapsStore.clearEventsOfOriginMarker();
 });
+
+onMounted(async () => {
+  setTimeout(async () => {
+    await mapsStore.addOriginMarker();
+  }, 1000);
+});
 </script>
 
 <template>
