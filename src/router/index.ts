@@ -1,6 +1,5 @@
 import { Preferences } from "@capacitor/preferences";
 import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
-import { useMaps } from "@/store/maps";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -39,15 +38,6 @@ const routes: Array<RouteRecordRaw> = [
         path: "setOrigin",
         name: "layout-home-set-origin",
         component: () => import("@/pages/HomePage.vue"),
-        async beforeEnter(to, from, next) {
-          const mapsStore = useMaps();
-          if (from.fullPath === "/ride/setDestination") {
-            await mapsStore.recreateOriginMarker();
-            return next();
-          }
-
-          return next();
-        },
       },
       {
         path: "setDestination",

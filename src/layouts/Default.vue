@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
 import { useRouter } from "vue-router";
-import { defineAsyncComponent, onBeforeMount, onMounted, ref } from "vue";
-import { useMaps, CustomMarker } from "@/store/maps";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
-import { useOriginCoords } from "@/store/origin";
 import { ResponseStatus } from "@/constants";
 import { loadingController } from "@ionic/vue";
 import { toast } from "vue3-toastify";
 import { HamburgerMenuIcon } from "@radix-icons/vue";
 import { storeToRefs } from "pinia";
-import { Marker } from "leaflet";
 
 const AsideComponent = defineAsyncComponent(
   () => import("@/components/Aside.vue")
@@ -23,12 +21,11 @@ const Button = defineAsyncComponent(
 const router = useRouter();
 const mapsStore = useMaps();
 const authStore = useAuth();
-const originStore = useOriginCoords();
 const displayErrorMessage = ref(false);
 const showAside = ref(false);
 const canMapLoaded = ref(false);
 
-const { sharedMap, markers } = storeToRefs(mapsStore);
+const { sharedMap } = storeToRefs(mapsStore);
 
 const mapRef = ref(sharedMap);
 
@@ -92,6 +89,7 @@ onBeforeMount(async () => {
     }
 
     await mapsStore.loadMap("map");
+    await mapsStore.initialiseEvents()
     return;
   } catch (error: any) {
     toast(
@@ -103,7 +101,6 @@ onBeforeMount(async () => {
     await mapLoading.dismiss();
   }
 });
-
 
 const logout = async () => {
   await Preferences.clear();
