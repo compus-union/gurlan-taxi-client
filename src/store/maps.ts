@@ -66,10 +66,12 @@ export const useMaps = defineStore("maps-store", () => {
 
   async function addOriginMarker() {
     try {
+      // get fixed marker of origin marker
       const originMarkerFixed = markers.value.find((m: any) => {
         return m._custom_id === "origin-marker-fixed";
       }) as CustomMarker;
 
+      // if it exists, remove it
       if (originMarkerFixed) {
         sharedMap.value?.removeLayer(originMarkerFixed);
         markers.value = markers.value.filter(
@@ -77,10 +79,12 @@ export const useMaps = defineStore("maps-store", () => {
         );
       }
 
+      // check if origin marker already exists
       let originMarker = markers.value.find(
         (m: any) => m._custom_id === "origin-marker"
       ) as CustomMarker;
 
+      // if doesn't exists, add it
       if (!originMarker) {
         const originMarkerIcon = leaflet.icon({
           iconUrl: "./assets/origin-marker-icon.svg",
@@ -94,8 +98,15 @@ export const useMaps = defineStore("maps-store", () => {
 
         originMarker._custom_id = "origin-marker";
         markers.value.push(originMarker as CustomMarker);
+        return;
       }
+    } catch (error) {
+      alert(error);
+    }
+  }
 
+  async function initialiseEvents() {
+    try {
       sharedMap.value?.addEventListener("move", async (e) => {
         mapMoving.value = true;
         const lat = sharedMap.value?.getCenter().lat as number;
@@ -142,54 +153,27 @@ export const useMaps = defineStore("maps-store", () => {
     }
   }
 
-  async function clearEventsOfOriginMarker() {
-    try {
-      const originMarker = markers.value.find(
-        (m: any) => m._custom_id === "origin-marker"
-      ) as CustomMarker;
-
-      // remove originMarker from the map and markers array too
-      if (!originMarker) return;
-      sharedMap.value?.removeLayer(originMarker);
-      markers.value = markers.value.filter(
-        (m) => m._custom_id !== "origin-marker"
-      );
-
-      // create a new marker named 'origin-marker-fixed', position it in  the same place of 'origin-marker'
-      const originMarkerFixed = leaflet
-        .marker([originCoords.value.lat, originCoords.value.lng], {})
-        .addTo(sharedMap.value as Map | LayerGroup<any>);
-
-      // @ts-ignore
-      originMarkerFixed._custom_id = "origin-marker-fixed";
-      markers.value.push(originMarkerFixed as CustomMarker);
-
-      sharedMap.value?.removeEventListener("move");
-      sharedMap.value?.removeEventListener("zoom");
-      sharedMap.value?.removeEventListener("zoomend");
-      sharedMap.value?.removeEventListener("dragend");
-      sharedMap.value?.removeEventListener("moveend");
-    } catch (error) {
-      alert(error);
-    }
-  }
-
   async function addDestinationMarker() {
     try {
+      // get fixed marker of destination marker
       const destinationMarkerFixed = markers.value.find(
         (m: any) => m._custom_id === "destination-marker-fixed"
       ) as CustomMarker;
 
+      // if it exists, remove it
       if (destinationMarkerFixed) {
         sharedMap.value?.removeLayer(destinationMarkerFixed);
         markers.value = markers.value.filter(
           (m) => m._custom_id !== "destination-marker-fixed"
         );
       }
+
+      // check if destination marker already exists
       let destinationMarker = markers.value.find(
         (m: any) => m._custom_id === "destination-marker"
       ) as CustomMarker;
 
+      // if doesn't exists, add it
       if (!destinationMarker) {
         const destinationIcon = leaflet.icon({
           iconUrl: "./assets/destination-marker.svg",
@@ -217,6 +201,8 @@ export const useMaps = defineStore("maps-store", () => {
 
         destinationMarker._custom_id = "destination-marker";
         markers.value.push(destinationMarker);
+
+        return;
       }
     } catch (error) {
       alert(error);
@@ -230,7 +216,6 @@ export const useMaps = defineStore("maps-store", () => {
     markers,
     defaultZoom,
     mapMoving,
-    addOriginMarker,
-    clearEventsOfOriginMarker,
+    initialiseEvents,
   };
 });
