@@ -4,6 +4,9 @@ import { useDestination } from "./destination";
 import { ref } from "vue";
 import leaflet from "leaflet";
 import { LayerGroup, Map } from "leaflet";
+import { useRoute } from "vue-router";
+import OriginMarkerIcon from "@/assets/origin-marker-icon.svg";
+import DestinationMarkerIcon from "@/assets/destination-marker-icon.svg";
 
 export interface CustomMarker extends leaflet.Marker {
   latLng?: leaflet.LatLng;
@@ -17,6 +20,7 @@ export const useMaps = defineStore("maps-store", () => {
   const defaultZoom = ref(16);
   const mapMoving = ref(false);
   const destinationStore = useDestination();
+  const route = useRoute();
 
   const { coords: originCoords } = storeToRefs(originStore);
   const { coords: destinationCoords } = storeToRefs(destinationStore);
@@ -49,18 +53,160 @@ export const useMaps = defineStore("maps-store", () => {
         })
         .addTo(sharedMap.value);
 
-      // add origin marker to the map
-      const originMarker = leaflet
-        .marker([originCoords.value.lat, originCoords.value.lng], {})
-        .addTo(sharedMap.value);
+      let originMarker = markers.value.find(
+        (m) => m._custom_id === "origin-marker"
+      ) as CustomMarker;
 
-      // @ts-ignore
-      originMarker._custom_id = "origin-marker";
-      markers.value.push(originMarker as CustomMarker);
+      let destinationMarker = markers.value.find(
+        (m) => m._custom_id === "destination-marker"
+      ) as CustomMarker;
+
+      if (!originMarker && route.path === "/ride/setOrigin") {
+        console.log("origin marker is being added in loadMap()");
+        await addOriginMarker();
+      }
+
+      if (!destinationMarker && route.path === "/ride/setDestination") {
+        console.log("destination marker is being added in loadMap*()");
+        await addDestinationMarker();
+      }
 
       return;
     } catch (error) {
       return error;
+    }
+  }
+
+  async function initialiseEvents() {
+    try {
+      // get origin marker
+      let originMarker = markers.value.find(
+        (m) => m._custom_id === "origin-marker"
+      ) as CustomMarker;
+
+      let destinationMarker = markers.value.find(
+        (m) => m._custom_id === "destination-marker"
+      ) as CustomMarker;
+
+      console.log(originMarker);
+
+      sharedMap.value?.addEventListener("move", async (e) => {
+        if (route.path === "/ride/letsgo") return;
+
+        mapMoving.value = true;
+        const lat = sharedMap.value?.getCenter().lat as number;
+        const lng = sharedMap.value?.getCenter().lng as number;
+
+        if (route.path === "/ride/setOrigin") {
+          originMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+
+        if (route.path === "/ride/setDestination") {
+          destinationMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+      });
+      sharedMap.value?.addEventListener("zoom", async (e) => {
+        if (route.path === "/ride/letsgo") return;
+
+        mapMoving.value = true;
+        const lat = sharedMap.value?.getCenter().lat as number;
+        const lng = sharedMap.value?.getCenter().lng as number;
+
+        if (route.path === "/ride/setOrigin") {
+          originMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+
+        if (route.path === "/ride/setDestination") {
+          destinationMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+      });
+
+      sharedMap.value?.addEventListener("zoomend", async (e) => {
+        if (route.path === "/ride/letsgo") return;
+
+        mapMoving.value = false;
+        const lat = sharedMap.value?.getCenter().lat as number;
+        const lng = sharedMap.value?.getCenter().lng as number;
+
+        if (route.path === "/ride/setOrigin") {
+          await originStore.changeCoords({ lat, lng });
+
+          originMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+
+        if (route.path === "/ride/setDestination") {
+          await destinationStore.changeCoords({ lat, lng }, "void");
+          destinationMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+      });
+      sharedMap.value?.addEventListener("dragend", async (e) => {
+        if (route.path === "/ride/letsgo") return;
+
+        mapMoving.value = false;
+        const lat = sharedMap.value?.getCenter().lat as number;
+        const lng = sharedMap.value?.getCenter().lng as number;
+
+        if (route.path === "/ride/setOrigin") {
+          await originStore.changeCoords({ lat, lng });
+
+          originMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+
+        if (route.path === "/ride/setDestination") {
+          await destinationStore.changeCoords({ lat, lng }, "void");
+          destinationMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+      });
+      sharedMap.value?.addEventListener("moveend", async (e) => {
+        if (route.path === "/ride/letsgo") return;
+
+        mapMoving.value = false;
+        const lat = sharedMap.value?.getCenter().lat as number;
+        const lng = sharedMap.value?.getCenter().lng as number;
+
+        if (route.path === "/ride/setOrigin") {
+          await originStore.changeCoords({ lat, lng });
+
+          originMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+
+        if (route.path === "/ride/setDestination") {
+          await destinationStore.changeCoords({ lat, lng }, "void");
+          destinationMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+      });
+    } catch (error) {
+      alert(error);
     }
   }
 
@@ -87,12 +233,12 @@ export const useMaps = defineStore("maps-store", () => {
       // if doesn't exists, add it
       if (!originMarker) {
         const originMarkerIcon = leaflet.icon({
-          iconUrl: "./assets/origin-marker-icon.svg",
-          iconSize: [25, 41],
+          iconUrl: OriginMarkerIcon,
+          iconSize: [45, 61],
         });
         originMarker = leaflet
           .marker([originCoords.value.lat, originCoords.value.lng], {
-            icon: originMarkerIcon,
+            // icon: originMarkerIcon,
           })
           .addTo(sharedMap.value as Map | LayerGroup<any>);
 
@@ -100,54 +246,6 @@ export const useMaps = defineStore("maps-store", () => {
         markers.value.push(originMarker as CustomMarker);
         return;
       }
-    } catch (error) {
-      alert(error);
-    }
-  }
-
-  async function initialiseEvents() {
-    try {
-      sharedMap.value?.addEventListener("move", async (e) => {
-        mapMoving.value = true;
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
-
-        originMarker
-          .setLatLng([lat, lng])
-          .addTo(sharedMap.value as Map | LayerGroup<any>);
-      });
-      sharedMap.value?.addEventListener("zoom", async (e) => {
-        mapMoving.value = true;
-
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
-
-        originMarker
-          .setLatLng([lat, lng])
-          .addTo(sharedMap.value as Map | LayerGroup<any>);
-      });
-
-      sharedMap.value?.addEventListener("zoomend", async (e) => {
-        mapMoving.value = false;
-
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
-        await originStore.changeCoords({ lat, lng });
-      });
-      sharedMap.value?.addEventListener("dragend", async (e) => {
-        mapMoving.value = false;
-
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
-        await originStore.changeCoords({ lat, lng });
-      });
-      sharedMap.value?.addEventListener("moveend", async (e) => {
-        mapMoving.value = false;
-
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
-        await originStore.changeCoords({ lat, lng });
-      });
     } catch (error) {
       alert(error);
     }
@@ -176,8 +274,8 @@ export const useMaps = defineStore("maps-store", () => {
       // if doesn't exists, add it
       if (!destinationMarker) {
         const destinationIcon = leaflet.icon({
-          iconUrl: "./assets/destination-marker.svg",
-          iconSize: [25, 41],
+          iconUrl: DestinationMarkerIcon,
+          iconSize: [45, 61],
         });
 
         destinationMarker = leaflet
@@ -217,5 +315,7 @@ export const useMaps = defineStore("maps-store", () => {
     defaultZoom,
     mapMoving,
     initialiseEvents,
+    addDestinationMarker,
+    addOriginMarker,
   };
 });
