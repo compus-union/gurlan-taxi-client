@@ -5,8 +5,8 @@ import { ref } from "vue";
 import leaflet from "leaflet";
 import { LayerGroup, Map } from "leaflet";
 import { useRoute } from "vue-router";
-import OriginMarkerIcon from "@/assets/origin-marker-icon.svg"
-import DestinationMarkerIcon from "@/assets/destination-marker-icon.svg"
+import OriginMarkerIcon from "@/assets/origin-marker-icon.svg";
+import DestinationMarkerIcon from "@/assets/destination-marker-icon.svg";
 
 export interface CustomMarker extends leaflet.Marker {
   latLng?: leaflet.LatLng;
@@ -238,7 +238,7 @@ export const useMaps = defineStore("maps-store", () => {
         });
         originMarker = leaflet
           .marker([originCoords.value.lat, originCoords.value.lng], {
-            icon: originMarkerIcon,
+            // icon: originMarkerIcon,
           })
           .addTo(sharedMap.value as Map | LayerGroup<any>);
 

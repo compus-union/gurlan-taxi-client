@@ -1,7 +1,15 @@
 <svg width="513" height="513" viewBox="0 0 513 513" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M427.5 213.75C427.5 342 256.5 470.25 256.5 470.25C256.5 470.25 85.5 342 85.5 213.75C85.5 168.398 103.516 124.904 135.585 92.8352C167.653 60.7665 211.148 42.7505 256.5 42.7505C301.852 42.7505 345.347 60.7665 377.415 92.8352C409.484 124.904 427.5 168.398 427.5 213.75Z" fill="white" stroke="#217BC9" stroke-width="42.75" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M257 161C263.351 161 268.5 155.851 268.5 149.5C268.5 143.149 263.351 138 257 138C250.649 138 245.5 143.149 245.5 149.5C245.5 155.851 250.649 161 257 161Z" stroke="#217BC9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M222.5 322L257 253L291.5 322" stroke="#217BC9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M188 184L257 207L326 184" stroke="#217BC9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M257 207V253" stroke="#217BC9" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+    <path
+        d="M427.5 213.75C427.5 342 256.5 470.25 256.5 470.25C256.5 470.25 85.5 342 85.5 213.75C85.5 168.398 103.516 124.904 135.585 92.8352C167.653 60.7665 211.148 42.7505 256.5 42.7505C301.852 42.7505 345.347 60.7665 377.415 92.8352C409.484 124.904 427.5 168.398 427.5 213.75Z"
+        fill="white" stroke="#000" stroke-width="42.75" stroke-linecap="round"
+        stroke-linejoin="round" />
+    <path
+        d="M257 161C263.351 161 268.5 155.851 268.5 149.5C268.5 143.149 263.351 138 257 138C250.649 138 245.5 143.149 245.5 149.5C245.5 155.851 250.649 161 257 161Z"
+        stroke="#000" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M222.5 322L257 253L291.5 322" stroke="#000" stroke-width="24" stroke-linecap="round"
+        stroke-linejoin="round" />
+    <path d="M188 184L257 207L326 184" stroke="#000" stroke-width="24" stroke-linecap="round"
+        stroke-linejoin="round" />
+    <path d="M257 207V253" stroke="#000" stroke-width="24" stroke-linecap="round"
+        stroke-linejoin="round" />
 </svg>
