@@ -1,18 +1,42 @@
 <script setup lang="ts">
 import { useGeocoding } from "@/store/geocoding";
 import { storeToRefs } from "pinia";
-import { defineAsyncComponent, onBeforeUnmount } from "vue";
+import { defineAsyncComponent, onBeforeUnmount, onMounted } from "vue";
+import { useMaps } from "@/store/maps";
+import router from "@/router";
+import { onBeforeRouteLeave } from "vue-router";
 
-const Button = defineAsyncComponent(() => import("@/components/ui/button/Button.vue"));
+const mapsStore = useMaps();
+
+const Button = defineAsyncComponent(
+  () => import("@/components/ui/button/Button.vue")
+);
 
 const geocodingStore = useGeocoding();
 
-const { originAddress } = storeToRefs(geocodingStore); 
+const { originAddress } = storeToRefs(geocodingStore);
 
-onBeforeUnmount(async () => {
-  // Remove event listeners when the component is unmounted to prevent memory leaks
-  alert("unmounted: SetDestinationPage");
+onMounted(async () => {
+  setTimeout(async () => {
+    await mapsStore.addDestinationMarker();
+  }, 1000);
 });
+
+onBeforeRouteLeave(async (to, from, next) => {
+  if (to.path === "/ride/setOrigin") {
+    await mapsStore.removeDestinationMarker();
+  }
+
+  if (to.path === "/ride/letsgo") {
+    await mapsStore.addFixedDestinationMarker();
+  }
+
+  return next();
+});
+
+const goBack = async () => {
+  router.push("/ride/setOrigin");
+};
 </script>
 
 <template>
@@ -23,7 +47,7 @@ onBeforeUnmount(async () => {
       <h1 class="text-primary">
         {{ originAddress?.displayName || originAddress?.name }}
       </h1>
-      <Button @click="() => $router.push('/ride/setOrigin')">Go back</Button>
+      <Button @click="goBack">Go back</Button>
     </div>
   </div>
 </template>

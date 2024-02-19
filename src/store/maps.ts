@@ -2,7 +2,7 @@ import { defineStore, storeToRefs } from "pinia";
 import { useOriginCoords } from "./origin";
 import { useDestination } from "./destination";
 import { ref } from "vue";
-import leaflet from "leaflet";
+import leaflet, { marker } from "leaflet";
 import { LayerGroup, Map } from "leaflet";
 import { useRoute } from "vue-router";
 import OriginMarkerIcon from "@/assets/origin-marker-icon.svg";
@@ -289,21 +289,96 @@ export const useMaps = defineStore("maps-store", () => {
                 : originCoords.value.lng,
             ],
             {
-              icon: destinationIcon,
+              // icon: destinationIcon,
             }
           )
           .addTo(sharedMap.value as Map | LayerGroup<any>);
 
-        destinationMarker._custom_id = "origin-marker";
-        markers.value.push(destinationMarker as CustomMarker);
-
         destinationMarker._custom_id = "destination-marker";
-        markers.value.push(destinationMarker);
+        markers.value.push(destinationMarker as CustomMarker);
 
         return;
       }
     } catch (error) {
       alert(error);
+    }
+  }
+
+  async function addFixedOriginMarker() {
+    try {
+      const originMarker = markers.value.find(
+        (m) => m._custom_id === "origin-marker"
+      ) as CustomMarker;
+
+      if (originMarker) {
+        sharedMap.value?.removeLayer(originMarker);
+        markers.value = markers.value.filter(
+          (m) => m._custom_id !== "origin-marker"
+        );
+      }
+
+      const fixedOriginMarker = leaflet
+        .marker([originCoords.value.lat, originCoords.value.lng])
+        .addTo(sharedMap.value as Map) as CustomMarker;
+
+      fixedOriginMarker._custom_id = "origin-marker-fixed";
+      markers.value.push(fixedOriginMarker);
+      return;
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
+  }
+
+  async function addFixedDestinationMarker() {
+    try {
+      const destinationMarker = markers.value.find(
+        (m) => m._custom_id === "destination-marker"
+      ) as CustomMarker;
+
+      if (destinationMarker) {
+        sharedMap.value?.removeLayer(destinationMarker);
+        markers.value = markers.value.filter(
+          (m) => m._custom_id !== "destination-marker"
+        );
+      }
+
+      const fixedDestinationMarker = leaflet
+        .marker([
+          destinationCoords.value.lat
+            ? destinationCoords.value.lat
+            : originCoords.value.lat,
+          destinationCoords.value.lng
+            ? destinationCoords.value.lng
+            : originCoords.value.lng,
+        ])
+        .addTo(sharedMap.value as Map) as CustomMarker;
+
+      fixedDestinationMarker._custom_id = "destination-marker-fixed";
+      markers.value.push(fixedDestinationMarker);
+      return;
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
+  }
+
+  async function removeDestinationMarker() {
+    try {
+      const destinationMarker = markers.value.find(
+        (m) => m._custom_id === "destination-marker"
+      ) as CustomMarker;
+
+      if (destinationMarker) {
+        sharedMap.value?.removeLayer(destinationMarker);
+        markers.value = markers.value.filter(
+          (m) => m._custom_id !== "destination-marker"
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      
+      alert(error)
     }
   }
 
@@ -315,7 +390,10 @@ export const useMaps = defineStore("maps-store", () => {
     defaultZoom,
     mapMoving,
     initialiseEvents,
+    addFixedOriginMarker,
     addDestinationMarker,
+    addFixedDestinationMarker,
     addOriginMarker,
+    removeDestinationMarker
   };
 });

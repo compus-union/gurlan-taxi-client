@@ -130,8 +130,8 @@ const addToSavedPlaces = async (place: {
 };
 
 onBeforeUnmount(async () => {
-  // Remove event listeners when the component is unmounted to prevent memory leaks
-  alert("unmounted: HomePage");
+  // Remove origin marker and add fixed origin marker
+  await mapsStore.addFixedOriginMarker()
 });
 
 onMounted(async () => {
