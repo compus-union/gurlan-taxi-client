@@ -30,12 +30,8 @@ onMounted(async () => {
 onBeforeRouteLeave(async (to, from, next) => {
   if (to.path === "/ride/setOrigin") {
     sharedMap.value?.setView([lat.value, lng.value], defaultZoom.value);
-    await mapsStore.removeDestinationMarker();
   }
-
-  if (to.path === "/ride/letsgo") {
-    await mapsStore.addFixedDestinationMarker();
-  }
+  await mapsStore.addFixedDestinationMarker();
 
   return next();
 });

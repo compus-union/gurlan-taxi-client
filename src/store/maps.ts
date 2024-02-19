@@ -265,7 +265,7 @@ export const useMaps = defineStore("maps-store", () => {
         });
         originMarker = leaflet
           .marker([originCoords.value.lat, originCoords.value.lng], {
-            // icon: originMarkerIcon,
+            icon: originMarkerIcon,
           })
           .addTo(sharedMap.value as Map | LayerGroup<any>);
 
@@ -316,7 +316,7 @@ export const useMaps = defineStore("maps-store", () => {
                 : originCoords.value.lng,
             ],
             {
-              // icon: destinationIcon,
+              icon: destinationIcon,
             }
           )
           .addTo(sharedMap.value as Map | LayerGroup<any>);
@@ -344,8 +344,15 @@ export const useMaps = defineStore("maps-store", () => {
         );
       }
 
+      const originMarkerIcon = leaflet.icon({
+        iconUrl: OriginMarkerIcon,
+        iconSize: [45, 61],
+      });
+
       const fixedOriginMarker = leaflet
-        .marker([originCoords.value.lat, originCoords.value.lng])
+        .marker([originCoords.value.lat, originCoords.value.lng], {
+          icon: originMarkerIcon,
+        })
         .addTo(sharedMap.value as Map) as CustomMarker;
 
       fixedOriginMarker._custom_id = "origin-marker-fixed";
@@ -370,15 +377,23 @@ export const useMaps = defineStore("maps-store", () => {
         );
       }
 
+      const destinationIcon = leaflet.icon({
+        iconUrl: DestinationMarkerIcon,
+        iconSize: [45, 61],
+      });
+
       const fixedDestinationMarker = leaflet
-        .marker([
-          destinationCoords.value.lat
-            ? destinationCoords.value.lat
-            : originCoords.value.lat,
-          destinationCoords.value.lng
-            ? destinationCoords.value.lng
-            : originCoords.value.lng,
-        ])
+        .marker(
+          [
+            destinationCoords.value.lat
+              ? destinationCoords.value.lat
+              : originCoords.value.lat,
+            destinationCoords.value.lng
+              ? destinationCoords.value.lng
+              : originCoords.value.lng,
+          ],
+          { icon: destinationIcon }
+        )
         .addTo(sharedMap.value as Map) as CustomMarker;
 
       fixedDestinationMarker._custom_id = "destination-marker-fixed";
