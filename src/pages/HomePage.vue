@@ -131,13 +131,11 @@ const addToSavedPlaces = async (place: {
 
 onBeforeUnmount(async () => {
   // Remove origin marker and add fixed origin marker
-  await mapsStore.addFixedOriginMarker()
+  await mapsStore.addFixedOriginMarker();
 });
 
 onMounted(async () => {
-  setTimeout(async () => {
-    await mapsStore.addOriginMarker();
-  }, 1000);
+  await mapsStore.addOriginMarker();
 });
 </script>
 
