@@ -2,7 +2,7 @@ import { defineStore, storeToRefs } from "pinia";
 import { useOriginCoords } from "./origin";
 import { useDestination } from "./destination";
 import { ref } from "vue";
-import leaflet, { marker } from "leaflet";
+import leaflet from "leaflet";
 import { LayerGroup, Map } from "leaflet";
 import { useRoute } from "vue-router";
 import OriginMarkerIcon from "@/assets/origin-marker-icon.svg";
@@ -232,6 +232,7 @@ export const useMaps = defineStore("maps-store", () => {
         }
       });
     } catch (error) {
+      console.log(error);
       alert(error);
     }
   }
