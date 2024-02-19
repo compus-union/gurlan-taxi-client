@@ -3,13 +3,7 @@ import { useMaps } from "@/store/maps";
 import { useOriginCoords } from "@/store/origin";
 import { useRouter } from "vue-router";
 import { Preferences } from "@capacitor/preferences";
-import {
-  defineAsyncComponent,
-  onBeforeMount,
-  ref,
-  onBeforeUnmount,
-  onMounted,
-} from "vue";
+import { defineAsyncComponent, ref, onBeforeUnmount, onMounted } from "vue";
 import { CircleSlash2, Locate, MapPin, Search } from "lucide-vue-next";
 import { storeToRefs } from "pinia";
 import { loadingController } from "@ionic/vue";
@@ -20,6 +14,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useSearchPlaces } from "@/store/searchPlaces";
+import { useDestination } from "@/store/destination";
+import { onBeforeRouteLeave } from "vue-router";
 
 const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -38,12 +34,15 @@ const mapsStore = useMaps();
 const originStore = useOriginCoords();
 const router = useRouter();
 const searchPlacesStore = useSearchPlaces();
+const destinationStore = useDestination();
 
 const typing = ref(false);
 
-const { sharedMap, defaultZoom, markers } = storeToRefs(mapsStore);
+const { sharedMap, defaultZoom } = storeToRefs(mapsStore);
 const { lat, lng } = storeToRefs(originStore);
 const { notFound, places } = storeToRefs(searchPlacesStore);
+const { lat: destinationLat, lng: destinationLng } =
+  storeToRefs(destinationStore);
 
 function createDebounce() {
   let timeout: any;
@@ -129,13 +128,24 @@ const addToSavedPlaces = async (place: {
   return;
 };
 
-onBeforeUnmount(async () => {
+onBeforeRouteLeave(async (to, from, next) => {
   // Remove origin marker and add fixed origin marker
-  await mapsStore.addFixedOriginMarker();
+  if (to.path === "/ride/setDestination") {
+    if (destinationLat.value && destinationLng.value) {
+      sharedMap.value?.setView(
+        [destinationLat.value, destinationLng.value],
+        defaultZoom.value
+      );
+    }
+    await mapsStore.addFixedOriginMarker();
+  }
+  return next();
 });
 
 onMounted(async () => {
-  await mapsStore.addOriginMarker();
+  setTimeout(async () => {
+    await mapsStore.addOriginMarker();
+  }, 1000);
 });
 </script>
 
