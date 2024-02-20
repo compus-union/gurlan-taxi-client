@@ -140,12 +140,10 @@ onBeforeRouteLeave(async (to, from, next) => {
     await mapsStore.addFixedOriginMarker();
   }
   return next();
-});
+})
 
 onMounted(async () => {
-  setTimeout(async () => {
-    await mapsStore.addOriginMarker();
-  }, 1000);
+  await mapsStore.addOriginMarker();
 });
 </script>
 

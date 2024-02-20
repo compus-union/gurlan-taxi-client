@@ -21,6 +21,7 @@ export const useMaps = defineStore("maps-store", () => {
   const mapMoving = ref(false);
   const destinationStore = useDestination();
   const route = useRoute();
+  const mapLoaded = ref(false);
 
   const { coords: originCoords } = storeToRefs(originStore);
   const { coords: destinationCoords } = storeToRefs(destinationStore);
@@ -51,7 +52,10 @@ export const useMaps = defineStore("maps-store", () => {
         .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
           maxZoom: 20,
         })
-        .addTo(sharedMap.value);
+        .addTo(sharedMap.value)
+        .on("load", () => {
+          mapLoaded.value = true;
+        });
 
       let originMarker = markers.value.find(
         (m) => m._custom_id === "origin-marker"
@@ -73,7 +77,7 @@ export const useMaps = defineStore("maps-store", () => {
 
       return;
     } catch (error) {
-      return error;
+      console.log(error);
     }
   }
 
@@ -233,7 +237,6 @@ export const useMaps = defineStore("maps-store", () => {
       });
     } catch (error) {
       console.log(error);
-      alert(error);
     }
   }
 
@@ -274,7 +277,7 @@ export const useMaps = defineStore("maps-store", () => {
         return;
       }
     } catch (error) {
-      alert(error);
+      console.log(error);
     }
   }
 
@@ -327,7 +330,7 @@ export const useMaps = defineStore("maps-store", () => {
         return;
       }
     } catch (error) {
-      alert(error);
+      console.log(error);
     }
   }
 
@@ -360,7 +363,6 @@ export const useMaps = defineStore("maps-store", () => {
       return;
     } catch (error) {
       console.log(error);
-      alert(error);
     }
   }
 
@@ -401,7 +403,6 @@ export const useMaps = defineStore("maps-store", () => {
       return;
     } catch (error) {
       console.log(error);
-      alert(error);
     }
   }
 
@@ -419,8 +420,6 @@ export const useMaps = defineStore("maps-store", () => {
       }
     } catch (error) {
       console.log(error);
-
-      alert(error);
     }
   }
 
@@ -437,5 +436,6 @@ export const useMaps = defineStore("maps-store", () => {
     addFixedDestinationMarker,
     addOriginMarker,
     removeDestinationMarker,
+    mapLoaded,
   };
 });
