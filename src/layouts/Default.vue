@@ -105,7 +105,6 @@ onMounted(async () => {
 watch(
   () => mapLoaded.value,
   async () => {
-    console.log("worked");
     await mapsStore.initialiseEvents();
   }
 );
