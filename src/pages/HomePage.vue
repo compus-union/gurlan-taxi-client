@@ -3,7 +3,7 @@ import { useMaps } from "@/store/maps";
 import { useOriginCoords } from "@/store/origin";
 import { useRouter } from "vue-router";
 import { Preferences } from "@capacitor/preferences";
-import { defineAsyncComponent, ref, onBeforeUnmount, onMounted } from "vue";
+import { defineAsyncComponent, ref, onMounted, watch } from "vue";
 import { CircleSlash2, Locate, MapPin, Search } from "lucide-vue-next";
 import { storeToRefs } from "pinia";
 import { loadingController } from "@ionic/vue";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { useSearchPlaces } from "@/store/searchPlaces";
 import { useDestination } from "@/store/destination";
-import { onBeforeRouteLeave } from "vue-router";
+import { onBeforeRouteLeave, useRoute } from "vue-router";
 
 const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -35,10 +35,11 @@ const originStore = useOriginCoords();
 const router = useRouter();
 const searchPlacesStore = useSearchPlaces();
 const destinationStore = useDestination();
+const route = useRoute();
 
 const typing = ref(false);
 
-const { sharedMap, defaultZoom } = storeToRefs(mapsStore);
+const { sharedMap, defaultZoom, mapLoaded } = storeToRefs(mapsStore);
 const { lat, lng } = storeToRefs(originStore);
 const { notFound, places } = storeToRefs(searchPlacesStore);
 const { lat: destinationLat, lng: destinationLng } =
@@ -142,10 +143,19 @@ onBeforeRouteLeave(async (to, from, next) => {
   return next();
 });
 
-onMounted(async () => {
-  setTimeout(async () => {
+watch(
+  () => mapLoaded.value,
+  async () => {
     await mapsStore.addOriginMarker();
-  }, 1000);
+  }
+);
+
+router.beforeEach(async (to, from, next) => {
+  if (from.path === "/ride/setDestination") {
+    await mapsStore.addOriginMarker();
+  }
+
+  return next();
 });
 </script>
 

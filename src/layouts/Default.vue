@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
 import { useRouter } from "vue-router";
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
 import { ResponseStatus } from "@/constants";
@@ -25,7 +25,7 @@ const displayErrorMessage = ref(false);
 const showAside = ref(false);
 const canMapLoaded = ref(false);
 
-const { sharedMap } = storeToRefs(mapsStore);
+const { sharedMap, mapLoaded } = storeToRefs(mapsStore);
 
 const mapRef = ref(sharedMap);
 
@@ -78,7 +78,7 @@ const checkClient = async () => {
   }
 };
 
-onBeforeMount(async () => {
+onMounted(async () => {
   const mapLoading = await createLoading("Xarita yuklanmoqda...");
 
   try {
@@ -89,7 +89,7 @@ onBeforeMount(async () => {
     }
 
     await mapsStore.loadMap("map");
-    await mapsStore.initialiseEvents()
+
     return;
   } catch (error: any) {
     toast(
@@ -101,6 +101,13 @@ onBeforeMount(async () => {
     await mapLoading.dismiss();
   }
 });
+
+watch(
+  () => mapLoaded.value,
+  async () => {
+    await mapsStore.initialiseEvents();
+  }
+);
 
 const logout = async () => {
   await Preferences.clear();

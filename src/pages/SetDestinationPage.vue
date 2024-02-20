@@ -22,9 +22,7 @@ const geocodingStore = useGeocoding();
 const { originAddress } = storeToRefs(geocodingStore);
 
 onMounted(async () => {
-  setTimeout(async () => {
-    await mapsStore.addDestinationMarker();
-  }, 1000);
+  await mapsStore.addDestinationMarker();
 });
 
 onBeforeRouteLeave(async (to, from, next) => {
