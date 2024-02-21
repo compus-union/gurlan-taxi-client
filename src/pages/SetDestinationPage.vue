@@ -6,10 +6,11 @@ import { useMaps } from "@/store/maps";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
-import { Flag, Check } from "lucide-vue-next";
+import { Flag, Check, ChevronLeft } from "lucide-vue-next";
 
 const mapsStore = useMaps();
 const originStore = useOriginCoords();
+const geocodingStore = useGeocoding();
 
 const { lat, lng } = storeToRefs(originStore);
 const { sharedMap, defaultZoom } = storeToRefs(mapsStore);
@@ -18,9 +19,7 @@ const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
 );
 
-const geocodingStore = useGeocoding();
-
-const { originAddress } = storeToRefs(geocodingStore);
+const { destinationAddress } = storeToRefs(geocodingStore);
 
 onMounted(async () => {
   await mapsStore.addDestinationMarker();
@@ -42,6 +41,9 @@ const goBack = async () => {
 
 <template>
   <div class="set-destination-page h-auto flex flex-col">
+    <Button @click="goBack" class="mb-4 justify-self-end self-end mr-4"
+      ><ChevronLeft class="w-4 h-4 mr-2" /> Orqaga</Button
+    >
     <div
       class="main-content bg-primary-foreground text-foreground p-6 custom-style"
     >
