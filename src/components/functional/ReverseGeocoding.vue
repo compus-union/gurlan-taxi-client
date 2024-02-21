@@ -17,9 +17,8 @@ const mapsStore = useMaps();
 const loadingStore = useLoading();
 const originStore = useOriginCoords();
 
-const { destinationAddress, originAddress, notFound, errorMessage } =
-  storeToRefs(geocodingStore);
-const { sharedMap, markers, mapMoving } = storeToRefs(mapsStore);
+const { originAddress, notFound, errorMessage } = storeToRefs(geocodingStore);
+const { mapMoving } = storeToRefs(mapsStore);
 const { loading } = storeToRefs(loadingStore);
 const { lat, lng, coords: originCoords } = storeToRefs(originStore);
 
