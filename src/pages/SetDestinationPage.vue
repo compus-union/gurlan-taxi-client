@@ -6,6 +6,7 @@ import { useMaps } from "@/store/maps";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
+import { Flag, Check } from "lucide-vue-next";
 
 const mapsStore = useMaps();
 const originStore = useOriginCoords();
@@ -44,10 +45,21 @@ const goBack = async () => {
     <div
       class="main-content bg-primary-foreground text-foreground p-6 custom-style"
     >
-      <h1 class="text-primary">
-        {{ originAddress?.displayName || originAddress?.name }}
-      </h1>
-      <Button @click="goBack">Go back</Button>
+      <h1 class="text-primary font-bold text-xl mb-4">Boradigan manzilingiz</h1>
+      <p class="text-primary flex items-start">
+        <Flag class="w-[20px] h-[20px] mr-2" /> Mustaqillik ko’ch. 55, Gurlan,
+        Xorazm
+      </p>
+      <Button class="w-full mt-4"
+        ><Check class="w-4 h-4 mr-2" /> Belgilash</Button
+      >
     </div>
   </div>
 </template>
+
+<style scoped>
+.custom-style {
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 8px -2px rgba(0, 0, 0, 0.2);
+}
+</style>
