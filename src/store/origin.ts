@@ -4,6 +4,7 @@ import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router";
 import { loadingController } from "@ionic/vue";
 import { toast } from "vue3-toastify";
+import axios from "axios";
 
 export const useOriginCoords = defineStore("coords-store", () => {
   const lat = ref<number>(0);
