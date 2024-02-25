@@ -1,20 +1,39 @@
 <script setup lang="ts">
 import { useGeocoding } from "@/store/geocoding";
 import { storeToRefs } from "pinia";
-import { defineAsyncComponent, onMounted, watch } from "vue";
+import { defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useMaps } from "@/store/maps";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
-import { Flag, Check, ChevronLeft } from "lucide-vue-next";
+import { Flag, Check, ChevronLeft, Search, CircleSlash2, MapPin } from "lucide-vue-next";
 import { useDestination } from "@/store/destination";
 import { useLoading } from "@/store/loading";
+import { useSearchPlaces } from "@/store/searchPlaces";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
+const Input = defineAsyncComponent(
+  () => import("@/components/ui/input/Input.vue")
+);
+const SkeletonLoading = defineAsyncComponent(
+  () => import("@/components/functional/SkeletonLoading.vue")
+);
+
+const Button = defineAsyncComponent(
+  () => import("@/components/ui/button/Button.vue")
+);
 
 const mapsStore = useMaps();
 const originStore = useOriginCoords();
 const geocodingStore = useGeocoding();
 const destinationStore = useDestination();
 const loadingStore = useLoading();
+const searchPlacesStore = useSearchPlaces();
 
 const { lat, lng } = storeToRefs(originStore);
 const { sharedMap, defaultZoom } = storeToRefs(mapsStore);
@@ -27,10 +46,8 @@ const { loading } = storeToRefs(loadingStore);
 const { destinationAddress, notFound, errorMessage } =
   storeToRefs(geocodingStore);
 const { mapMoving } = storeToRefs(mapsStore);
-
-const Button = defineAsyncComponent(
-  () => import("@/components/ui/button/Button.vue")
-);
+const { notFound: searchPlaceNotFound, places } =
+  storeToRefs(searchPlacesStore);
 
 onMounted(async () => {
   await mapsStore.addDestinationMarker();
@@ -64,6 +81,30 @@ watch(
 const goBack = async () => {
   router.push("/ride/setOrigin");
 };
+
+const typing = ref(false);
+const placeName = ref("");
+
+function createDebounce() {
+  let timeout: any;
+  return function (fnc?: () => Promise<void>, delayMs?: number) {
+    searchPlaceNotFound.value = false;
+    typing.value = true;
+    places.value = [];
+    return new Promise<void>((resolve) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(async () => {
+        if (fnc) await fnc();
+        typing.value = false;
+        resolve();
+      }, delayMs || 500);
+    });
+  };
+}
+
+const debounce = ref<
+  (fnc?: () => Promise<void>, delayMs?: number) => Promise<void>
+>(createDebounce());
 </script>
 
 <template>
@@ -76,7 +117,7 @@ const goBack = async () => {
     >
       <h1 class="text-primary font-bold text-xl mb-4">Boradigan manzilingiz</h1>
       <p class="text-primary flex items-start font-semibold">
-        <Flag class="w-[20px] h-[20px] mr-2"/>
+        <Flag class="w-[20px] h-[20px] mr-2" />
         {{
           notFound
             ? errorMessage
@@ -85,6 +126,96 @@ const goBack = async () => {
             : destinationAddress?.name || destinationAddress?.displayName
         }}
       </p>
+
+      <Sheet>
+        <SheetTrigger as-child>
+          <Button variant="outline" class="w-full mt-4"
+            ><Search class="w-4 h-4 mr-2" /> Qidirish</Button
+          >
+        </SheetTrigger>
+        <SheetContent class="h-screen overflow-hidden flex" side="bottom">
+          <div
+            class="search-place-modal w-full bg-primary-foreground mt-3 overflow-y-auto h-screen z-[100]"
+          >
+            <div class="form-group">
+              <Input
+                type="text"
+                v-model="placeName"
+                @input="
+                  debounce(
+                    async () => await searchPlacesStore.searchPlaces(placeName),
+                    1000
+                  )
+                "
+                placeholder="Joy izlash"
+                class="outline-none focus-visible:ring-0 focus-visible:outline-none"
+              />
+            </div>
+            <div
+              v-show="!typing && !places?.length && !notFound"
+              class="suggestion text-center mt-4"
+            >
+              O'zingizga kerakli joy nomini izlang, masalan:
+              <b>dehqon bozor</b>,
+              <b>hokimiyat</b>
+            </div>
+            <div v-show="typing" class="typing mt-6">
+              <SkeletonLoading v-for="i in 5" :key="i" />
+            </div>
+            <div
+              v-show="places?.length && !typing && !notFound"
+              class="results mt-4 overflow-x-hidden overflow-y-scroll h-[80%] w-full"
+            >
+              <!-- @vue-skip -->
+              <div
+                v-for="place in places"
+                :key="place.place_id"
+                class="result overflow-x-hidden w-full"
+              >
+                <SheetClose as-child>
+                  <button
+                    @click="
+                      changeOriginCoords({ lat: +place.lat, lng: +place.lon })
+                    "
+                    class="flex items-start justify-start py-4 border-t overflow-x-hidden w-full"
+                  >
+                    <div class="icon mr-2">
+                      <MapPin class="w-8 h-8" />
+                    </div>
+                    <div class="overflow-x-hidden text-left w-full">
+                      <h3
+                        class="place-name font-bold text-left overflow-hidden text-ellipsis whitespace-nowrap"
+                      >
+                        {{ place.name }}
+                      </h3>
+                      <p
+                        class="place-detailed text-ellipsis whitespace-nowrap overflow-hidden text-sm w-full"
+                      >
+                        {{ place.display_name }}
+                      </p>
+                    </div>
+                  </button>
+                </SheetClose>
+              </div>
+            </div>
+            <p
+              v-show="places?.length && !typing && !notFound"
+              class="text-sm text-gray-400 text-center mt-2"
+            >
+              Ko'proq ko'rish uchun pastga torting
+            </p>
+            <div
+              v-show="!places?.length && !typing && notFound"
+              class="not-found my-10 text-center flex flex-col items-center justify-center"
+            >
+              <CircleSlash2 class="w-16 h-16 text-[#71717A]" />
+              <h4 class="text-xl font-semibold text-[#71717A] mt-4">
+                Joy topilmadi
+              </h4>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
       <Button class="w-full mt-4"
         ><Check class="w-4 h-4 mr-2" /> Belgilash</Button
       >
