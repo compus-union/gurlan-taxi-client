@@ -75,7 +75,7 @@ const goBack = async () => {
       class="main-content bg-primary-foreground text-foreground p-6 custom-style"
     >
       <h1 class="text-primary font-bold text-xl mb-4">Boradigan manzilingiz</h1>
-      <p class="text-primary flex items-start">
+      <p class="text-primary flex items-start font-semibold">
         <Flag class="w-[20px] h-[20px] mr-2"/>
         {{
           notFound

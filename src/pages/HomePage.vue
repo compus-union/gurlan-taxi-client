@@ -3,7 +3,7 @@ import { useMaps } from "@/store/maps";
 import { useOriginCoords } from "@/store/origin";
 import { useRouter } from "vue-router";
 import { Preferences } from "@capacitor/preferences";
-import { defineAsyncComponent, ref, onMounted, watch } from "vue";
+import { defineAsyncComponent, ref, watch } from "vue";
 import { CircleSlash2, Locate, MapPin, Search } from "lucide-vue-next";
 import { storeToRefs } from "pinia";
 import { loadingController } from "@ionic/vue";
@@ -15,7 +15,9 @@ import {
 } from "@/components/ui/sheet";
 import { useSearchPlaces } from "@/store/searchPlaces";
 import { useDestination } from "@/store/destination";
-import { onBeforeRouteLeave, useRoute } from "vue-router";
+import { onBeforeRouteLeave } from "vue-router";
+import { Layer, LayerGroup, Map } from "leaflet";
+import { Geolocation } from "@capacitor/geolocation";
 
 const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -35,15 +37,15 @@ const originStore = useOriginCoords();
 const router = useRouter();
 const searchPlacesStore = useSearchPlaces();
 const destinationStore = useDestination();
-const route = useRoute();
 
 const typing = ref(false);
 
-const { sharedMap, defaultZoom, mapLoaded } = storeToRefs(mapsStore);
+const { sharedMap, defaultZoom, mapLoaded, markers } = storeToRefs(mapsStore);
 const { lat, lng } = storeToRefs(originStore);
 const { notFound, places } = storeToRefs(searchPlacesStore);
 const { lat: destinationLat, lng: destinationLng } =
   storeToRefs(destinationStore);
+const { watchingCoords } = storeToRefs(originStore);
 
 function createDebounce() {
   let timeout: any;
@@ -73,10 +75,34 @@ const goBackToLocation = async () => {
     message: "Joylashuvingiz aniqlanmoqda...",
   });
   try {
+    watchingCoords.value = true;
     await loading.present();
-    await originStore.getCoords();
+    const { coords: result } = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+    });
 
-    sharedMap.value?.setView([lat.value, lng.value], defaultZoom.value);
+    if (result) {
+      const realLocationPoint = markers.value.find((m) => {
+        return m._custom_id === "real-location-point";
+      });
+      realLocationPoint
+        ?.setLatLng([result.latitude, result.longitude])
+        .addTo(sharedMap.value as Map | LayerGroup<any>);
+      await originStore.changeCoords({
+        lat: result.latitude,
+        lng: result.longitude,
+      });
+
+      const originMarker = markers.value.find((m) => {
+        return m._custom_id === "origin-marker";
+      });
+
+      originMarker
+        ?.setLatLng([result.latitude, result.longitude])
+        .addTo(sharedMap.value as Map | LayerGroup<any>);
+
+      sharedMap.value?.setView([result.latitude, result.longitude]);
+    }
 
     return;
   } catch (error) {
