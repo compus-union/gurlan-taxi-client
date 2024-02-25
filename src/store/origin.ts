@@ -1,15 +1,15 @@
-import { defineStore } from "pinia";
+import { defineStore, storeToRefs } from "pinia";
 import { computed, ref } from "vue";
 import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router";
 import { loadingController } from "@ionic/vue";
 import { toast } from "vue3-toastify";
-import axios from "axios";
+import { CustomMarker, useMaps } from "./maps";
+import { LayerGroup, Map } from "leaflet";
 
 export const useOriginCoords = defineStore("coords-store", () => {
   const lat = ref<number>(0);
   const lng = ref<number>(0);
-
   const watchingCoords = ref<boolean>(true);
 
   async function getCoordsWithNavigator(): Promise<void> {
@@ -50,6 +50,8 @@ export const useOriginCoords = defineStore("coords-store", () => {
         lng: results.coords.longitude,
       });
 
+      console.log(lat.value, lng.value);
+
       return { coords: results.coords };
     } catch (error: any) {
       if (error.message === "location disabled") {
@@ -65,6 +67,8 @@ export const useOriginCoords = defineStore("coords-store", () => {
         await Geolocation.watchPosition({}, (results) => {
           lat.value = results?.coords.latitude as number;
           lng.value = results?.coords.longitude as number;
+
+          console.log("Moved to new location");
         });
         console.log("watch coords enabled");
 
@@ -98,5 +102,6 @@ export const useOriginCoords = defineStore("coords-store", () => {
     getCoordsWithNavigator,
     lat,
     lng,
+    watchingCoords,
   };
 });

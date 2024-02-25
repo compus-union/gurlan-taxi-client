@@ -7,6 +7,7 @@ import { LayerGroup, Map } from "leaflet";
 import { useRoute } from "vue-router";
 import OriginMarkerIcon from "@/assets/origin-marker-icon.svg";
 import DestinationMarkerIcon from "@/assets/destination-marker-icon.svg";
+import RealLocationPointIcon from "@/assets/real-location-point.svg";
 
 export interface CustomMarker extends leaflet.Marker {
   latLng?: leaflet.LatLng;
@@ -34,48 +35,72 @@ export const useMaps = defineStore("maps-store", () => {
   async function loadMap(id: string) {
     try {
       // get origin coords, where user is located
-      await Promise.allSettled([
-        originStore.getCoords(),
-        originStore.watchCoords(),
-      ]);
+      await originStore.getCoords();
+      await originStore.watchCoords();
 
       // initalise the map
-      sharedMap.value = leaflet
-        .map(id, { zoomControl: false, maxZoom: 20, attributionControl: false })
-        .setView(
-          [originCoords.value.lat, originCoords.value.lng],
-          defaultZoom.value
-        );
+      if (originCoords.value) {
+        sharedMap.value = leaflet
+          .map(id, {
+            zoomControl: false,
+            maxZoom: 20,
+            attributionControl: false,
+          })
+          .setView(
+            [originCoords.value.lat, originCoords.value.lng],
+            defaultZoom.value
+          );
 
-      // add layers to the map
-      leaflet
-        .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 20,
-        })
-        .addTo(sharedMap.value)
-        .on("load", () => {
-          mapLoaded.value = true;
-        });
+        // add layers to the map
+        leaflet
+          .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 20,
+          })
+          .addTo(sharedMap.value)
+          .on("load", () => {
+            mapLoaded.value = true;
+          });
 
-      let originMarker = markers.value.find(
-        (m) => m._custom_id === "origin-marker"
-      ) as CustomMarker;
+        let originMarker = markers.value.find(
+          (m) => m._custom_id === "origin-marker"
+        ) as CustomMarker;
 
-      let destinationMarker = markers.value.find(
-        (m) => m._custom_id === "destination-marker"
-      ) as CustomMarker;
+        let destinationMarker = markers.value.find(
+          (m) => m._custom_id === "destination-marker"
+        ) as CustomMarker;
 
-      if (!originMarker && route.path === "/ride/setOrigin") {
-        console.log("origin marker is being added in loadMap()");
-        await addOriginMarker();
+        let realLocationPoint = markers.value.find(
+          (m) => m._custom_id === "real-location-point"
+        ) as CustomMarker;
+
+        if (!realLocationPoint) {
+          const realLocationPointIcon = leaflet.icon({
+            iconUrl: RealLocationPointIcon,
+            iconSize: [20, 20],
+          });
+
+          const realLocationPoint = leaflet
+            .marker([originCoords.value.lat, originCoords.value.lng], {
+              icon: realLocationPointIcon,
+            })
+            .addTo(sharedMap.value) as CustomMarker;
+
+          realLocationPoint._custom_id = "real-location-point";
+          markers.value.push(realLocationPoint);
+        }
+
+        if (!originMarker && route.path === "/ride/setOrigin") {
+          console.log("origin marker is being added in loadMap()");
+          await addOriginMarker();
+        }
+
+        if (!destinationMarker && route.path === "/ride/setDestination") {
+          console.log("destination marker is being added in loadMap*()");
+          await addDestinationMarker();
+        }
+
+        return;
       }
-
-      if (!destinationMarker && route.path === "/ride/setDestination") {
-        console.log("destination marker is being added in loadMap*()");
-        await addDestinationMarker();
-      }
-
-      return;
     } catch (error) {
       console.log(error);
     }
