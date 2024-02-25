@@ -264,7 +264,8 @@ export const useMaps = defineStore("maps-store", () => {
       if (!originMarker) {
         const originMarkerIcon = leaflet.icon({
           iconUrl: OriginMarkerIcon,
-          iconSize: [45, 61],
+          iconSize: [44, 60],
+          iconAnchor: [22, 60],
         });
         originMarker = leaflet
           .marker([originCoords.value.lat, originCoords.value.lng], {
@@ -305,7 +306,8 @@ export const useMaps = defineStore("maps-store", () => {
       if (!destinationMarker) {
         const destinationIcon = leaflet.icon({
           iconUrl: DestinationMarkerIcon,
-          iconSize: [45, 61],
+          iconSize: [44, 60],
+          iconAnchor: [22, 60],
         });
 
         destinationMarker = leaflet
@@ -349,7 +351,8 @@ export const useMaps = defineStore("maps-store", () => {
 
       const originMarkerIcon = leaflet.icon({
         iconUrl: OriginMarkerIcon,
-        iconSize: [45, 61],
+        iconSize: [44, 60],
+        iconAnchor: [22, 60],
       });
 
       const fixedOriginMarker = leaflet
@@ -381,7 +384,8 @@ export const useMaps = defineStore("maps-store", () => {
 
       const destinationIcon = leaflet.icon({
         iconUrl: DestinationMarkerIcon,
-        iconSize: [45, 61],
+        iconSize: [44, 60],
+        iconAnchor: [22, 60],
       });
 
       const fixedDestinationMarker = leaflet
