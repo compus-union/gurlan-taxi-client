@@ -76,13 +76,13 @@ async function changeActivePlan(plan: PlanType) {
             v-for="plan in plans"
             :key="plan.id"
             @click="changeActivePlan(plan.name)"
-            class="plan bg-gray-100 rounded-lg p-2 transition border relative h-[130px] flex"
+            class="plan bg-gray-100 rounded-lg p-2 transition border relative h-[112px] flex"
             :class="[
               activePlan === plan.name ? 'border-black' : 'border-gray-100 ',
             ]"
           >
             <div
-              class="img object-cover h-[60px] w-[60px] flex items-center justify-center absolute right-2 top-2"
+              class="img object-cover h-[50px] w-[50px] flex items-center justify-center absolute right-2 top-1"
             >
               <img
                 :src="plan.img"
