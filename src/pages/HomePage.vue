@@ -16,7 +16,7 @@ import {
 import { useSearchPlaces } from "@/store/searchPlaces";
 import { useDestination } from "@/store/destination";
 import { onBeforeRouteLeave } from "vue-router";
-import { Layer, LayerGroup, Map } from "leaflet";
+import { LayerGroup, Map } from "leaflet";
 import { Geolocation } from "@capacitor/geolocation";
 
 const Button = defineAsyncComponent(
@@ -41,7 +41,6 @@ const destinationStore = useDestination();
 const typing = ref(false);
 
 const { sharedMap, defaultZoom, mapLoaded, markers } = storeToRefs(mapsStore);
-const { lat, lng } = storeToRefs(originStore);
 const { notFound, places } = storeToRefs(searchPlacesStore);
 const { lat: destinationLat, lng: destinationLng } =
   storeToRefs(destinationStore);
