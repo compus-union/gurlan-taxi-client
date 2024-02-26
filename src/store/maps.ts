@@ -76,7 +76,7 @@ export const useMaps = defineStore("maps-store", () => {
         if (!realLocationPoint) {
           const realLocationPointIcon = leaflet.icon({
             iconUrl: RealLocationPointIcon,
-            iconSize: [20, 20],
+            iconSize: [16, 16],
           });
 
           const realLocationPoint = leaflet
