@@ -6,7 +6,14 @@ import { useMaps } from "@/store/maps";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
-import { Flag, Check, ChevronLeft, Search, CircleSlash2, MapPin } from "lucide-vue-next";
+import {
+  Flag,
+  Check,
+  ChevronLeft,
+  Search,
+  CircleSlash2,
+  MapPin,
+} from "lucide-vue-next";
 import { useDestination } from "@/store/destination";
 import { useLoading } from "@/store/loading";
 import { useSearchPlaces } from "@/store/searchPlaces";
@@ -16,6 +23,8 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useRoute } from "vue-router";
+import { LayerGroup, Map } from "leaflet";
 
 const Input = defineAsyncComponent(
   () => import("@/components/ui/input/Input.vue")
@@ -28,6 +37,8 @@ const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
 );
 
+const route = useRoute();
+
 const mapsStore = useMaps();
 const originStore = useOriginCoords();
 const geocodingStore = useGeocoding();
@@ -36,7 +47,7 @@ const loadingStore = useLoading();
 const searchPlacesStore = useSearchPlaces();
 
 const { lat, lng } = storeToRefs(originStore);
-const { sharedMap, defaultZoom } = storeToRefs(mapsStore);
+const { sharedMap, defaultZoom, markers } = storeToRefs(mapsStore);
 const {
   lat: destinationLat,
   lng: destinationLng,
@@ -105,6 +116,25 @@ function createDebounce() {
 const debounce = ref<
   (fnc?: () => Promise<void>, delayMs?: number) => Promise<void>
 >(createDebounce());
+
+async function changeDestinationCoords(payload: { lat: number; lng: number }) {
+  await destinationStore.changeCoords(
+    { lat: payload.lat, lng: payload.lng },
+    "void"
+  );
+
+  if (route.path === "/ride/setDestination") {
+    sharedMap.value?.setView([payload.lat, payload.lng]);
+
+    const destinationMarker = markers.value.find((m) => {
+      return m._custom_id === "destination-marker";
+    });
+
+    destinationMarker
+      ?.setLatLng([payload.lat, payload.lng])
+      .addTo(sharedMap.value as Map | LayerGroup<any>);
+  }
+}
 </script>
 
 <template>
@@ -175,7 +205,10 @@ const debounce = ref<
                 <SheetClose as-child>
                   <button
                     @click="
-                      changeOriginCoords({ lat: +place.lat, lng: +place.lon })
+                      changeDestinationCoords({
+                        lat: +place.lat,
+                        lng: +place.lon,
+                      })
                     "
                     class="flex items-start justify-start py-4 border-t overflow-x-hidden w-full"
                   >
