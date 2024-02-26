@@ -44,6 +44,11 @@ const routes: Array<RouteRecordRaw> = [
         name: "layout-home-set-destination",
         component: () => import("@/pages/SetDestinationPage.vue"),
       },
+      {
+        path: "letsgo",
+        name: "layout-home-lets-go",
+        component: () => import("@/pages/LetsGoPage.vue")
+      }
     ],
   },
   {
