@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft, Info } from "lucide-vue-next";
+import { Check, ChevronLeft, Flag, Info, Settings2, User } from "lucide-vue-next";
 import { defineAsyncComponent, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import StandardPlanImg from "@/assets/standard.png";
@@ -66,17 +66,6 @@ async function changeActivePlan(plan: PlanType) {
   if (activePlan.value === plan) return;
   activePlan.value = plan;
 }
-
-const paymentType = ref("cash");
-console.log(paymentType.value);
-
-async function changePaymentType(payload: string) {
-  console.log(payload);
-
-  paymentType.value = payload;
-}
-
-
 </script>
 
 <template>
@@ -115,7 +104,7 @@ async function changePaymentType(payload: string) {
             ]"
           >
             <div
-              class="img object-cover h-[50px] w-[50px] flex items-center justify-center absolute right-2 top-1"
+              class="img object-cover h-[50px] w-[50px] flex items-center justify-center absolute right-2 -top-0.5"
             >
               <img
                 :src="plan.img"
@@ -137,22 +126,33 @@ async function changePaymentType(payload: string) {
         <Info class="w-3 h-3 mr-2" /> Ta'riflar haqida
       </button>
       <Input class="promo-code mt-2" placeholder="Promokod kiriting" />
-      <!-- @vue-ignore -->
-      <Select
-        :model-value="paymentType"
-        @update:model-value="(v) => changePaymentType(v.value)"
-      >
-        <SelectTrigger class="w-full">
-          <SelectValue placeholder="To'lov turi" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>To'lov turi</SelectLabel>
-            <SelectItem value="cash"> Naqd </SelectItem>
-            <SelectItem value="card"> Karta </SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+      <div class="addresses mt-3 space-y-2">
+        <div class="address origin flex items-center justify-between">
+          <div class="text-part flex items-center font-semibold">
+            <User class="w-4 h-4 mr-4"  stroke-width="2px"/>
+            1-maktab, Bobur maktab
+          </div>
+          <div class="button-part">
+            <MainButton variant="ghost" size="icon"
+              ><Settings2 class="w-4 h-4"
+            /></MainButton>
+          </div>
+        </div>
+        <hr>
+        <div class="address destination flex items-center justify-between">
+          <div class="text-part flex items-center font-semibold">
+            <Flag class="w-4 h-4 mr-4"  stroke-width="2px"/>
+            2-maktab, Makarenko
+          </div>
+          <div class="button-part">
+            <MainButton variant="ghost" size="icon" 
+              ><Settings2 class="w-4 h-4"
+            /></MainButton>
+          </div>
+        </div>
+      </div>
+      <p class="text-sm opacity-50 my-2">2km, 15min</p>
+      <MainButton class="w-full flex items-center"><Check class="w-4 h-4 mr-2"/> Chaqirish</MainButton>
     </div>
   </div>
 </template>
