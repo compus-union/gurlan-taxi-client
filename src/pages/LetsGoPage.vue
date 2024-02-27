@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ChevronLeft, Info } from "lucide-vue-next";
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import StandardPlanImg from "@/assets/standard.png";
 import ComfortPlanImg from "@/assets/comfort.png";
@@ -12,8 +12,30 @@ const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
 );
 
-const ScrollArea = defineAsyncComponent(
-  () => import("@/components/ui/scroll-area/ScrollArea.vue")
+const Input = defineAsyncComponent(
+  () => import("@/components/ui/input/Input.vue")
+);
+
+const Select = defineAsyncComponent(
+  () => import("@/components/ui/select/Select.vue")
+);
+const SelectContent = defineAsyncComponent(
+  () => import("@/components/ui/select/SelectContent.vue")
+);
+const SelectGroup = defineAsyncComponent(
+  () => import("@/components/ui/select/SelectGroup.vue")
+);
+const SelectItem = defineAsyncComponent(
+  () => import("@/components/ui/select/SelectItem.vue")
+);
+const SelectLabel = defineAsyncComponent(
+  () => import("@/components/ui/select/SelectLabel.vue")
+);
+const SelectTrigger = defineAsyncComponent(
+  () => import("@/components/ui/select/SelectTrigger.vue")
+);
+const SelectValue = defineAsyncComponent(
+  () => import("@/components/ui/select/SelectValue.vue")
 );
 
 async function goBack() {
@@ -44,6 +66,17 @@ async function changeActivePlan(plan: PlanType) {
   if (activePlan.value === plan) return;
   activePlan.value = plan;
 }
+
+const paymentType = ref("cash");
+console.log(paymentType.value);
+
+async function changePaymentType(payload: string) {
+  console.log(payload);
+
+  paymentType.value = payload;
+}
+
+
 </script>
 
 <template>
@@ -98,9 +131,28 @@ async function changeActivePlan(plan: PlanType) {
           </button>
         </div>
       </div>
-      <button class="about-plans flex items-center mt-2">
-        <Info class="w-4 h-4 mr-2" /> Ta'riflar haqida
+      <button
+        class="about-plans text-gray-600 flex items-center mt-2 font-semibold text-sm"
+      >
+        <Info class="w-3 h-3 mr-2" /> Ta'riflar haqida
       </button>
+      <Input class="promo-code mt-2" placeholder="Promokod kiriting" />
+      <!-- @vue-ignore -->
+      <Select
+        :model-value="paymentType"
+        @update:model-value="(v) => changePaymentType(v.value)"
+      >
+        <SelectTrigger class="w-full">
+          <SelectValue placeholder="To'lov turi" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>To'lov turi</SelectLabel>
+            <SelectItem value="cash"> Naqd </SelectItem>
+            <SelectItem value="card"> Karta </SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
     </div>
   </div>
 </template>
