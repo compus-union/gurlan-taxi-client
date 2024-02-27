@@ -115,6 +115,10 @@ const navigateNextPage = async () => {
   await router.push("/ride/setDestination");
 };
 
+const navigateToLetsgoPage = async () => {
+  await router.push("/ride/letsgo")
+}
+
 const changeOriginCoords = async (coords: { lat: number; lng: number }) => {
   await originStore.changeCoords({ lat: coords.lat, lng: coords.lng });
   sharedMap.value?.setView([coords.lat, coords.lng], defaultZoom.value);
@@ -283,7 +287,7 @@ router.beforeEach(async (to, from, next) => {
         <Button @click="goBackToLocation" variant="outline"
           ><Locate class="w-4 h-4 mr-2" /> Hozirgi joylashuvim</Button
         >
-        <Button @click="navigateNextPage"
+        <Button @click="navigateToLetsgoPage"
           ><MapPin class="w-4 h-4 mr-2" /> Qayerga boramiz</Button
         >
       </div>

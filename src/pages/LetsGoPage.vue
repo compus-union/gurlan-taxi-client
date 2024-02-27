@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft } from "lucide-vue-next";
+import { ChevronLeft, Info } from "lucide-vue-next";
 import { defineAsyncComponent, ref } from "vue";
 import { useRouter } from "vue-router";
 import StandardPlanImg from "@/assets/standard.png";
@@ -76,7 +76,7 @@ async function changeActivePlan(plan: PlanType) {
             v-for="plan in plans"
             :key="plan.id"
             @click="changeActivePlan(plan.name)"
-            class="plan bg-gray-100 rounded-lg p-2 transition border relative h-[112px] flex"
+            class="plan bg-gray-100 rounded-lg p-2 transition border relative h-[102px] flex"
             :class="[
               activePlan === plan.name ? 'border-black' : 'border-gray-100 ',
             ]"
@@ -93,11 +93,14 @@ async function changeActivePlan(plan: PlanType) {
             </div>
             <div class="name-and-price justify-self-end self-end text-left">
               <p>{{ plan.name }}</p>
-              <p class="font-bold">{{ plan.price }} so'm</p>
+              <p class="font-bold text-lg">{{ plan.price }} so'm</p>
             </div>
           </button>
         </div>
       </div>
+      <button class="about-plans flex items-center mt-2">
+        <Info class="w-4 h-4 mr-2" /> Ta'riflar haqida
+      </button>
     </div>
   </div>
 </template>
