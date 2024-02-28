@@ -7,7 +7,7 @@ import {
   Settings2,
   User,
 } from "lucide-vue-next";
-import { defineAsyncComponent, onMounted, ref } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { useRouter } from "vue-router";
 import StandardPlanImg from "@/assets/standard.png";
 import ComfortPlanImg from "@/assets/comfort.png";
@@ -38,7 +38,6 @@ interface Plan {
 }
 
 const rideType = ref<RideTaxi>("taxi");
-const bottomSheet = ref();
 
 const plans = ref<Plan[]>([
   { id: "1", name: "Standard", price: "7,000", img: StandardPlanImg },
@@ -54,9 +53,9 @@ async function changeActivePlan(plan: PlanType) {
 }
 
 const visible = ref(true);
-const sheetHeight = ref(447); // Initial height
-const minY = ref(100); // Minimum height
-const maxY = ref(447); // Maximum height
+const sheetHeight = ref(460); // Initial height
+const minY = ref(40); // Minimum height
+const maxY = ref(460); // Maximum height
 const startY = ref(0);
 const currentY = ref(0);
 const dragging = ref(false);
@@ -71,18 +70,16 @@ const onTouchMove = (event: any) => {
   if (!dragging.value) return;
 
   const deltaY = event.touches[0].clientY - startY.value;
-  currentY.value = Math.min(maxY.value, Math.max(minY.value, sheetHeight.value - deltaY));
+  currentY.value = Math.min(
+    maxY.value,
+    Math.max(minY.value, sheetHeight.value - deltaY)
+  );
 };
 
 const onTouchEnd = () => {
   dragging.value = false;
   sheetHeight.value = currentY.value;
 };
-
-// onMounted(() => {
-//   bottomSheet.value.addEventListener("touchstart", onTouchStart);
-//   bottomSheet.value.addEventListener("touchmove", onTouchMove);
-// });
 </script>
 
 <template>
@@ -99,6 +96,9 @@ const onTouchEnd = () => {
         @touchend="onTouchEnd"
         class="main-content bg-primary-foreground text-foreground p-6 custom-style w-full bottom-sheet"
       >
+      <div class="swiper-button w-full mb-4 h-1 flex items-center justify-center">
+        <div class="swiper h-full w-[80px] bg-gray-300 rounded-full"></div>
+      </div>
         <div
           class="ride-type-buttons flex items-center justify-start space-x-3 mb-4"
         >
