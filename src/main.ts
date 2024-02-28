@@ -9,6 +9,7 @@ import "./theme/variables.css";
 import "./theme/base.css";
 import "leaflet/dist/leaflet.css";
 import "vue3-toastify/dist/index.css";
+import "@webzlodimir/vue-bottom-sheet/dist/style.css";
 
 const app = createApp(App)
   .use(Vue3Toasity, {
