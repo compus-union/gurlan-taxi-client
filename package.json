@@ -26,6 +26,7 @@
     "@capacitor/status-bar": "5.0.6",
     "@ionic/vue": "^7.6.6",
     "@jcesarmobile/ssl-skip": "^0.2.0",
+    "@maptiler/leaflet-maptilersdk": "^2.0.0",
     "@radix-icons/vue": "^1.0.0",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vueuse/core": "^10.7.2",
