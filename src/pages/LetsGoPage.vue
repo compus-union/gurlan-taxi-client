@@ -7,7 +7,7 @@ import {
   Settings2,
   User,
 } from "lucide-vue-next";
-import { defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import StandardPlanImg from "@/assets/standard.png";
 import ComfortPlanImg from "@/assets/comfort.png";
@@ -80,6 +80,8 @@ const onTouchEnd = () => {
   dragging.value = false;
   sheetHeight.value = currentY.value;
 };
+
+onMounted(async () => {});
 </script>
 
 <template>
@@ -96,9 +98,11 @@ const onTouchEnd = () => {
         @touchend="onTouchEnd"
         class="main-content bg-primary-foreground text-foreground p-6 custom-style w-full bottom-sheet"
       >
-      <div class="swiper-button w-full mb-4 h-1 flex items-center justify-center">
-        <div class="swiper h-full w-[80px] bg-gray-300 rounded-full"></div>
-      </div>
+        <div
+          class="swiper-button w-full mb-4 h-1 flex items-center justify-center"
+        >
+          <div class="swiper h-full w-[80px] bg-gray-300 rounded-full"></div>
+        </div>
         <div
           class="ride-type-buttons flex items-center justify-start space-x-3 mb-4"
         >
