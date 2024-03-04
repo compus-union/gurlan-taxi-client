@@ -50,17 +50,15 @@ export const useMaps = defineStore("maps-store", () => {
           defaultZoom.value
         );
 
-        // @ts-ignore
-        const mtLayer = new L.MaptilerLayer({
-          // Get your free API key at https://cloud.maptiler.com
-          apiKey: "8trE3r2cYoG3oZFw6g4c",
-        }).addTo(sharedMap.value);
-
-        mtLayer.on("ready", () => {
-          mapLoaded.value = true;
-        });
-
         // add layers to the map
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 20,
+        })
+          .addTo(sharedMap.value)
+          .addEventListener("load", () => {
+            if (mapLoaded.value) return;
+            mapLoaded.value = true;
+          });
 
         let originMarker = markers.value.find(
           (m) => m._custom_id === "origin-marker"
