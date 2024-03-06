@@ -287,7 +287,7 @@ router.beforeEach(async (to, from, next) => {
         <Button @click="goBackToLocation" variant="outline"
           ><Locate class="w-4 h-4 mr-2" /> Hozirgi joylashuvim</Button
         >
-        <Button @click="navigateToLetsgoPage"
+        <Button @click="navigateNextPage"
           ><MapPin class="w-4 h-4 mr-2" /> Qayerga boramiz</Button
         >
       </div>

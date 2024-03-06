@@ -189,13 +189,15 @@ export function routeInstance() {
 
       await loadingStore.setLoading(true);
 
-      const response = await axios.get(
+      const response = await axios.put(
         baseUrl + `/calculate/${clientOneId.value}`,
+        { destination, origin },
         {
           headers: { Authorization: `Bearer ${token.value}` },
-          data: { destination, origin },
         }
       );
+
+      console.log(response);
 
       return response;
     } catch (error: any) {
