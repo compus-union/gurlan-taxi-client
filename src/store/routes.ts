@@ -1,6 +1,9 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { routeInstance } from "@/http/instances";
+import { useMaps } from "./maps";
+import { storeToRefs } from "pinia";
+import L, { Map } from "leaflet";
 
 export interface Address {
   lat: number;
@@ -8,11 +11,16 @@ export interface Address {
   name: string;
 }
 
+export interface RouteGeoJSON extends L.GeoJSON {
+  _custom_id: string;
+}
+
 export const useRoutes = defineStore("routes-store", () => {
+  const mapsStore = useMaps();
   const routeHttp = routeInstance();
   const destination = ref<Address>();
   const origin = ref<Address>();
-  const geometry = ref();
+  const geoJSONs = ref<RouteGeoJSON[]>([]);
   const price = ref<{
     price: number;
     formatted: string;
@@ -26,10 +34,13 @@ export const useRoutes = defineStore("routes-store", () => {
     seconds: string;
   }>();
 
+  const { sharedMap, defaultZoom } = storeToRefs(mapsStore);
+
   async function getGeometryOfRoute(d: Address, o: Address) {
     try {
       destination.value = d;
       origin.value = o;
+
       const result = await routeHttp.getGeometryOfRoute(d, o);
 
       if (result?.data.status !== "ok") {
@@ -37,12 +48,18 @@ export const useRoutes = defineStore("routes-store", () => {
         throw new Error("Xatolik yuzaga keldi, boshqatdan urinib ko'ring");
       }
 
-      geometry.value = result.data.routes.geometry;
       price.value = result.data.price;
       duration.value = result.data.duration;
       distance.value = result.data.distance;
 
-      return;
+      const routeLayer = L.geoJSON(result.data.routes.geometry) as RouteGeoJSON;
+
+      routeLayer._custom_id === "origin-to-destination";
+      routeLayer.addTo(sharedMap.value as Map);
+
+      return {
+        status: "ok",
+      };
     } catch (error: any) {
       if (error.response) {
         // The request was made and the server responded with a status code
@@ -57,4 +74,6 @@ export const useRoutes = defineStore("routes-store", () => {
       }
     }
   }
+
+  return { getGeometryOfRoute };
 });

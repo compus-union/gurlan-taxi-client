@@ -7,7 +7,7 @@ import { toast } from "vue3-toastify";
 import { CustomMarker, useMaps } from "./maps";
 import { LayerGroup, Map } from "leaflet";
 
-export const useOriginCoords = defineStore("coords-store", () => {
+export const useOriginCoords = defineStore("origin-store", () => {
   const lat = ref<number>(0);
   const lng = ref<number>(0);
   const watchingCoords = ref<boolean>(true);

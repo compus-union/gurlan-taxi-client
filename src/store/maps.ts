@@ -265,6 +265,7 @@ export const useMaps = defineStore("maps-store", () => {
     }
   }
 
+  // remove if origin-marker-fixed marker exists, then add origin-marker
   async function addOriginMarker() {
     try {
       // get fixed marker of origin marker
@@ -308,6 +309,7 @@ export const useMaps = defineStore("maps-store", () => {
     }
   }
 
+  // remove if destination-marker-fixed marker exists, then add destination-marker
   async function addDestinationMarker() {
     try {
       // get fixed marker of destination marker
@@ -360,6 +362,7 @@ export const useMaps = defineStore("maps-store", () => {
     }
   }
 
+  // remove if origin-marker exists, then add origin-marker-fixed
   async function addFixedOriginMarker() {
     try {
       const originMarker = markers.value.find(
@@ -394,6 +397,7 @@ export const useMaps = defineStore("maps-store", () => {
     }
   }
 
+  // remove if destination-marker exists, then add destination-marker
   async function addFixedDestinationMarker() {
     try {
       const destinationMarker = markers.value.find(
@@ -433,23 +437,6 @@ export const useMaps = defineStore("maps-store", () => {
     }
   }
 
-  async function removeDestinationMarker() {
-    try {
-      const destinationMarker = markers.value.find(
-        (m) => m._custom_id === "destination-marker"
-      ) as CustomMarker;
-
-      if (destinationMarker) {
-        sharedMap.value?.removeLayer(destinationMarker);
-        markers.value = markers.value.filter(
-          (m) => m._custom_id !== "destination-marker"
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   return {
     loadMap,
     setMap,
@@ -462,7 +449,6 @@ export const useMaps = defineStore("maps-store", () => {
     addDestinationMarker,
     addFixedDestinationMarker,
     addOriginMarker,
-    removeDestinationMarker,
     mapLoaded,
   };
 });

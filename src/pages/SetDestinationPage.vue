@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/sheet";
 import { useRoute } from "vue-router";
 import { LayerGroup, Map } from "leaflet";
+import { loadingController, toastController } from "@ionic/vue";
+import { useRoutes } from "@/store/routes";
 
 const Input = defineAsyncComponent(
   () => import("@/components/ui/input/Input.vue")
@@ -39,6 +41,7 @@ const Button = defineAsyncComponent(
 
 const route = useRoute();
 
+const routesStore = useRoutes();
 const mapsStore = useMaps();
 const originStore = useOriginCoords();
 const geocodingStore = useGeocoding();
@@ -54,7 +57,7 @@ const {
   coords: destinationCoords,
 } = storeToRefs(destinationStore);
 const { loading } = storeToRefs(loadingStore);
-const { destinationAddress, notFound, errorMessage } =
+const { destinationAddress, notFound, errorMessage, originAddress } =
   storeToRefs(geocodingStore);
 const { mapMoving } = storeToRefs(mapsStore);
 const { notFound: searchPlaceNotFound, places } =
@@ -133,6 +136,61 @@ async function changeDestinationCoords(payload: { lat: number; lng: number }) {
     destinationMarker
       ?.setLatLng([payload.lat, payload.lng])
       .addTo(sharedMap.value as Map | LayerGroup<any>);
+  }
+}
+
+async function letsGo() {
+  try {
+    const loading = await loadingController.create({
+      message: "Yuklanmoqda...",
+    });
+    await loading.present();
+
+    const result = await routesStore.getGeometryOfRoute(
+      {
+        lat: destinationAddress.value?.lat as number,
+        lng: destinationAddress.value?.lng as number,
+        name: destinationAddress.value?.name as string,
+      },
+      {
+        lat: originAddress.value?.lat as number,
+        lng: originAddress.value?.lng as number,
+        name: originAddress.value?.name as string,
+      }
+    );
+
+    if (!result) {
+      await loading.dismiss();
+      const toast = await toastController.create({
+        message: "Xatolik yuzaga keldi, boshqatdan urinib ko'ring",
+        duration: 4000,
+      });
+
+      await toast.present();
+      return;
+    }
+
+    if (result?.status !== "ok") {
+      await loading.dismiss();
+      const toast = await toastController.create({
+        message: "Xatolik yuzaga keldi, boshqatdan urinib ko'ring",
+        duration: 4000,
+      });
+
+      await toast.present();
+      return;
+    }
+
+    await loading.dismiss()
+    await router.push("/ride/letsgo");
+  } catch (error) {
+    console.log(error);
+    const toast = await toastController.create({
+      message: "Xatolik yuzaga keldi, boshqatdan urinib ko'ring",
+      duration: 4000,
+    });
+
+    await toast.present();
   }
 }
 </script>
@@ -249,7 +307,7 @@ async function changeDestinationCoords(payload: { lat: number; lng: number }) {
           </div>
         </SheetContent>
       </Sheet>
-      <Button class="w-full mt-4"
+      <Button @click="letsGo" class="w-full mt-4"
         ><Check class="w-4 h-4 mr-2" /> Belgilash</Button
       >
     </div>
