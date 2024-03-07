@@ -56,6 +56,7 @@ export const useRoutes = defineStore("routes-store", () => {
 
       routeLayer._custom_id === "origin-to-destination";
       routeLayer.addTo(sharedMap.value as Map);
+      sharedMap.value?.fitBounds(routeLayer.getBounds())
 
       return {
         status: "ok",
