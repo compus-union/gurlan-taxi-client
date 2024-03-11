@@ -49,7 +49,7 @@ const destinationStore = useDestination();
 const loadingStore = useLoading();
 const searchPlacesStore = useSearchPlaces();
 
-const { lat, lng } = storeToRefs(originStore);
+const { lat: originLat, lng: originLng } = storeToRefs(originStore);
 const { sharedMap, defaultZoom, markers } = storeToRefs(mapsStore);
 const {
   lat: destinationLat,
@@ -77,7 +77,10 @@ onMounted(async () => {
 
 onBeforeRouteLeave(async (to, from, next) => {
   if (to.path === "/ride/setOrigin") {
-    sharedMap.value?.setView([lat.value, lng.value], defaultZoom.value);
+    sharedMap.value?.setView(
+      [originLat.value, originLng.value],
+      defaultZoom.value
+    );
   }
   await mapsStore.addFixedDestinationMarker();
 
@@ -148,14 +151,14 @@ async function letsGo() {
 
     const result = await routesStore.getGeometryOfRoute(
       {
-        lat: destinationAddress.value?.lat as number,
-        lng: destinationAddress.value?.lng as number,
-        name: destinationAddress.value?.name as string,
+        lat: destinationLat.value,
+        lng: destinationLng.value,
+        name: "",
       },
       {
-        lat: originAddress.value?.lat as number,
-        lng: originAddress.value?.lng as number,
-        name: originAddress.value?.name as string,
+        lat: originLat.value,
+        lng: originLng.value,
+        name: "",
       }
     );
 
@@ -181,7 +184,7 @@ async function letsGo() {
       return;
     }
 
-    await loading.dismiss()
+    await loading.dismiss();
     await router.push("/ride/letsgo");
   } catch (error) {
     console.log(error);
