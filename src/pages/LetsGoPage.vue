@@ -12,8 +12,13 @@ import { useRouter } from "vue-router";
 import StandardPlanImg from "@/assets/standard.png";
 import ComfortPlanImg from "@/assets/comfort.png";
 import MicroVanPlanImg from "@/assets/mikrovan.png";
+import { useGeocoding } from "@/store/geocoding";
+import { storeToRefs } from "pinia";
 
 const router = useRouter();
+const geocodingStore = useGeocoding();
+
+const { destinationAddress, originAddress } = storeToRefs(geocodingStore);
 
 const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")

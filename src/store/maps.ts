@@ -124,14 +124,14 @@ export const useMaps = defineStore("maps-store", () => {
         const lat = sharedMap.value?.getCenter().lat as number;
         const lng = sharedMap.value?.getCenter().lng as number;
 
-        if (route.path === "/ride/setOrigin") {
+        if (route.path === "/ride/setOrigin" && originMarker) {
           originMarker
             .setLatLng([lat, lng])
             .addTo(sharedMap.value as Map | LayerGroup<any>);
           return;
         }
 
-        if (route.path === "/ride/setDestination") {
+        if (route.path === "/ride/setDestination" && destinationMarker) {
           destinationMarker
             .setLatLng([lat, lng])
             .addTo(sharedMap.value as Map | LayerGroup<any>);
@@ -152,14 +152,14 @@ export const useMaps = defineStore("maps-store", () => {
         const lat = sharedMap.value?.getCenter().lat as number;
         const lng = sharedMap.value?.getCenter().lng as number;
 
-        if (route.path === "/ride/setOrigin") {
+        if (route.path === "/ride/setOrigin" && originMarker) {
           originMarker
             .setLatLng([lat, lng])
             .addTo(sharedMap.value as Map | LayerGroup<any>);
           return;
         }
 
-        if (route.path === "/ride/setDestination") {
+        if (route.path === "/ride/setDestination" && destinationMarker) {
           destinationMarker
             .setLatLng([lat, lng])
             .addTo(sharedMap.value as Map | LayerGroup<any>);
@@ -181,7 +181,7 @@ export const useMaps = defineStore("maps-store", () => {
         const lat = sharedMap.value?.getCenter().lat as number;
         const lng = sharedMap.value?.getCenter().lng as number;
 
-        if (route.path === "/ride/setOrigin") {
+        if (route.path === "/ride/setOrigin" && originMarker) {
           await originStore.changeCoords({ lat, lng });
 
           originMarker
@@ -190,7 +190,7 @@ export const useMaps = defineStore("maps-store", () => {
           return;
         }
 
-        if (route.path === "/ride/setDestination") {
+        if (route.path === "/ride/setDestination" && destinationMarker) {
           await destinationStore.changeCoords({ lat, lng }, "void");
           destinationMarker
             .setLatLng([lat, lng])
@@ -212,7 +212,7 @@ export const useMaps = defineStore("maps-store", () => {
         const lat = sharedMap.value?.getCenter().lat as number;
         const lng = sharedMap.value?.getCenter().lng as number;
 
-        if (route.path === "/ride/setOrigin") {
+        if (route.path === "/ride/setOrigin" && originMarker) {
           await originStore.changeCoords({ lat, lng });
 
           originMarker
@@ -221,7 +221,7 @@ export const useMaps = defineStore("maps-store", () => {
           return;
         }
 
-        if (route.path === "/ride/setDestination") {
+        if (route.path === "/ride/setDestination" && destinationMarker) {
           await destinationStore.changeCoords({ lat, lng }, "void");
           destinationMarker
             .setLatLng([lat, lng])
@@ -243,7 +243,7 @@ export const useMaps = defineStore("maps-store", () => {
         const lat = sharedMap.value?.getCenter().lat as number;
         const lng = sharedMap.value?.getCenter().lng as number;
 
-        if (route.path === "/ride/setOrigin") {
+        if (route.path === "/ride/setOrigin" && originMarker) {
           await originStore.changeCoords({ lat, lng });
 
           originMarker
@@ -252,7 +252,7 @@ export const useMaps = defineStore("maps-store", () => {
           return;
         }
 
-        if (route.path === "/ride/setDestination") {
+        if (route.path === "/ride/setDestination" && destinationMarker) {
           await destinationStore.changeCoords({ lat, lng }, "void");
           destinationMarker
             .setLatLng([lat, lng])

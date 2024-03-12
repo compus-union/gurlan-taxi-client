@@ -4,6 +4,7 @@ import { routeInstance } from "@/http/instances";
 import { useMaps } from "./maps";
 import { storeToRefs } from "pinia";
 import L, { Map } from "leaflet";
+import { toast } from "vue3-toastify/index";
 
 export interface Address {
   lat: number;
@@ -56,7 +57,8 @@ export const useRoutes = defineStore("routes-store", () => {
 
       routeLayer._custom_id === "origin-to-destination";
       routeLayer.addTo(sharedMap.value as Map);
-      sharedMap.value?.fitBounds(routeLayer.getBounds())
+      sharedMap.value?.fitBounds(routeLayer.getBounds());
+      geoJSONs.value.push(routeLayer);
 
       return {
         status: "ok",
@@ -76,5 +78,31 @@ export const useRoutes = defineStore("routes-store", () => {
     }
   }
 
-  return { getGeometryOfRoute, price, distance, duration };
+  async function removeTheGeometryOfRoute() {
+    try {
+      const routeLayer = geoJSONs.value.find((layer) => {
+        return layer._custom_id === "origin-to-destination";
+      });
+
+      if (routeLayer) {
+        sharedMap.value?.removeLayer(routeLayer as RouteGeoJSON);
+        geoJSONs.value = geoJSONs.value.filter(
+          (layer) => layer._custom_id !== "origin-to-destination"
+        );
+        await mapsStore.addDestinationMarker();
+      }
+
+      return;
+    } catch (error) {
+      toast("Xatolik yuzaga keldi");
+    }
+  }
+
+  return {
+    getGeometryOfRoute,
+    price,
+    distance,
+    duration,
+    removeTheGeometryOfRoute,
+  };
 });
