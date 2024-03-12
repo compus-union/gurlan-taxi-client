@@ -19,7 +19,7 @@ import { onBeforeRouteLeave } from "vue-router";
 import { LayerGroup, Map } from "leaflet";
 import { Geolocation } from "@capacitor/geolocation";
 
-const Button = defineAsyncComponent(
+const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
 );
 const Input = defineAsyncComponent(
@@ -115,14 +115,14 @@ const navigateNextPage = async () => {
   await router.push("/ride/setDestination");
 };
 
-const navigateToLetsgoPage = async () => {
-  await router.push("/ride/letsgo")
+async function changeOriginCoords(coords: { lat: number; lng: number }) {
+  try {
+    await originStore.changeCoords({ lat: coords.lat, lng: coords.lng });
+    sharedMap.value?.setView([coords.lat, coords.lng], defaultZoom.value);
+  } catch (error) {
+    alert(error);
+  }
 }
-
-const changeOriginCoords = async (coords: { lat: number; lng: number }) => {
-  await originStore.changeCoords({ lat: coords.lat, lng: coords.lng });
-  sharedMap.value?.setView([coords.lat, coords.lng], defaultZoom.value);
-};
 
 const addToSavedPlaces = async (place: {
   lat: number;
@@ -193,8 +193,8 @@ router.beforeEach(async (to, from, next) => {
     <ReverseGeocoding component-type="origin" />
     <Sheet>
       <SheetTrigger as-child>
-        <Button class="mb-4 justify-self-end self-end mr-4"
-          ><Search class="w-4 h-4 mr-2" /> Qidirish</Button
+        <MainButton class="mb-4 justify-self-end self-end mr-4"
+          ><Search class="w-4 h-4 mr-2" /> Qidirish</MainButton
         >
       </SheetTrigger>
       <SheetContent class="h-screen overflow-hidden flex" side="bottom">
@@ -284,11 +284,11 @@ router.beforeEach(async (to, from, next) => {
       class="main-buttons bg-primary-foreground text-foreground p-6 custom-style"
     >
       <div class="buttons flex flex-col space-y-4">
-        <Button @click="goBackToLocation" variant="outline"
-          ><Locate class="w-4 h-4 mr-2" /> Hozirgi joylashuvim</Button
+        <MainButton @click="goBackToLocation" variant="outline"
+          ><Locate class="w-4 h-4 mr-2" /> Hozirgi joylashuvim</MainButton
         >
-        <Button @click="navigateNextPage"
-          ><MapPin class="w-4 h-4 mr-2" /> Qayerga boramiz</Button
+        <MainButton @click="navigateNextPage"
+          ><MapPin class="w-4 h-4 mr-2" /> Qayerga boramiz</MainButton
         >
       </div>
     </div>

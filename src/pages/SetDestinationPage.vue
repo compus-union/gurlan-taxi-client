@@ -35,7 +35,7 @@ const SkeletonLoading = defineAsyncComponent(
   () => import("@/components/functional/SkeletonLoading.vue")
 );
 
-const Button = defineAsyncComponent(
+const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
 );
 
@@ -57,7 +57,7 @@ const {
   coords: destinationCoords,
 } = storeToRefs(destinationStore);
 const { loading } = storeToRefs(loadingStore);
-const { destinationAddress, notFound, errorMessage, originAddress } =
+const { destinationAddress, notFound, errorMessage } =
   storeToRefs(geocodingStore);
 const { mapMoving } = storeToRefs(mapsStore);
 const { notFound: searchPlaceNotFound, places } =
@@ -87,13 +87,33 @@ onBeforeRouteLeave(async (to, from, next) => {
   return next();
 });
 
-watch(
-  () => destinationCoords.value,
-  async (newOne, oldOne) => {
+function geocodingDebounce(func: Function, wait: number) {
+  let timeout: ReturnType<typeof setTimeout> | null;
+
+  return async function (this: any, ...args: any[]) {
+    const context = this;
+    await loadingStore.setLoading(true);
+
+    const later = function () {
+      timeout = null;
+      func.apply(context, args);
+    };
+
+    clearTimeout(timeout as ReturnType<typeof setTimeout>);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Inside your component setup
+const debouncedGeocoding = geocodingDebounce(
+  async (newOne: any, oldOne: any) => {
     await geocodingStore.geocoding(newOne.lat, newOne.lng, "destination");
+    console.log("wiw");
   },
-  { deep: true }
-);
+  1000
+); // 1000 milliseconds = 1 second
+
+watch(() => destinationCoords.value, debouncedGeocoding, { deep: true });
 
 const goBack = async () => {
   router.push("/ride/setOrigin");
@@ -200,8 +220,8 @@ async function letsGo() {
 
 <template>
   <div class="set-destination-page h-auto flex flex-col">
-    <Button @click="goBack" class="mb-4 justify-self-end self-end mr-4"
-      ><ChevronLeft class="w-4 h-4 mr-2" /> Orqaga</Button
+    <MainButton @click="goBack" class="mb-4 justify-self-end self-end mr-4"
+      ><ChevronLeft class="w-4 h-4 mr-2" /> Orqaga</MainButton
     >
     <div
       class="main-content bg-primary-foreground text-foreground p-6 custom-style"
@@ -220,8 +240,8 @@ async function letsGo() {
 
       <Sheet>
         <SheetTrigger as-child>
-          <Button variant="outline" class="w-full mt-4"
-            ><Search class="w-4 h-4 mr-2" /> Qidirish</Button
+          <MainButton variant="outline" class="w-full mt-4"
+            ><Search class="w-4 h-4 mr-2" /> Qidirish</MainButton
           >
         </SheetTrigger>
         <SheetContent class="h-screen overflow-hidden flex" side="bottom">
@@ -310,8 +330,8 @@ async function letsGo() {
           </div>
         </SheetContent>
       </Sheet>
-      <Button @click="letsGo" class="w-full mt-4"
-        ><Check class="w-4 h-4 mr-2" /> Belgilash</Button
+      <MainButton @click="letsGo" class="w-full mt-4"
+        ><Check class="w-4 h-4 mr-2" /> Belgilash</MainButton
       >
     </div>
   </div>

@@ -76,5 +76,5 @@ export const useRoutes = defineStore("routes-store", () => {
     }
   }
 
-  return { getGeometryOfRoute };
+  return { getGeometryOfRoute, price, distance, duration };
 });
