@@ -8,7 +8,14 @@ const config: CapacitorConfig = {
     androidScheme: "http",
     cleartext: true,
   },
-};
 
+  android: {
+    buildOptions: {
+      keystorePath:
+        "d:WORKprojects\taxi-appclientandroidapp\taxi-app-key.keystore",
+      keystoreAlias: "taxi-app-alias",
+    },
+  },
+};
 
 export default config;
