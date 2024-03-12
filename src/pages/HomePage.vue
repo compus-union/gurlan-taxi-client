@@ -92,7 +92,7 @@ const goBackToLocation = async () => {
         lng: result.longitude,
       });
 
-      const originMarker = markers.value.find((m) => {
+      const originMarker = markers.value.find((m: any) => {
         return m._custom_id === "origin-marker";
       });
 

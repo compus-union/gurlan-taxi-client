@@ -92,7 +92,6 @@ function geocodingDebounce(func: Function, wait: number) {
 
   return async function (this: any, ...args: any[]) {
     const context = this;
-    await loadingStore.setLoading(true);
 
     const later = function () {
       timeout = null;
@@ -107,13 +106,21 @@ function geocodingDebounce(func: Function, wait: number) {
 // Inside your component setup
 const debouncedGeocoding = geocodingDebounce(
   async (newOne: any, oldOne: any) => {
-    await geocodingStore.geocoding(newOne.lat, newOne.lng, "destination");
-    console.log("wiw");
+    await geocodingStore.geocoding(newOne[0].lat, newOne[0].lng, "destination");
   },
-  1000
-); // 1000 milliseconds = 1 second
+  800
+);
 
-watch(() => destinationCoords.value, debouncedGeocoding, { deep: true });
+watch(
+  () => [destinationCoords.value, mapMoving.value],
+  async (newOne, oldOne) => {
+    await loadingStore.setLoading(true);
+    await debouncedGeocoding(newOne);
+  },
+  {
+    deep: true,
+  }
+);
 
 const goBack = async () => {
   router.push("/ride/setOrigin");

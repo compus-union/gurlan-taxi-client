@@ -27,12 +27,11 @@ onMounted(async () => {
   await geocodingStore.geocoding(lat.value, lng.value, props.componentType);
 });
 
-function debounce(func: Function, wait: number) {
+function geocodingDebounce(func: Function, wait: number) {
   let timeout: ReturnType<typeof setTimeout> | null;
 
   return async function (this: any, ...args: any[]) {
     const context = this;
-    await loadingStore.setLoading(true);
 
     const later = function () {
       timeout = null;
@@ -45,11 +44,27 @@ function debounce(func: Function, wait: number) {
 }
 
 // Inside your component setup
-const debouncedGeocoding = debounce(async (newOne: any, oldOne: any) => {
-  await geocodingStore.geocoding(newOne.lat, newOne.lng, props.componentType);
-}, 2000); // 1000 milliseconds = 1 second
+const debouncedGeocoding = geocodingDebounce(
+  async (newOne: any, oldOne: any) => {
+    await geocodingStore.geocoding(
+      newOne[0].lat,
+      newOne[0].lng,
+      props.componentType
+    );
+  },
+  800
+);
 
-watch(() => originCoords.value, debouncedGeocoding, { deep: true });
+watch(
+  () => [originCoords.value, mapMoving.value],
+  async (newOne, oldOne) => {
+    await loadingStore.setLoading(true);
+    await debouncedGeocoding(newOne);
+  },
+  {
+    deep: true,
+  }
+);
 </script>
 
 <template>
