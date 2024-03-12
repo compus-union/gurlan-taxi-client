@@ -10,6 +10,8 @@ import { LayerGroup, Map } from "leaflet";
 export const useOriginCoords = defineStore("origin-store", () => {
   const lat = ref<number>(0);
   const lng = ref<number>(0);
+  const realLat = ref<number>(0);
+  const realLng = ref<number>(0);
   const watchingCoords = ref<boolean>(true);
 
   async function getCoordsWithNavigator(): Promise<void> {
@@ -23,6 +25,9 @@ export const useOriginCoords = defineStore("origin-store", () => {
         (results) => {
           lat.value = results.coords.latitude;
           lng.value = results.coords.longitude;
+
+          realLat.value = results.coords.latitude;
+          realLng.value = results.coords.longitude;
           return { coords };
         },
         (err) => {
@@ -50,6 +55,9 @@ export const useOriginCoords = defineStore("origin-store", () => {
         lng: results.coords.longitude,
       });
 
+      realLat.value = results.coords.latitude;
+      realLng.value = results.coords.longitude;
+
       console.log(lat.value, lng.value);
 
       return { coords: results.coords };
@@ -65,10 +73,11 @@ export const useOriginCoords = defineStore("origin-store", () => {
     try {
       if (watchingCoords.value) {
         await Geolocation.watchPosition({}, (results) => {
-          lat.value = results?.coords.latitude as number;
-          lng.value = results?.coords.longitude as number;
-
-          console.log("Moved to new location");
+          if (results) {
+            realLat.value = results.coords.latitude;
+            realLng.value = results.coords.longitude;
+            console.log("Moved to new location");
+          }
         });
         console.log("watch coords enabled");
 
@@ -102,6 +111,8 @@ export const useOriginCoords = defineStore("origin-store", () => {
     getCoordsWithNavigator,
     lat,
     lng,
+    realLat,
+    realLng,
     watchingCoords,
   };
 });

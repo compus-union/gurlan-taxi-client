@@ -27,6 +27,7 @@ export const useGeocoding = defineStore("geocoding-store", () => {
     type: "origin" | "destination"
   ) {
     try {
+      if (!lat && !lng) return;
       const response = await reverseGeocoding(lat, lng);
 
       if (response?.data.status !== "ok") {

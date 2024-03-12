@@ -26,7 +26,7 @@ export const useMaps = defineStore("maps-store", () => {
   const route = useRoute();
   const mapLoaded = ref(false);
 
-  const { coords: originCoords } = storeToRefs(originStore);
+  const { coords: originCoords, realLat, realLng } = storeToRefs(originStore);
   const { coords: destinationCoords } = storeToRefs(destinationStore);
 
   async function setMap(payload: L.Map) {
@@ -51,9 +51,12 @@ export const useMaps = defineStore("maps-store", () => {
         );
 
         // add layers to the map
-        L.tileLayer("https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png", {
-          maxZoom: 20,
-        })
+        L.tileLayer(
+          "https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png",
+          {
+            maxZoom: 20,
+          }
+        )
           .addTo(sharedMap.value)
           .addEventListener("load", () => {
             if (mapLoaded.value) return;
@@ -78,12 +81,9 @@ export const useMaps = defineStore("maps-store", () => {
             iconSize: [16, 16],
           });
 
-          const realLocationPoint = L.marker(
-            [originCoords.value.lat, originCoords.value.lng],
-            {
-              icon: realLocationPointIcon,
-            }
-          ).addTo(sharedMap.value) as CustomMarker;
+          const realLocationPoint = L.marker([realLat.value, realLng.value], {
+            icon: realLocationPointIcon,
+          }).addTo(sharedMap.value) as CustomMarker;
 
           realLocationPoint._custom_id = "real-location-point";
           markers.value.push(realLocationPoint);
