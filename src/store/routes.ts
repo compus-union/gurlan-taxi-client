@@ -4,7 +4,7 @@ import { routeInstance } from "@/http/instances";
 import { useMaps } from "./maps";
 import { storeToRefs } from "pinia";
 import L, { Map } from "leaflet";
-import { toast } from "vue3-toastify/index";
+import { toastController } from "@ionic/vue";
 
 export interface Address {
   lat: number;
@@ -65,15 +65,30 @@ export const useRoutes = defineStore("routes-store", () => {
       };
     } catch (error: any) {
       if (error.response) {
+        const toast = await toastController.create({
+          message: error.response.data,
+          duration: 4000,
+        });
+        await toast.present();
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
         console.log("Response error:", error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
         console.error("Request error:", error.request);
+        const toast = await toastController.create({
+          message: error.request,
+          duration: 4000,
+        });
+        await toast.present();
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Error:", error.message);
+        const toast = await toastController.create({
+          message: error.message,
+          duration: 4000,
+        });
+        await toast.present();
       }
     }
   }
@@ -93,8 +108,12 @@ export const useRoutes = defineStore("routes-store", () => {
       }
 
       return;
-    } catch (error) {
-      toast("Xatolik yuzaga keldi");
+    } catch (error: any) {
+      const toast = await toastController.create({
+        message: "Qandaydir xatolik yuzaga keldi",
+        duration: 4000,
+      });
+      await toast.present();
     }
   }
 

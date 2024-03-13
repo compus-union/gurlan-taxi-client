@@ -8,15 +8,17 @@ import {
   User,
 } from "lucide-vue-next";
 import { defineAsyncComponent, ref } from "vue";
-import { useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
 import StandardPlanImg from "@/assets/standard.png";
 import ComfortPlanImg from "@/assets/comfort.png";
 import MicroVanPlanImg from "@/assets/mikrovan.png";
 import { useGeocoding } from "@/store/geocoding";
 import { storeToRefs } from "pinia";
+import { useRoutes } from "@/store/routes";
 
 const router = useRouter();
 const geocodingStore = useGeocoding();
+const routesStore = useRoutes();
 
 const { destinationAddress, originAddress } = storeToRefs(geocodingStore);
 
@@ -85,6 +87,11 @@ const onTouchEnd = () => {
   dragging.value = false;
   sheetHeight.value = currentY.value;
 };
+
+onBeforeRouteLeave(async (to, from, next) => {
+  await routesStore.removeTheGeometryOfRoute();
+  return next();
+});
 </script>
 
 <template>
@@ -162,7 +169,7 @@ const onTouchEnd = () => {
           <div class="address origin flex items-center justify-between">
             <div class="text-part flex items-center font-semibold">
               <User class="w-4 h-4 mr-4" stroke-width="2px" />
-              1-maktab, Bobur maktab
+              {{ originAddress?.name || originAddress?.displayName }}
             </div>
             <div class="button-part">
               <MainButton variant="ghost" size="icon"
@@ -174,7 +181,7 @@ const onTouchEnd = () => {
           <div class="address destination flex items-center justify-between">
             <div class="text-part flex items-center font-semibold">
               <Flag class="w-4 h-4 mr-4" stroke-width="2px" />
-              2-maktab, Makarenko
+              {{ destinationAddress?.name || destinationAddress?.displayName }}
             </div>
             <div class="button-part">
               <MainButton variant="ghost" size="icon"
