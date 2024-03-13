@@ -21,7 +21,7 @@ export const useRoutes = defineStore("routes-store", () => {
   const routeHttp = routeInstance();
   const destination = ref<Address>();
   const origin = ref<Address>();
-  const geoJSONs = ref<RouteGeoJSON[]>([]);
+  const geoJSONs = ref<L.LayerGroup<any>>();
   const price = ref<{
     price: number;
     formatted: string;
@@ -55,10 +55,12 @@ export const useRoutes = defineStore("routes-store", () => {
 
       const routeLayer = L.geoJSON(result.data.routes.geometry) as RouteGeoJSON;
 
-      routeLayer._custom_id === "origin-to-destination";
-      routeLayer.addTo(sharedMap.value as Map);
+      routeLayer._custom_id = "origin-to-destination";
+
+      const layerGroup = L.layerGroup([routeLayer]);
+      layerGroup.addTo(sharedMap.value as Map);
       sharedMap.value?.fitBounds(routeLayer.getBounds());
-      geoJSONs.value.push(routeLayer);
+      geoJSONs.value = layerGroup;
 
       return {
         status: "ok",
@@ -95,15 +97,23 @@ export const useRoutes = defineStore("routes-store", () => {
 
   async function removeTheGeometryOfRoute() {
     try {
-      const routeLayer = geoJSONs.value.find((layer) => {
+      if (!geoJSONs.value) return;
+      // @ts-ignore
+      const routeLayer = geoJSONs.value._layers.find((layer) => {
         return layer._custom_id === "origin-to-destination";
       });
 
+      console.log(routeLayer);
+
       if (routeLayer) {
-        sharedMap.value?.removeLayer(routeLayer as RouteGeoJSON);
-        geoJSONs.value = geoJSONs.value.filter(
+        // @ts-ignore
+        geoJSONs.value = geoJSONs.value._layers.filter(
+          // @ts-ignore
           (layer) => layer._custom_id !== "origin-to-destination"
         );
+        sharedMap.value?.eachLayer((layer) => {
+          console.log(layer);
+        });
         await mapsStore.addDestinationMarker();
       }
 
@@ -123,5 +133,6 @@ export const useRoutes = defineStore("routes-store", () => {
     distance,
     duration,
     removeTheGeometryOfRoute,
+    geoJSONs,
   };
 });
