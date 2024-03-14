@@ -3,8 +3,8 @@ import { useMaps } from "@/store/maps";
 import { useOriginCoords } from "@/store/origin";
 import { useRouter } from "vue-router";
 import { Preferences } from "@capacitor/preferences";
-import { defineAsyncComponent, ref, watch } from "vue";
-import { CircleSlash2, Locate, MapPin, Search } from "lucide-vue-next";
+import { computed, defineAsyncComponent, ref, watch } from "vue";
+import { CircleSlash2, Locate, MapPin, Search, Loader } from "lucide-vue-next";
 import { storeToRefs } from "pinia";
 import { loadingController } from "@ionic/vue";
 import {
@@ -18,6 +18,7 @@ import { useDestination } from "@/store/destination";
 import { onBeforeRouteLeave } from "vue-router";
 import { LayerGroup, Map } from "leaflet";
 import { Geolocation } from "@capacitor/geolocation";
+import { useLoading } from "@/store/loading";
 
 const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -37,14 +38,17 @@ const originStore = useOriginCoords();
 const router = useRouter();
 const searchPlacesStore = useSearchPlaces();
 const destinationStore = useDestination();
+const loadingStore = useLoading();
 
 const typing = ref(false);
 
-const { sharedMap, defaultZoom, mapLoaded, markers } = storeToRefs(mapsStore);
+const { sharedMap, defaultZoom, mapLoaded, markers, mapMoving } =
+  storeToRefs(mapsStore);
 const { notFound, places } = storeToRefs(searchPlacesStore);
 const { lat: destinationLat, lng: destinationLng } =
   storeToRefs(destinationStore);
 const { watchingCoords } = storeToRefs(originStore);
+const { loading } = storeToRefs(loadingStore);
 
 function createDebounce() {
   let timeout: any;
@@ -186,6 +190,12 @@ router.beforeEach(async (to, from, next) => {
 
   return next();
 });
+
+const buttonDisabled = computed(() => {
+  if ((mapMoving.value && loading.value) || mapMoving.value || loading.value) {
+    return true;
+  }
+});
 </script>
 
 <template>
@@ -284,11 +294,29 @@ router.beforeEach(async (to, from, next) => {
       class="main-buttons bg-primary-foreground text-foreground p-6 custom-style"
     >
       <div class="buttons flex flex-col space-y-4">
-        <MainButton @click="goBackToLocation" variant="outline"
-          ><Locate class="w-4 h-4 mr-2" /> Hozirgi joylashuvim</MainButton
+        <MainButton
+          :disabled="buttonDisabled"
+          @click="goBackToLocation"
+          variant="outline"
+          class="transition-all"
         >
-        <MainButton @click="navigateNextPage"
-          ><MapPin class="w-4 h-4 mr-2" /> Qayerga boramiz</MainButton
+          <span v-show="buttonDisabled" class="flex items-center"
+            ><Loader class="w-4 h-4 mr-2 animate-spin" /> Yuklanmoqda...</span
+          >
+          <span v-show="!buttonDisabled" class="flex items-center">
+            <Locate class="w-4 h-4 mr-2" /> Hozirgi joylashuvim
+          </span>
+        </MainButton>
+        <MainButton
+          class="transition-all"
+          :disabled="buttonDisabled"
+          @click="navigateNextPage"
+          ><span v-show="buttonDisabled" class="flex items-center"
+            ><Loader class="w-4 h-4 mr-2 animate-spin" /> Yuklanmoqda...</span
+          >
+          <span v-show="!buttonDisabled" class="flex items-center">
+            <MapPin class="w-4 h-4 mr-2" /> Qayerga boramiz
+          </span></MainButton
         >
       </div>
     </div>

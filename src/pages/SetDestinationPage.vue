@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGeocoding } from "@/store/geocoding";
 import { storeToRefs } from "pinia";
-import { defineAsyncComponent, onMounted, ref, watch } from "vue";
+import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useMaps } from "@/store/maps";
 import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
@@ -13,6 +13,7 @@ import {
   Search,
   CircleSlash2,
   MapPin,
+  Loader,
 } from "lucide-vue-next";
 import { useDestination } from "@/store/destination";
 import { useLoading } from "@/store/loading";
@@ -223,6 +224,12 @@ async function letsGo() {
     await toast.present();
   }
 }
+
+const buttonDisabled = computed(() => {
+  if ((mapMoving.value && loading.value) || mapMoving.value || loading.value) {
+    return true;
+  }
+});
 </script>
 
 <template>
@@ -247,9 +254,14 @@ async function letsGo() {
 
       <Sheet>
         <SheetTrigger as-child>
-          <MainButton variant="outline" class="w-full mt-4"
-            ><Search class="w-4 h-4 mr-2" /> Qidirish</MainButton
-          >
+          <MainButton variant="outline" class="w-full mt-4 transition-all"
+            ><span v-show="!buttonDisabled" class="flex items-center">
+              <Search class="w-4 h-4 mr-2" /> Qidirish
+            </span>
+            <span v-show="buttonDisabled" class="flex items-center"
+              ><Loader class="w-4 h-4 mr-2 animate-spin" /> Yuklanmoqda...</span
+            >
+          </MainButton>
         </SheetTrigger>
         <SheetContent class="h-screen overflow-hidden flex" side="bottom">
           <div
@@ -337,9 +349,14 @@ async function letsGo() {
           </div>
         </SheetContent>
       </Sheet>
-      <MainButton @click="letsGo" class="w-full mt-4"
-        ><Check class="w-4 h-4 mr-2" /> Belgilash</MainButton
-      >
+      <MainButton :disabled="buttonDisabled" @click="letsGo" class="w-full mt-4 transition-all"
+        ><span v-show="!buttonDisabled" class="flex items-center"
+          ><Check class="w-4 h-4 mr-2" /> Belgilash</span
+        >
+        <span v-show="buttonDisabled" class="flex items-center"
+          ><Loader class="w-4 h-4 mr-2 animate-spin" /> Yuklanmoqda...</span
+        >
+      </MainButton>
     </div>
   </div>
 </template>

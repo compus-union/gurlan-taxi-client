@@ -132,15 +132,16 @@ export const useMaps = defineStore("maps-store", () => {
   async function initialiseEvents() {
     try {
       // get origin marker
-      let originMarker = markers.value.find(
-        (m) => m._custom_id === "origin-marker"
-      ) as CustomMarker;
-
-      let destinationMarker = markers.value.find(
-        (m) => m._custom_id === "destination-marker"
-      ) as CustomMarker;
+     
 
       sharedMap.value?.addEventListener("move", async (e) => {
+        let originMarker = markers.value.find(
+          (m) => m._custom_id === "origin-marker"
+        ) as CustomMarker;
+  
+        let destinationMarker = markers.value.find(
+          (m) => m._custom_id === "destination-marker"
+        ) as CustomMarker;
         if (route.path === "/ride/letsgo") return;
 
         mapMoving.value = true;
@@ -162,6 +163,13 @@ export const useMaps = defineStore("maps-store", () => {
         }
       });
       sharedMap.value?.addEventListener("zoom", async (e) => {
+        let originMarker = markers.value.find(
+          (m) => m._custom_id === "origin-marker"
+        ) as CustomMarker;
+  
+        let destinationMarker = markers.value.find(
+          (m) => m._custom_id === "destination-marker"
+        ) as CustomMarker;
         if (route.path === "/ride/letsgo") return;
 
         mapMoving.value = true;
@@ -184,6 +192,13 @@ export const useMaps = defineStore("maps-store", () => {
       });
 
       sharedMap.value?.addEventListener("zoomend", async (e) => {
+        let originMarker = markers.value.find(
+          (m) => m._custom_id === "origin-marker"
+        ) as CustomMarker;
+  
+        let destinationMarker = markers.value.find(
+          (m) => m._custom_id === "destination-marker"
+        ) as CustomMarker;
         if (route.path === "/ride/letsgo") return;
 
         mapMoving.value = false;
@@ -208,6 +223,13 @@ export const useMaps = defineStore("maps-store", () => {
         }
       });
       sharedMap.value?.addEventListener("dragend", async (e) => {
+        let originMarker = markers.value.find(
+          (m) => m._custom_id === "origin-marker"
+        ) as CustomMarker;
+  
+        let destinationMarker = markers.value.find(
+          (m) => m._custom_id === "destination-marker"
+        ) as CustomMarker;
         if (route.path === "/ride/letsgo") return;
 
         mapMoving.value = false;
@@ -232,6 +254,13 @@ export const useMaps = defineStore("maps-store", () => {
         }
       });
       sharedMap.value?.addEventListener("moveend", async (e) => {
+        let originMarker = markers.value.find(
+          (m) => m._custom_id === "origin-marker"
+        ) as CustomMarker;
+  
+        let destinationMarker = markers.value.find(
+          (m) => m._custom_id === "destination-marker"
+        ) as CustomMarker;
         if (route.path === "/ride/letsgo") return;
 
         mapMoving.value = false;
