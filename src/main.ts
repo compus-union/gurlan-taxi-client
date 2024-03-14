@@ -3,6 +3,7 @@ import App from "./App.vue";
 import router from "./router";
 import { createPinia } from "pinia";
 import Vue3Toasity, { toast, type ToastContainerOptions } from "vue3-toastify";
+import Vue3TouchEvents from "vue3-touch-events";
 
 /* Theme variables */
 import "./theme/variables.css";
@@ -21,7 +22,8 @@ const app = createApp(App)
     closeOnClick: true,
   } as ToastContainerOptions)
   .use(router)
-  .use(createPinia());
+  .use(createPinia())
+  .use(Vue3TouchEvents.install);
 
 router.isReady().then(() => {
   app.mount("#app");
