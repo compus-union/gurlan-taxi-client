@@ -68,7 +68,7 @@ onBeforeRouteLeave(async (to, from, next) => {
 const bottomSheet = ref<HTMLElement | null>(null);
 const position = ref(0);
 const startPosition = ref(0);
-const currentHeight = ref(40);
+const currentHeight = ref(460);
 const maxHeight = 460;
 const minHeight = 40;
 const phase1HeightRange = [40, 100];
@@ -76,104 +76,21 @@ const phase2HeightRange = [101, 200];
 const phase3HeightRange = [201, 460];
 const isHolding = ref(false);
 const phase = ref(0);
+const maxClientY = ref(472);
 
 let hammer: HammerManager;
 
 function handlePanStart(event: HammerInput) {
   isHolding.value = true;
-  startPosition.value = position.value;
-}
-
-function handlePanMove(event: HammerInput) {
-  if (isHolding.value) {
-    const deltaY = event.deltaY;
-    const newPosition = startPosition.value + deltaY;
-    position.value = newPosition;
-    currentHeight.value = Math.max(minHeight, Math.min(maxHeight, newPosition));
-    if (
-      currentHeight.value >= phase1HeightRange[0] &&
-      currentHeight.value < phase1HeightRange[1]
-    ) {
-      phase.value = 1;
-    } else if (
-      currentHeight.value >= phase2HeightRange[0] &&
-      currentHeight.value < phase2HeightRange[1]
-    ) {
-      phase.value = 2;
-    } else {
-      phase.value = 3;
-    }
-    if (phase.value === 1) {
-      currentHeight.value = phase1HeightRange[0];
-      position.value = 0;
-    } else if (phase.value === 2) {
-      currentHeight.value = phase2HeightRange[0];
-      position.value = -(currentHeight.value - phase1HeightRange[1]);
-    } else {
-      currentHeight.value = phase3HeightRange[0];
-      position.value = -(phase3HeightRange[0] - phase2HeightRange[1]);
-    }
-  }
 }
 
 function handlePanEnd(event: HammerInput) {
   isHolding.value = false;
-  if (
-    currentHeight.value >= phase1HeightRange[0] &&
-    currentHeight.value < phase1HeightRange[1]
-  ) {
-    phase.value = 1;
-  } else if (
-    currentHeight.value >= phase2HeightRange[0] &&
-    currentHeight.value < phase2HeightRange[1]
-  ) {
-    phase.value = 2;
-  } else {
-    phase.value = 3;
-  }
-  if (phase.value === 1) {
-    currentHeight.value = phase1HeightRange[0];
-    position.value = 0;
-  } else if (phase.value === 2) {
-    currentHeight.value = phase2HeightRange[0];
-    position.value = -(currentHeight.value - phase1HeightRange[1]);
-  } else {
-    currentHeight.value = phase3HeightRange[0];
-    position.value = -(phase3HeightRange[0] - phase2HeightRange[1]);
-  }
 }
 
-function handleTouchMove(event: TouchEvent) {
-  if (isHolding.value) {
-    const deltaY = event.touches[0].clientY - startPosition.value;
-    const newPosition = startPosition.value + deltaY;
-    position.value = newPosition;
-    currentHeight.value = Math.max(minHeight, Math.min(maxHeight, newPosition));
-    if (
-      currentHeight.value >= phase1HeightRange[0] &&
-      currentHeight.value < phase1HeightRange[1]
-    ) {
-      phase.value = 1;
-    } else if (
-      currentHeight.value >= phase2HeightRange[0] &&
-      currentHeight.value < phase2HeightRange[1]
-    ) {
-      phase.value = 2;
-    } else {
-      phase.value = 3;
-    }
-    if (phase.value === 1) {
-      currentHeight.value = phase1HeightRange[0];
-      position.value = 0;
-    } else if (phase.value === 2) {
-      currentHeight.value = phase2HeightRange[0];
-      position.value = -(currentHeight.value - phase1HeightRange[1]);
-    } else {
-      currentHeight.value = phase3HeightRange[0];
-      position.value = -(phase3HeightRange[0] - phase2HeightRange[1]);
-    }
-  }
-}
+function handlePanMove(event: HammerInput) {}
+
+function handleTouch(e: TouchEvent) {}
 
 onMounted(() => {
   hammer = new Hammer(bottomSheet.value as HTMLElement | SVGElement);
@@ -181,6 +98,8 @@ onMounted(() => {
   hammer.on("panstart", handlePanStart);
   hammer.on("panmove", handlePanMove);
   hammer.on("panend", handlePanEnd);
+
+  console.log(bottomSheet.value?.getBoundingClientRect());
 });
 
 onBeforeUnmount(() => {
@@ -202,7 +121,7 @@ onBeforeUnmount(() => {
         height: `${currentHeight}px`,
         transform: `translateY(${position}px)`,
       }"
-      v-touch:move="handleTouchMove"
+      @touchmove="handleTouch"
       class="main-content bg-primary-foreground text-foreground p-6 custom-style w-full bottom-sheet"
     >
       <div
@@ -307,6 +226,7 @@ onBeforeUnmount(() => {
   background-color: white;
   border-top: 1px solid #ccc;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: height 0.3s ease-out, transform 0.3s ease-out;
+  transition: height 0.1s ease-out,
+    transform 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 </style>
