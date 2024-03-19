@@ -60,15 +60,10 @@ async function changeActivePlan(plan: PlanType) {
   activePlan.value = plan;
 }
 
-onBeforeRouteLeave(async (to, from, next) => {
-  await routesStore.removeTheGeometryOfRoute();
-  return next();
-});
-
-const bottomSheet = ref<HTMLElement | null>(null);
+const pane = ref<CupertinoPane>();
 
 onMounted(async () => {
-  const pane = new CupertinoPane(".sheet-pane", {
+  pane.value = new CupertinoPane(".sheet-pane", {
     breaks: {
       top: { enabled: true, height: 460 },
       middle: { enabled: true, height: 240 },
@@ -81,9 +76,13 @@ onMounted(async () => {
     buttonDestroy: false,
   });
 
-  await pane.present({ animate: true });
+  await pane.value.present({ animate: true });
+});
 
-  console.log(pane.isHidden());
+onBeforeRouteLeave(async (to, from, next) => {
+  await routesStore.removeTheGeometryOfRoute();
+  await pane.value?.destroy();
+  return next();
 });
 </script>
 
