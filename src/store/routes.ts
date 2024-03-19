@@ -4,7 +4,7 @@ import { routeInstance } from "@/http/instances";
 import { useMaps } from "./maps";
 import { storeToRefs } from "pinia";
 import L, { Map } from "leaflet";
-import { toast } from "vue3-toastify/index";
+import { toastController } from "@ionic/vue";
 
 export interface Address {
   lat: number;
@@ -21,7 +21,7 @@ export const useRoutes = defineStore("routes-store", () => {
   const routeHttp = routeInstance();
   const destination = ref<Address>();
   const origin = ref<Address>();
-  const geoJSONs = ref<RouteGeoJSON[]>([]);
+  const geoJSONs = ref<L.LayerGroup<any>>();
   const price = ref<{
     price: number;
     formatted: string;
@@ -55,46 +55,75 @@ export const useRoutes = defineStore("routes-store", () => {
 
       const routeLayer = L.geoJSON(result.data.routes.geometry) as RouteGeoJSON;
 
-      routeLayer._custom_id === "origin-to-destination";
-      routeLayer.addTo(sharedMap.value as Map);
+      routeLayer._custom_id = "origin-to-destination";
+
+      const layerGroup = L.layerGroup([routeLayer]);
+      layerGroup.addTo(sharedMap.value as Map);
       sharedMap.value?.fitBounds(routeLayer.getBounds());
-      geoJSONs.value.push(routeLayer);
+      geoJSONs.value = layerGroup;
 
       return {
         status: "ok",
       };
     } catch (error: any) {
       if (error.response) {
+        const toast = await toastController.create({
+          message: error.response.data,
+          duration: 4000,
+        });
+        await toast.present();
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
         console.log("Response error:", error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
         console.error("Request error:", error.request);
+        const toast = await toastController.create({
+          message: error.request,
+          duration: 4000,
+        });
+        await toast.present();
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Error:", error.message);
+        const toast = await toastController.create({
+          message: error.message,
+          duration: 4000,
+        });
+        await toast.present();
       }
     }
   }
 
   async function removeTheGeometryOfRoute() {
     try {
-      const routeLayer = geoJSONs.value.find((layer) => {
+      if (!geoJSONs.value) return;
+      // @ts-ignore
+      const routeLayer = geoJSONs.value._layers.find((layer) => {
         return layer._custom_id === "origin-to-destination";
       });
 
+      console.log(routeLayer);
+
       if (routeLayer) {
-        sharedMap.value?.removeLayer(routeLayer as RouteGeoJSON);
-        geoJSONs.value = geoJSONs.value.filter(
+        // @ts-ignore
+        geoJSONs.value = geoJSONs.value._layers.filter(
+          // @ts-ignore
           (layer) => layer._custom_id !== "origin-to-destination"
         );
+        sharedMap.value?.eachLayer((layer) => {
+          console.log(layer);
+        });
         await mapsStore.addDestinationMarker();
       }
 
       return;
-    } catch (error) {
-      toast("Xatolik yuzaga keldi");
+    } catch (error: any) {
+      const toast = await toastController.create({
+        message: "Qandaydir xatolik yuzaga keldi",
+        duration: 4000,
+      });
+      await toast.present();
     }
   }
 
@@ -104,5 +133,6 @@ export const useRoutes = defineStore("routes-store", () => {
     distance,
     duration,
     removeTheGeometryOfRoute,
+    geoJSONs,
   };
 });

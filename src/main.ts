@@ -9,7 +9,6 @@ import "./theme/variables.css";
 import "./theme/base.css";
 import "leaflet/dist/leaflet.css";
 import "vue3-toastify/dist/index.css";
-import "@webzlodimir/vue-bottom-sheet/dist/style.css";
 
 const app = createApp(App)
   .use(Vue3Toasity, {
@@ -21,7 +20,7 @@ const app = createApp(App)
     closeOnClick: true,
   } as ToastContainerOptions)
   .use(router)
-  .use(createPinia());
+  .use(createPinia())
 
 router.isReady().then(() => {
   app.mount("#app");
