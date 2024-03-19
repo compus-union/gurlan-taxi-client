@@ -7,7 +7,7 @@ import {
   Settings2,
   User,
 } from "lucide-vue-next";
-import { defineAsyncComponent, onBeforeUnmount, onMounted, ref } from "vue";
+import { defineAsyncComponent, onMounted, ref } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
 import StandardPlanImg from "@/assets/standard.png";
 import ComfortPlanImg from "@/assets/comfort.png";
@@ -15,7 +15,7 @@ import MicroVanPlanImg from "@/assets/mikrovan.png";
 import { useGeocoding } from "@/store/geocoding";
 import { storeToRefs } from "pinia";
 import { useRoutes } from "@/store/routes";
-import Hammer from "hammerjs";
+import { CupertinoPane } from "cupertino-pane";
 
 const router = useRouter();
 const geocodingStore = useGeocoding();
@@ -32,7 +32,7 @@ const Input = defineAsyncComponent(
 );
 
 async function goBack() {
-  await router.push("/side/setDestination");
+  await router.push("/ride/setDestination");
 }
 
 type RideTaxi = "taxi" | "delivery";
@@ -66,69 +66,32 @@ onBeforeRouteLeave(async (to, from, next) => {
 });
 
 const bottomSheet = ref<HTMLElement | null>(null);
-const position = ref(0);
-const startPosition = ref(0);
-const currentHeight = ref(460);
-const maxHeight = 460;
-const minHeight = 40;
-const phase1HeightRange = [40, 100];
-const phase2HeightRange = [101, 200];
-const phase3HeightRange = [201, 460];
-const isHolding = ref(false);
-const phase = ref(0);
-const maxClientY = ref(472);
 
-let hammer: HammerManager;
+onMounted(async () => {
+  async function initSheet() {
+    const pane = new CupertinoPane(".sheet-pane", {
+      parentElement: ".letsgo-page",
+      fitHeight: true,
+    });
 
-function handlePanStart(event: HammerInput) {
-  isHolding.value = true;
-}
+    setTimeout(() => {
+      pane.present({ animate: true });
+      console.log(pane);
+    }, 1000);
+  }
 
-function handlePanEnd(event: HammerInput) {
-  isHolding.value = false;
-}
-
-function handlePanMove(event: HammerInput) {}
-
-function handleTouch(e: TouchEvent) {}
-
-onMounted(() => {
-  hammer = new Hammer(bottomSheet.value as HTMLElement | SVGElement);
-  hammer.add(new Hammer.Pan({ direction: Hammer.DIRECTION_VERTICAL }));
-  hammer.on("panstart", handlePanStart);
-  hammer.on("panmove", handlePanMove);
-  hammer.on("panend", handlePanEnd);
-
-  console.log(bottomSheet.value?.getBoundingClientRect());
-});
-
-onBeforeUnmount(() => {
-  hammer.off("panstart", handlePanStart);
-  hammer.off("panmove", handlePanMove);
-  hammer.off("panend", handlePanEnd);
-  hammer.destroy();
+  await initSheet();
 });
 </script>
 
 <template>
-  <div class="letsgo-page h-auto flex flex-col w-full">
+  <div class="letsgo-page flex flex-col w-full">
     <MainButton @click="goBack" class="mb-4 justify-self-end self-end mr-4"
       ><ChevronLeft class="w-4 h-4 mr-2" /> Orqaga</MainButton
     >
     <div
-      ref="bottomSheet"
-      :style="{
-        height: `${currentHeight}px`,
-        transform: `translateY(${position}px)`,
-      }"
-      @touchmove="handleTouch"
-      class="main-content bg-primary-foreground text-foreground p-6 custom-style w-full bottom-sheet"
+      class="sheet-pane main-content bg-primary-foreground text-foreground p-6 custom-style w-full"
     >
-      <div
-        class="swiper-button w-full mb-4 h-1 flex items-center justify-center"
-      >
-        <div class="swiper h-full w-[80px] bg-gray-300 rounded-full"></div>
-      </div>
       <div
         class="ride-type-buttons flex items-center justify-start space-x-3 mb-4"
       >
@@ -218,15 +181,27 @@ onBeforeUnmount(() => {
   box-shadow: 0 -8px 8px -2px rgba(0, 0, 0, 0.2);
 }
 
-.bottom-sheet {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: white;
-  border-top: 1px solid #ccc;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: height 0.1s ease-out,
-    transform 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+:deep(.modal-style) {
+  box-sizing: border-box;
+  color: white;
+  background-color: #1d1b20;
+  border-radius: 1rem 1rem 0 0;
+  z-index: 99999999;
+
+  @media (prefers-color-scheme: light) {
+    color: black;
+    background-color: #f7f2fa;
+    box-shadow: 0 1px 4px 0 rgb(0 0 0 / 37%);
+  }
+}
+
+.modal-content {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  outline: 1px solid red;
+  outline-offset: -1px;
 }
 </style>
