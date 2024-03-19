@@ -68,30 +68,35 @@ onBeforeRouteLeave(async (to, from, next) => {
 const bottomSheet = ref<HTMLElement | null>(null);
 
 onMounted(async () => {
-  async function initSheet() {
-    const pane = new CupertinoPane(".sheet-pane", {
-      parentElement: ".letsgo-page",
-      fitHeight: true,
-    });
+  const pane = new CupertinoPane(".sheet-pane", {
+    breaks: {
+      top: { enabled: true, height: 460 },
+      middle: { enabled: true, height: 240 },
+      bottom: { enabled: true, height: 40 },
+    },
+    initialBreak: "top",
+    draggableOver: true,
+    parentElement: ".app",
+    cssClass: "z-50",
+    buttonDestroy: false,
+  });
 
-    setTimeout(() => {
-      pane.present({ animate: true });
-      console.log(pane);
-    }, 1000);
-  }
+  await pane.present({ animate: true });
 
-  await initSheet();
+  console.log(pane.isHidden());
 });
 </script>
 
 <template>
-  <div class="letsgo-page flex flex-col w-full">
-    <MainButton @click="goBack" class="mb-4 justify-self-end self-end mr-4"
-      ><ChevronLeft class="w-4 h-4 mr-2" /> Orqaga</MainButton
-    >
+  <div class="letsgo-page flex flex-col w-full h-auto">
     <div
-      class="sheet-pane main-content bg-primary-foreground text-foreground p-6 custom-style w-full"
+      class="sheet-pane main-content bg-primary-foreground text-foreground p-6 w-full h-auto"
     >
+      <MainButton
+        @click="goBack"
+        class="mb-4 justify-self-end self-end mr-4 absolute -top-14 right-0"
+        ><ChevronLeft class="w-4 h-4 mr-2" /> Orqaga</MainButton
+      >
       <div
         class="ride-type-buttons flex items-center justify-start space-x-3 mb-4"
       >
