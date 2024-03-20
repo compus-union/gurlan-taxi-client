@@ -22,11 +22,7 @@ export const useRoutes = defineStore("routes-store", () => {
   const destination = ref<Address>();
   const origin = ref<Address>();
   const geoJSONs = ref<L.LayerGroup<any>>();
-  const price = ref<{
-    price: number;
-    formatted: string;
-    formatter: Function;
-  }>();
+  const price = ref();
   const distance = ref<{ kmFixed: string; kmFull: string }>();
   const duration = ref<{
     full: string;

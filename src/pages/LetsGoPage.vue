@@ -22,6 +22,7 @@ const geocodingStore = useGeocoding();
 const routesStore = useRoutes();
 
 const { destinationAddress, originAddress } = storeToRefs(geocodingStore);
+const { price, distance, duration } = storeToRefs(routesStore);
 
 const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -47,12 +48,6 @@ interface Plan {
 
 const rideType = ref<RideTaxi>("taxi");
 
-const plans = ref<Plan[]>([
-  { id: "1", name: "Standard", price: "7,000", img: StandardPlanImg },
-  { id: "2", name: "Comfort", price: "9,000", img: ComfortPlanImg },
-  { id: "3", name: "Mikrovan", price: "9,500", img: MicroVanPlanImg },
-]);
-
 const activePlan = ref<PlanType>("Standard");
 
 async function changeActivePlan(plan: PlanType) {
@@ -60,15 +55,10 @@ async function changeActivePlan(plan: PlanType) {
   activePlan.value = plan;
 }
 
-onBeforeRouteLeave(async (to, from, next) => {
-  await routesStore.removeTheGeometryOfRoute();
-  return next();
-});
-
-const bottomSheet = ref<HTMLElement | null>(null);
+const pane = ref<CupertinoPane>();
 
 onMounted(async () => {
-  const pane = new CupertinoPane(".sheet-pane", {
+  pane.value = new CupertinoPane(".sheet-pane", {
     breaks: {
       top: { enabled: true, height: 460 },
       middle: { enabled: true, height: 240 },
@@ -81,9 +71,13 @@ onMounted(async () => {
     buttonDestroy: false,
   });
 
-  await pane.present({ animate: true });
+  await pane.value.present({ animate: true });
+});
 
-  console.log(pane.isHidden());
+onBeforeRouteLeave(async (to, from, next) => {
+  await routesStore.removeTheGeometryOfRoute();
+  await pane.value?.destroy();
+  return next();
 });
 </script>
 
@@ -116,10 +110,10 @@ onMounted(async () => {
       <div class="whitespace-nowrap w-full overflow-x-auto">
         <div class="select-plan flex items-start justify-start space-x-2">
           <button
-            v-for="plan in plans"
+            v-for="plan in price.planPrices"
             :key="plan.id"
             @click="changeActivePlan(plan.name)"
-            class="plan bg-gray-100 rounded-lg p-2 transition border relative h-[102px] flex"
+            class="plan bg-gray-100 rounded-lg p-2 transition border-2 relative h-[102px] flex"
             :class="[
               activePlan === plan.name ? 'border-black' : 'border-gray-100 ',
             ]"
@@ -136,7 +130,7 @@ onMounted(async () => {
             </div>
             <div class="name-and-price justify-self-end self-end text-left">
               <p>{{ plan.name }}</p>
-              <p class="font-bold text-lg">{{ plan.price }} so'm</p>
+              <p class="font-bold text-lg">{{ plan.formattedPrice }}</p>
             </div>
           </button>
         </div>
@@ -172,7 +166,7 @@ onMounted(async () => {
           </div>
         </div>
       </div>
-      <p class="text-sm opacity-50 my-2">2km, 15min</p>
+      <p class="text-sm opacity-50 my-2">{{ distance?.kmFull }}, {{ duration?.full }}</p>
       <MainButton class="w-full flex items-center"
         ><Check class="w-4 h-4 mr-2" /> Chaqirish</MainButton
       >
