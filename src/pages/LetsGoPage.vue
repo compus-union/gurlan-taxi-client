@@ -22,6 +22,7 @@ const geocodingStore = useGeocoding();
 const routesStore = useRoutes();
 
 const { destinationAddress, originAddress } = storeToRefs(geocodingStore);
+const { price, distance, duration } = storeToRefs(routesStore);
 
 const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -46,12 +47,6 @@ interface Plan {
 }
 
 const rideType = ref<RideTaxi>("taxi");
-
-const plans = ref<Plan[]>([
-  { id: "1", name: "Standard", price: "7,000", img: StandardPlanImg },
-  { id: "2", name: "Comfort", price: "9,000", img: ComfortPlanImg },
-  { id: "3", name: "Mikrovan", price: "9,500", img: MicroVanPlanImg },
-]);
 
 const activePlan = ref<PlanType>("Standard");
 
@@ -115,10 +110,10 @@ onBeforeRouteLeave(async (to, from, next) => {
       <div class="whitespace-nowrap w-full overflow-x-auto">
         <div class="select-plan flex items-start justify-start space-x-2">
           <button
-            v-for="plan in plans"
+            v-for="plan in price.planPrices"
             :key="plan.id"
             @click="changeActivePlan(plan.name)"
-            class="plan bg-gray-100 rounded-lg p-2 transition border relative h-[102px] flex"
+            class="plan bg-gray-100 rounded-lg p-2 transition border-2 relative h-[102px] flex"
             :class="[
               activePlan === plan.name ? 'border-black' : 'border-gray-100 ',
             ]"
@@ -135,7 +130,7 @@ onBeforeRouteLeave(async (to, from, next) => {
             </div>
             <div class="name-and-price justify-self-end self-end text-left">
               <p>{{ plan.name }}</p>
-              <p class="font-bold text-lg">{{ plan.price }} so'm</p>
+              <p class="font-bold text-lg">{{ plan.formattedPrice }}</p>
             </div>
           </button>
         </div>
@@ -171,7 +166,7 @@ onBeforeRouteLeave(async (to, from, next) => {
           </div>
         </div>
       </div>
-      <p class="text-sm opacity-50 my-2">2km, 15min</p>
+      <p class="text-sm opacity-50 my-2">{{ distance?.kmFull }}, {{ duration?.full }}</p>
       <MainButton class="w-full flex items-center"
         ><Check class="w-4 h-4 mr-2" /> Chaqirish</MainButton
       >
