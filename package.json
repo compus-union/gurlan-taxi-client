@@ -36,6 +36,7 @@
     "cupertino-pane": "^1.4.21",
     "google-maps": "^4.3.3",
     "leaflet": "^1.9.4",
+    "leaflet.smooth_marker_bouncing": "^3.0.3",
     "lucide-vue-next": "^0.312.0",
     "maska": "^2.1.11",
     "pinia": "^2.1.7",

@@ -186,12 +186,6 @@ onBeforeRouteLeave(async (to, from, next) => {
   background-color: #1d1b20;
   border-radius: 1rem 1rem 0 0;
   z-index: 99999999;
-
-  @media (prefers-color-scheme: light) {
-    color: black;
-    background-color: #f7f2fa;
-    box-shadow: 0 1px 4px 0 rgb(0 0 0 / 37%);
-  }
 }
 
 .modal-content {
