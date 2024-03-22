@@ -82,10 +82,9 @@ onBeforeRouteLeave(async (to, from, next) => {
       [originLat.value, originLng.value],
       defaultZoom.value
     );
-    await mapsStore.addFixedDestinationMarker();
-    return next();
   }
 
+  await mapsStore.addFixedDestinationMarker();
   return next();
 });
 
@@ -212,7 +211,7 @@ async function letsGo() {
       await toast.present();
       return;
     }
-    
+
     if (result.status === "ok") {
       await loading.dismiss();
       await router.push("/ride/letsgo");
