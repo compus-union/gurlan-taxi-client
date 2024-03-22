@@ -82,8 +82,9 @@ onBeforeRouteLeave(async (to, from, next) => {
       [originLat.value, originLng.value],
       defaultZoom.value
     );
+    await mapsStore.addFixedDestinationMarker();
+    return next();
   }
-  await mapsStore.addFixedDestinationMarker();
 
   return next();
 });
@@ -211,9 +212,11 @@ async function letsGo() {
       await toast.present();
       return;
     }
-
-    await loading.dismiss();
-    await router.push("/ride/letsgo");
+    
+    if (result.status === "ok") {
+      await loading.dismiss();
+      await router.push("/ride/letsgo");
+    }
   } catch (error) {
     console.log(error);
     const toast = await toastController.create({
@@ -349,7 +352,10 @@ const buttonDisabled = computed(() => {
           </div>
         </SheetContent>
       </Sheet>
-      <MainButton :disabled="buttonDisabled" @click="letsGo" class="w-full mt-4 transition-all"
+      <MainButton
+        :disabled="buttonDisabled"
+        @click="letsGo"
+        class="w-full mt-4 transition-all"
         ><span v-show="!buttonDisabled" class="flex items-center"
           ><Check class="w-4 h-4 mr-2" /> Belgilash</span
         >

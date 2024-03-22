@@ -35,6 +35,7 @@ export const useRoutes = defineStore("routes-store", () => {
 
   async function getGeometryOfRoute(d: Address, o: Address) {
     try {
+      await mapsStore.addFixedDestinationMarker()
       destination.value = d;
       origin.value = o;
 

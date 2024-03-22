@@ -10,6 +10,7 @@ import OriginMarkerIcon from "@/assets/origin-marker-icon.svg";
 import DestinationMarkerIcon from "@/assets/destination-marker-icon.svg";
 import RealLocationPointIcon from "@/assets/real-location-point.svg";
 import "@maptiler/leaflet-maptilersdk";
+import "leaflet.smooth_marker_bouncing";
 
 export interface CustomMarker extends L.Marker {
   latLng?: L.LatLng;
@@ -132,13 +133,40 @@ export const useMaps = defineStore("maps-store", () => {
   async function initialiseEvents() {
     try {
       // get origin marker
-     
 
+      sharedMap.value?.addEventListener("drag", async (e) => {
+        let originMarker = markers.value.find(
+          (m) => m._custom_id === "origin-marker"
+        ) as CustomMarker;
+
+        let destinationMarker = markers.value.find(
+          (m) => m._custom_id === "destination-marker"
+        ) as CustomMarker;
+        if (route.path === "/ride/letsgo") return;
+
+        mapMoving.value = true;
+        const lat = sharedMap.value?.getCenter().lat as number;
+        const lng = sharedMap.value?.getCenter().lng as number;
+
+        if (route.path === "/ride/setOrigin" && originMarker) {
+          originMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+
+        if (route.path === "/ride/setDestination" && destinationMarker) {
+          destinationMarker
+            .setLatLng([lat, lng])
+            .addTo(sharedMap.value as Map | LayerGroup<any>);
+          return;
+        }
+      });
       sharedMap.value?.addEventListener("move", async (e) => {
         let originMarker = markers.value.find(
           (m) => m._custom_id === "origin-marker"
         ) as CustomMarker;
-  
+
         let destinationMarker = markers.value.find(
           (m) => m._custom_id === "destination-marker"
         ) as CustomMarker;
@@ -166,7 +194,7 @@ export const useMaps = defineStore("maps-store", () => {
         let originMarker = markers.value.find(
           (m) => m._custom_id === "origin-marker"
         ) as CustomMarker;
-  
+
         let destinationMarker = markers.value.find(
           (m) => m._custom_id === "destination-marker"
         ) as CustomMarker;
@@ -195,7 +223,7 @@ export const useMaps = defineStore("maps-store", () => {
         let originMarker = markers.value.find(
           (m) => m._custom_id === "origin-marker"
         ) as CustomMarker;
-  
+
         let destinationMarker = markers.value.find(
           (m) => m._custom_id === "destination-marker"
         ) as CustomMarker;
@@ -210,7 +238,7 @@ export const useMaps = defineStore("maps-store", () => {
 
           originMarker
             .setLatLng([lat, lng])
-            .addTo(sharedMap.value as Map | LayerGroup<any>);
+            .addTo(sharedMap.value as Map | LayerGroup<any>)
           return;
         }
 
@@ -226,7 +254,7 @@ export const useMaps = defineStore("maps-store", () => {
         let originMarker = markers.value.find(
           (m) => m._custom_id === "origin-marker"
         ) as CustomMarker;
-  
+
         let destinationMarker = markers.value.find(
           (m) => m._custom_id === "destination-marker"
         ) as CustomMarker;
@@ -257,7 +285,7 @@ export const useMaps = defineStore("maps-store", () => {
         let originMarker = markers.value.find(
           (m) => m._custom_id === "origin-marker"
         ) as CustomMarker;
-  
+
         let destinationMarker = markers.value.find(
           (m) => m._custom_id === "destination-marker"
         ) as CustomMarker;
@@ -313,6 +341,7 @@ export const useMaps = defineStore("maps-store", () => {
           [originCoords.value.lat, originCoords.value.lng],
           {
             icon: originMarkerIcon,
+            title: "Siz shu yerda"
           }
         );
         originMarker._custom_id = "origin-marker";
@@ -404,7 +433,7 @@ export const useMaps = defineStore("maps-store", () => {
     }
   }
 
-  // remove if destination-marker exists, then add destination-marker
+  // remove if destination-marker exists, then add destination-marker-fixed
   async function addFixedDestinationMarker() {
     try {
       const destinationMarker = await findMarker("destination-marker");
@@ -453,5 +482,6 @@ export const useMaps = defineStore("maps-store", () => {
     addFixedDestinationMarker,
     addOriginMarker,
     mapLoaded,
+    findMarker
   };
 });
