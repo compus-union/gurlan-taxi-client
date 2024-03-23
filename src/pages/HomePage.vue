@@ -207,17 +207,19 @@ const buttonDisabled = computed(() => {
 </script>
 
 <template>
-  <div class="home-page h-auto flex flex-col items-center">
+  <div class="home-page h-auto flex flex-col">
     <ReverseGeocoding component-type="origin" />
     <MainButton
       @click="goBackToLocation"
       size="icon"
-      class="w-auto h-auto flex items-center justify-center my-4 bg-primary-foreground text-foreground justify-self-end self-end mr-6 hover:bg-primary-foreground"
+      :disabled="buttonDisabled"
+      :class="{ 'translate-y-[72px] pointer-events-none': buttonDisabled }"
+      class="absolute right-0 top-[-86px] transition-all w-auto h-auto flex items-center justify-center my-4 bg-primary-foreground text-foreground justify-self-end self-end mr-6 hover:bg-primary-foreground"
     >
       <Locate :size="28" class="m-3" />
     </MainButton>
     <div
-      :class="{ 'translate-y-32': buttonDisabled }"
+      :class="{ 'translate-y-[72px] pointer-events-none': buttonDisabled }"
       class="main-buttons bg-primary-foreground text-foreground p-6 custom-style w-full transition-all"
     >
       <div class="buttons flex flex-col space-y-2">
