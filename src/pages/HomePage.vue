@@ -207,15 +207,22 @@ const buttonDisabled = computed(() => {
 </script>
 
 <template>
-  <div class="home-page h-auto flex flex-col">
+  <div class="home-page h-auto flex flex-col items-center">
     <ReverseGeocoding component-type="origin" />
-
-    <div
-      class="main-buttons bg-primary-foreground text-foreground p-6 custom-style"
+    <MainButton
+      @click="goBackToLocation"
+      size="icon"
+      class="w-auto h-auto flex items-center justify-center my-4 bg-primary-foreground text-foreground justify-self-end self-end mr-6 hover:bg-primary-foreground"
     >
-      <div class="buttons flex flex-col space-y-4">
+      <Locate :size="28" class="m-3" />
+    </MainButton>
+    <div
+      :class="{ 'translate-y-32': buttonDisabled }"
+      class="main-buttons bg-primary-foreground text-foreground p-6 custom-style w-full transition-all"
+    >
+      <div class="buttons flex flex-col space-y-2">
         <MainButton
-          class="transition-all py-6 text-lg"
+          class="transition-all py-6 text-lg font-manrope font-semibold"
           :disabled="buttonDisabled"
           @click="navigateNextPage"
           ><span v-show="buttonDisabled" class="flex items-center"
@@ -227,7 +234,9 @@ const buttonDisabled = computed(() => {
         >
         <Sheet>
           <SheetTrigger as-child>
-            <MainButton class="w-full border-black py-6 text-lg" variant="outline"
+            <MainButton
+              class="w-full py-6 text-lg font-manrope font-semibold"
+              variant="outline"
               ><Search class="w-5 h-5 mr-2" /> Qidirish</MainButton
             >
           </SheetTrigger>
