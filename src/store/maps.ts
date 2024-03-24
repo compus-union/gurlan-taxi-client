@@ -250,37 +250,37 @@ export const useMaps = defineStore("maps-store", () => {
           return;
         }
       });
-      sharedMap.value?.addEventListener("dragend", async (e) => {
-        let originMarker = markers.value.find(
-          (m) => m._custom_id === "origin-marker"
-        ) as CustomMarker;
+      // sharedMap.value?.addEventListener("dragend", async (e) => {
+      //   let originMarker = markers.value.find(
+      //     (m) => m._custom_id === "origin-marker"
+      //   ) as CustomMarker;
 
-        let destinationMarker = markers.value.find(
-          (m) => m._custom_id === "destination-marker"
-        ) as CustomMarker;
-        if (route.path === "/ride/letsgo") return;
+      //   let destinationMarker = markers.value.find(
+      //     (m) => m._custom_id === "destination-marker"
+      //   ) as CustomMarker;
+      //   if (route.path === "/ride/letsgo") return;
 
-        mapMoving.value = false;
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
+      //   mapMoving.value = false;
+      //   const lat = sharedMap.value?.getCenter().lat as number;
+      //   const lng = sharedMap.value?.getCenter().lng as number;
 
-        if (route.path === "/ride/setOrigin" && originMarker) {
-          await originStore.changeCoords({ lat, lng });
+      //   if (route.path === "/ride/setOrigin" && originMarker) {
+      //     await originStore.changeCoords({ lat, lng });
 
-          originMarker
-            .setLatLng([lat, lng])
-            .addTo(sharedMap.value as Map | LayerGroup<any>);
-          return;
-        }
+      //     originMarker
+      //       .setLatLng([lat, lng])
+      //       .addTo(sharedMap.value as Map | LayerGroup<any>);
+      //     return;
+      //   }
 
-        if (route.path === "/ride/setDestination" && destinationMarker) {
-          await destinationStore.changeCoords({ lat, lng }, "void");
-          destinationMarker
-            .setLatLng([lat, lng])
-            .addTo(sharedMap.value as Map | LayerGroup<any>);
-          return;
-        }
-      });
+      //   if (route.path === "/ride/setDestination" && destinationMarker) {
+      //     await destinationStore.changeCoords({ lat, lng }, "void");
+      //     destinationMarker
+      //       .setLatLng([lat, lng])
+      //       .addTo(sharedMap.value as Map | LayerGroup<any>);
+      //     return;
+      //   }
+      // });
       sharedMap.value?.addEventListener("moveend", async (e) => {
         let originMarker = markers.value.find(
           (m) => m._custom_id === "origin-marker"

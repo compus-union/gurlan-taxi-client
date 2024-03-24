@@ -82,10 +82,9 @@ onBeforeRouteLeave(async (to, from, next) => {
       [originLat.value, originLng.value],
       defaultZoom.value
     );
-    await mapsStore.addFixedDestinationMarker();
-    return next();
   }
 
+  await mapsStore.addFixedDestinationMarker();
   return next();
 });
 
@@ -212,7 +211,7 @@ async function letsGo() {
       await toast.present();
       return;
     }
-    
+
     if (result.status === "ok") {
       await loading.dismiss();
       await router.push("/ride/letsgo");
@@ -244,7 +243,14 @@ const buttonDisabled = computed(() => {
       class="main-content bg-primary-foreground text-foreground p-6 custom-style"
     >
       <h1 class="text-primary font-bold text-xl mb-4">Boradigan manzilingiz</h1>
-      <p class="text-primary flex items-start font-semibold">
+      <p
+        v-show="
+          destinationAddress?.name ||
+          destinationAddress?.displayName ||
+          errorMessage
+        "
+        class="text-primary flex items-start mb-4 font-semibold"
+      >
         <Flag class="w-[20px] h-[20px] mr-2" />
         {{
           notFound
@@ -254,10 +260,22 @@ const buttonDisabled = computed(() => {
             : destinationAddress?.name || destinationAddress?.displayName
         }}
       </p>
-
+      <MainButton
+        :disabled="buttonDisabled"
+        @click="letsGo"
+        class="transition-all py-6 text-lg font-manrope font-semibold w-full mb-2"
+        ><span v-show="!buttonDisabled" class="flex items-center"
+          ><Check class="w-4 h-4 mr-2" /> Belgilash</span
+        >
+        <span v-show="buttonDisabled" class="flex items-center"
+          ><Loader class="w-4 h-4 mr-2 animate-spin" /> Yuklanmoqda...</span
+        >
+      </MainButton>
       <Sheet>
         <SheetTrigger as-child>
-          <MainButton variant="outline" class="w-full mt-4 transition-all"
+          <MainButton
+            variant="outline"
+            class="transition-all py-6 text-lg font-manrope font-semibold w-full"
             ><span v-show="!buttonDisabled" class="flex items-center">
               <Search class="w-4 h-4 mr-2" /> Qidirish
             </span>
@@ -352,17 +370,6 @@ const buttonDisabled = computed(() => {
           </div>
         </SheetContent>
       </Sheet>
-      <MainButton
-        :disabled="buttonDisabled"
-        @click="letsGo"
-        class="w-full mt-4 transition-all"
-        ><span v-show="!buttonDisabled" class="flex items-center"
-          ><Check class="w-4 h-4 mr-2" /> Belgilash</span
-        >
-        <span v-show="buttonDisabled" class="flex items-center"
-          ><Loader class="w-4 h-4 mr-2 animate-spin" /> Yuklanmoqda...</span
-        >
-      </MainButton>
     </div>
   </div>
 </template>
