@@ -35,7 +35,6 @@ export const useRoutes = defineStore("routes-store", () => {
 
   async function getGeometryOfRoute(d: Address, o: Address) {
     try {
-      await mapsStore.addFixedDestinationMarker()
       destination.value = d;
       origin.value = o;
 
@@ -111,7 +110,6 @@ export const useRoutes = defineStore("routes-store", () => {
         sharedMap.value?.eachLayer((layer) => {
           console.log(layer);
         });
-        await mapsStore.addDestinationMarker();
       }
 
       return;

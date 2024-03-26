@@ -51,7 +51,8 @@ const loadingStore = useLoading();
 const searchPlacesStore = useSearchPlaces();
 
 const { lat: originLat, lng: originLng } = storeToRefs(originStore);
-const { sharedMap, defaultZoom, markers } = storeToRefs(mapsStore);
+const { sharedMap, defaultZoom, markers, markerVisible } =
+  storeToRefs(mapsStore);
 const {
   lat: destinationLat,
   lng: destinationLng,
@@ -63,10 +64,6 @@ const { destinationAddress, notFound, errorMessage } =
 const { mapMoving } = storeToRefs(mapsStore);
 const { notFound: searchPlaceNotFound, places } =
   storeToRefs(searchPlacesStore);
-
-onMounted(async () => {
-  await mapsStore.addDestinationMarker();
-});
 
 onMounted(async () => {
   await geocodingStore.geocoding(
@@ -84,7 +81,6 @@ onBeforeRouteLeave(async (to, from, next) => {
     );
   }
 
-  await mapsStore.addFixedDestinationMarker();
   return next();
 });
 
@@ -172,6 +168,7 @@ async function changeDestinationCoords(payload: { lat: number; lng: number }) {
 
 async function letsGo() {
   try {
+    markerVisible.value = false;
     const loading = await loadingController.create({
       message: "Yuklanmoqda...",
     });
@@ -215,6 +212,7 @@ async function letsGo() {
     if (result.status === "ok") {
       await loading.dismiss();
       await router.push("/ride/letsgo");
+      await mapsStore.addFixedMarkers()
     }
   } catch (error) {
     console.log(error);
