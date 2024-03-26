@@ -171,7 +171,6 @@ const addToSavedPlaces = async (place: {
 };
 
 onBeforeRouteLeave(async (to, from, next) => {
-  // Remove origin marker and add fixed origin marker
   if (to.path === "/ride/setDestination") {
     if (destinationLat.value && destinationLng.value) {
       sharedMap.value?.setView(
@@ -179,23 +178,7 @@ onBeforeRouteLeave(async (to, from, next) => {
         defaultZoom.value
       );
     }
-    await mapsStore.addFixedOriginMarker();
   }
-  return next();
-});
-
-watch(
-  () => mapLoaded.value,
-  async () => {
-    await mapsStore.addOriginMarker();
-  }
-);
-
-router.beforeEach(async (to, from, next) => {
-  if (from.path === "/ride/setDestination") {
-    await mapsStore.addOriginMarker();
-  }
-
   return next();
 });
 
