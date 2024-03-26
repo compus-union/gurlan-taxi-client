@@ -9,6 +9,7 @@ import { loadingController } from "@ionic/vue";
 import { toast } from "vue3-toastify";
 import { HamburgerMenuIcon } from "@radix-icons/vue";
 import { storeToRefs } from "pinia";
+import Marker from "@/components/functional/Marker.vue";
 
 const AsideComponent = defineAsyncComponent(
   () => import("@/components/Aside.vue")
@@ -155,6 +156,7 @@ const closeAside = () => {
         />
       </transition>
     </header>
+    <Marker :isAnimated="true" class="marker fixed inset-1/2 z-50 -translate-x-1/2 -translate-y-[91px]" />
     <div id="map" class="map h-screen w-full z-[49]">
       <div v-if="displayErrorMessage" class="error-message mt-10 text-center">
         <h1 class="title text-foreground text-2xl font-bold">
