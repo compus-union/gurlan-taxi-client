@@ -9,20 +9,26 @@ import {
 } from "lucide-vue-next";
 import { defineAsyncComponent, onMounted, ref } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
-import StandardPlanImg from "@/assets/standard.png";
-import ComfortPlanImg from "@/assets/comfort.png";
-import MicroVanPlanImg from "@/assets/mikrovan.png";
 import { useGeocoding } from "@/store/geocoding";
 import { storeToRefs } from "pinia";
 import { useRoutes } from "@/store/routes";
 import { CupertinoPane } from "cupertino-pane";
+import { useMaps } from "@/store/maps";
+import { useDestination } from "@/store/destination";
+import { Layer } from "leaflet";
+import { toastController } from "@ionic/vue";
 
 const router = useRouter();
 const geocodingStore = useGeocoding();
 const routesStore = useRoutes();
+const mapsStore = useMaps();
+const destinationStore = useDestination();
 
 const { destinationAddress, originAddress } = storeToRefs(geocodingStore);
-const { price, distance, duration } = storeToRefs(routesStore);
+const { price, distance, duration, geoJSONs, isRouteInstalled } =
+  storeToRefs(routesStore);
+const { sharedMap, markerVisible, defaultZoom } = storeToRefs(mapsStore);
+const { coords: destinationCoords } = storeToRefs(destinationStore);
 
 const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -39,13 +45,6 @@ async function goBack() {
 type RideTaxi = "taxi" | "delivery";
 type PlanType = "Standard" | "Comfort" | "Mikrovan";
 
-interface Plan {
-  id: string;
-  name: PlanType;
-  price: string;
-  img: string;
-}
-
 const rideType = ref<RideTaxi>("taxi");
 
 const activePlan = ref<PlanType>("Standard");
@@ -58,6 +57,8 @@ async function changeActivePlan(plan: PlanType) {
 const pane = ref<CupertinoPane>();
 
 onMounted(async () => {
+  console.log(sharedMap.value);
+
   pane.value = new CupertinoPane(".sheet-pane", {
     breaks: {
       top: { enabled: true, height: 460 },
@@ -74,8 +75,52 @@ onMounted(async () => {
   await pane.value.present({ animate: true });
 });
 
+async function removeTheGeometryOfRoute() {
+  try {
+    isRouteInstalled.value = null
+    console.log(mapsStore.sharedMap);
+    console.log(geoJSONs.value);
+
+    if (!geoJSONs.value) return;
+
+    markerVisible.value = true;
+    price.value = {};
+    distance.value = {} as { kmFixed: string; kmFull: string };
+    duration.value = {} as {
+      full: string;
+      hours: string;
+      minutes: string;
+      seconds: string;
+    };
+
+    sharedMap.value?.removeLayer(geoJSONs.value as any);
+    sharedMap.value?.setView(
+      [destinationCoords.value.lat, destinationCoords.value.lng],
+      defaultZoom.value
+    );
+    geoJSONs.value = {} as L.LayerGroup;
+
+    const originMarkerFixed = await mapsStore.findMarker("origin-marker-fixed");
+    const destinationMarkerFixed = await mapsStore.findMarker(
+      "destination-marker-fixed"
+    );
+
+    if (originMarkerFixed) await mapsStore.removeMarker(originMarkerFixed);
+    if (destinationMarkerFixed)
+      await mapsStore.removeMarker(destinationMarkerFixed);
+
+    return;
+  } catch (error: any) {
+    const toast = await toastController.create({
+      message: "Qandaydir xatolik yuzaga keldi",
+      duration: 4000,
+    });
+    await toast.present();
+  }
+}
+
 onBeforeRouteLeave(async (to, from, next) => {
-  await routesStore.removeTheGeometryOfRoute();
+  await removeTheGeometryOfRoute();
   await pane.value?.destroy();
   return next();
 });
@@ -166,7 +211,9 @@ onBeforeRouteLeave(async (to, from, next) => {
           </div>
         </div>
       </div>
-      <p class="text-sm opacity-50 my-2">{{ distance?.kmFull }}, {{ duration?.full }}</p>
+      <p class="text-sm opacity-50 my-2">
+        {{ distance?.kmFull }}, {{ duration?.full }}
+      </p>
       <MainButton class="w-full flex items-center"
         ><Check class="w-4 h-4 mr-2" /> Chaqirish</MainButton
       >

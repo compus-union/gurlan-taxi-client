@@ -1,7 +1,7 @@
 import { defineStore, storeToRefs } from "pinia";
 import { useOriginCoords } from "./origin";
 import { useDestination } from "./destination";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useRoute } from "vue-router";
@@ -11,6 +11,7 @@ import { useLoading } from "./loading";
 import OriginFixedMarkerIcon from "@/assets/origin-fixed-marker.svg";
 import DestinationFixedMarkerIcon from "@/assets/destination-fixed-marker.svg";
 import { LayerGroup, Map } from "leaflet";
+import { useRoutes } from "./routes";
 
 export interface CustomMarker extends L.Marker {
   latLng?: L.LatLng;
@@ -25,18 +26,21 @@ type MarkerID =
   | "real-location-point";
 
 export const useMaps = defineStore("maps-store", () => {
+  const routesStore = useRoutes();
   const loadingStore = useLoading();
   const sharedMap = ref<L.Map>();
   const originStore = useOriginCoords();
   const markers = ref<CustomMarker[]>([]);
   const defaultZoom = ref(16);
+  const minZoom = ref(13);
   const mapMoving = ref(false);
   const destinationStore = useDestination();
   const route = useRoute();
   const mapLoaded = ref(false);
-  const markerVisible = ref(true)
+  const markerVisible = ref(true);
 
   const { loading } = storeToRefs(loadingStore);
+  const { isRouteInstalled } = storeToRefs(routesStore);
 
   const isMarkerAnimating = computed(() => {
     if (loading.value || mapMoving.value) {
@@ -80,7 +84,7 @@ export const useMaps = defineStore("maps-store", () => {
       if (originCoords.value) {
         sharedMap.value = L.map(id, {
           zoomControl: false,
-          maxZoom: 20,
+          minZoom: minZoom.value,
         }).setView(
           [originCoords.value.lat, originCoords.value.lng],
           defaultZoom.value
@@ -90,7 +94,7 @@ export const useMaps = defineStore("maps-store", () => {
         L.tileLayer(
           "https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png",
           {
-            maxZoom: 20,
+            minZoom: minZoom.value,
           }
         )
           .addTo(sharedMap.value)
@@ -151,10 +155,12 @@ export const useMaps = defineStore("maps-store", () => {
       });
 
       sharedMap.value?.addEventListener("zoomend", async (e) => {
-        mapMoving.value = false;
-        if (route.path === "/ride/letsgo") return;
+        console.log("zoomend");
 
         mapMoving.value = false;
+        if (typeof isRouteInstalled.value === "boolean") return;
+        if (route.path === "/ride/letsgo") return;
+
         const lat = sharedMap.value?.getCenter().lat as number;
         const lng = sharedMap.value?.getCenter().lng as number;
 
@@ -171,11 +177,35 @@ export const useMaps = defineStore("maps-store", () => {
         }
       });
 
-      sharedMap.value?.addEventListener("moveend", async (e) => {
-        mapMoving.value = false;
-        if (route.path === "/ride/letsgo") return;
+      sharedMap.value?.addEventListener("dragend", async (e) => {
+        console.log("dragend");
 
         mapMoving.value = false;
+        if (typeof isRouteInstalled.value === "boolean") return;
+        if (route.path === "/ride/letsgo") return;
+
+        const lat = sharedMap.value?.getCenter().lat as number;
+        const lng = sharedMap.value?.getCenter().lng as number;
+
+        if (route.path === "/ride/setOrigin") {
+          await originStore.changeCoords({ lat, lng });
+
+          return;
+        }
+
+        if (route.path === "/ride/setDestination") {
+          await destinationStore.changeCoords({ lat, lng }, "void");
+
+          return;
+        }
+      });
+      sharedMap.value?.addEventListener("moveend", async (e) => {
+        console.log("moveend");
+
+        mapMoving.value = false;
+        if (typeof isRouteInstalled.value === "boolean") return;
+        if (route.path === "/ride/letsgo") return;
+
         const lat = sharedMap.value?.getCenter().lat as number;
         const lng = sharedMap.value?.getCenter().lng as number;
 
@@ -254,6 +284,7 @@ export const useMaps = defineStore("maps-store", () => {
     findMarker,
     isMarkerAnimating,
     addFixedMarkers,
-    markerVisible
+    markerVisible,
+    removeMarker,
   };
 });
