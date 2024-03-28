@@ -50,7 +50,7 @@ const loadingStore = useLoading();
 
 const typing = ref(false);
 
-const { sharedMap, defaultZoom, mapLoaded, markers, mapMoving } =
+const { sharedMap, defaultZoom, markers, mapMoving, isSearching } =
   storeToRefs(mapsStore);
 const { notFound, places } = storeToRefs(searchPlacesStore);
 const { lat: destinationLat, lng: destinationLng } =
@@ -104,13 +104,6 @@ const goBackToLocation = async () => {
         lng: result.longitude,
       });
 
-      const originMarker = markers.value.find((m: any) => {
-        return m._custom_id === "origin-marker";
-      });
-
-      originMarker
-        ?.setLatLng([result.latitude, result.longitude])
-        .addTo(sharedMap.value as Map | LayerGroup<any>);
 
       sharedMap.value?.setView([result.latitude, result.longitude]);
     }
@@ -129,8 +122,9 @@ const navigateNextPage = async () => {
 
 async function changeOriginCoords(coords: { lat: number; lng: number }) {
   try {
+    isSearching.value = true;
     await originStore.changeCoords({ lat: coords.lat, lng: coords.lng });
-    sharedMap.value?.setView([coords.lat, coords.lng], defaultZoom.value);
+    sharedMap.value?.setView([coords.lat, coords.lng], defaultZoom.value)
   } catch (error) {
     alert(error);
   }

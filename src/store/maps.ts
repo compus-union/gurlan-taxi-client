@@ -38,6 +38,7 @@ export const useMaps = defineStore("maps-store", () => {
   const route = useRoute();
   const mapLoaded = ref(false);
   const markerVisible = ref(true);
+  const isSearching = ref<true | false | null>(null);
 
   const { loading } = storeToRefs(loadingStore);
   const { isRouteInstalled } = storeToRefs(routesStore);
@@ -84,7 +85,7 @@ export const useMaps = defineStore("maps-store", () => {
       if (originCoords.value) {
         sharedMap.value = L.map(id, {
           zoomControl: false,
-          minZoom: minZoom.value,
+          maxZoom: 20,
         }).setView(
           [originCoords.value.lat, originCoords.value.lng],
           defaultZoom.value
@@ -94,7 +95,7 @@ export const useMaps = defineStore("maps-store", () => {
         L.tileLayer(
           "https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png",
           {
-            minZoom: minZoom.value,
+            maxZoom: 20,
           }
         )
           .addTo(sharedMap.value)
@@ -133,6 +134,10 @@ export const useMaps = defineStore("maps-store", () => {
       // get origin marker
 
       sharedMap.value?.addEventListener("drag", async (e) => {
+        console.log('drag');
+        
+        if (isSearching.value) isSearching.value = false;
+
         if (route.path === "/ride/letsgo") return;
 
         mapMoving.value = true;
@@ -140,6 +145,9 @@ export const useMaps = defineStore("maps-store", () => {
         return;
       });
       sharedMap.value?.addEventListener("move", async (e) => {
+        console.log('move');
+
+        if (isSearching.value) isSearching.value = false;
         if (route.path === "/ride/letsgo") return;
 
         mapMoving.value = true;
@@ -147,6 +155,10 @@ export const useMaps = defineStore("maps-store", () => {
         return;
       });
       sharedMap.value?.addEventListener("zoom", async (e) => {
+        console.log('zoom');
+        
+        if (isSearching.value) isSearching.value = false;
+
         if (route.path === "/ride/letsgo") return;
 
         mapMoving.value = true;
@@ -160,7 +172,9 @@ export const useMaps = defineStore("maps-store", () => {
         mapMoving.value = false;
         if (typeof isRouteInstalled.value === "boolean") return;
         if (route.path === "/ride/letsgo") return;
+        if (isSearching.value) return;
 
+        isSearching.value = false;
         const lat = sharedMap.value?.getCenter().lat as number;
         const lng = sharedMap.value?.getCenter().lng as number;
 
@@ -183,7 +197,9 @@ export const useMaps = defineStore("maps-store", () => {
         mapMoving.value = false;
         if (typeof isRouteInstalled.value === "boolean") return;
         if (route.path === "/ride/letsgo") return;
+        if (isSearching.value) return;
 
+        isSearching.value = false;
         const lat = sharedMap.value?.getCenter().lat as number;
         const lng = sharedMap.value?.getCenter().lng as number;
 
@@ -200,26 +216,30 @@ export const useMaps = defineStore("maps-store", () => {
         }
       });
       sharedMap.value?.addEventListener("moveend", async (e) => {
-        console.log("moveend");
+        setTimeout(async () => {
+          console.log("moveend");
 
-        mapMoving.value = false;
-        if (typeof isRouteInstalled.value === "boolean") return;
-        if (route.path === "/ride/letsgo") return;
+          mapMoving.value = false;
+          if (typeof isRouteInstalled.value === "boolean") return;
+          if (route.path === "/ride/letsgo") return;
+          if (isSearching.value) return;
 
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
+          isSearching.value = false;
+          const lat = sharedMap.value?.getCenter().lat as number;
+          const lng = sharedMap.value?.getCenter().lng as number;
 
-        if (route.path === "/ride/setOrigin") {
-          await originStore.changeCoords({ lat, lng });
+          if (route.path === "/ride/setOrigin") {
+            await originStore.changeCoords({ lat, lng });
 
-          return;
-        }
+            return;
+          }
 
-        if (route.path === "/ride/setDestination") {
-          await destinationStore.changeCoords({ lat, lng }, "void");
+          if (route.path === "/ride/setDestination") {
+            await destinationStore.changeCoords({ lat, lng }, "void");
 
-          return;
-        }
+            return;
+          }
+        }, 200);
       });
     } catch (error) {
       console.log(error);
@@ -286,5 +306,6 @@ export const useMaps = defineStore("maps-store", () => {
     addFixedMarkers,
     markerVisible,
     removeMarker,
+    isSearching,
   };
 });
