@@ -1,10 +1,10 @@
-import { defineStore } from "pinia";
-import { ref } from "vue";
+import { defineStore, storeToRefs } from "pinia";
+import { ref, toRefs } from "vue";
 import { routeInstance } from "@/http/instances";
 import { useMaps } from "./maps";
-import { storeToRefs } from "pinia";
 import L, { Map } from "leaflet";
 import { toastController } from "@ionic/vue";
+import { useDestination } from "./destination";
 
 export interface Address {
   lat: number;
@@ -17,6 +17,7 @@ export interface RouteGeoJSON extends L.GeoJSON {
 }
 
 export const useRoutes = defineStore("routes-store", () => {
+  const destinationStore = useDestination();
   const mapsStore = useMaps();
   const routeHttp = routeInstance();
   const destination = ref<Address>();
@@ -30,10 +31,13 @@ export const useRoutes = defineStore("routes-store", () => {
     minutes: string;
     seconds: string;
   }>();
+  const isRouteInstalled = ref<true | false | null>(null);
 
-  const { sharedMap, defaultZoom } = storeToRefs(mapsStore);
+  const { sharedMap, defaultZoom, markerVisible } = storeToRefs(mapsStore);
+  const { coords: destinationCoords } = storeToRefs(destinationStore);
 
   async function getGeometryOfRoute(d: Address, o: Address) {
+    isRouteInstalled.value = false;
     try {
       destination.value = d;
       origin.value = o;
@@ -54,14 +58,17 @@ export const useRoutes = defineStore("routes-store", () => {
       routeLayer._custom_id = "origin-to-destination";
 
       const layerGroup = L.layerGroup([routeLayer]);
-      layerGroup.addTo(sharedMap.value as Map);
-      sharedMap.value?.fitBounds(routeLayer.getBounds());
+      layerGroup.addTo(mapsStore.sharedMap as Map);
+      mapsStore.sharedMap?.fitBounds(routeLayer.getBounds());
       geoJSONs.value = layerGroup;
+      isRouteInstalled.value = true;
 
       return {
         status: "ok",
       };
     } catch (error: any) {
+      console.log(error);
+
       if (error.response) {
         const toast = await toastController.create({
           message: error.response.data,
@@ -93,24 +100,38 @@ export const useRoutes = defineStore("routes-store", () => {
 
   async function removeTheGeometryOfRoute() {
     try {
+      console.log(mapsStore.sharedMap);
+      console.log(geoJSONs.value);
+      
       if (!geoJSONs.value) return;
-      // @ts-ignore
-      const routeLayer = geoJSONs.value._layers.find((layer) => {
-        return layer._custom_id === "origin-to-destination";
-      });
 
-      console.log(routeLayer);
+      markerVisible.value = true;
+      price.value = {};
+      distance.value = {} as { kmFixed: string; kmFull: string };
+      duration.value = {} as {
+        full: string;
+        hours: string;
+        minutes: string;
+        seconds: string;
+      };
+      
+      mapsStore.sharedMap?.removeLayer(geoJSONs.value);
+      mapsStore.sharedMap?.setView(
+        [destinationCoords.value.lat, destinationCoords.value.lng],
+        defaultZoom.value
+      );
+      geoJSONs.value = {} as L.LayerGroup;
 
-      if (routeLayer) {
-        // @ts-ignore
-        geoJSONs.value = geoJSONs.value._layers.filter(
-          // @ts-ignore
-          (layer) => layer._custom_id !== "origin-to-destination"
-        );
-        sharedMap.value?.eachLayer((layer) => {
-          console.log(layer);
-        });
-      }
+      const originMarkerFixed = await mapsStore.findMarker(
+        "origin-marker-fixed"
+      );
+      const destinationMarkerFixed = await mapsStore.findMarker(
+        "destination-marker-fixed"
+      );
+
+      if (originMarkerFixed) await mapsStore.removeMarker(originMarkerFixed);
+      if (destinationMarkerFixed)
+        await mapsStore.removeMarker(destinationMarkerFixed);
 
       return;
     } catch (error: any) {
@@ -129,5 +150,6 @@ export const useRoutes = defineStore("routes-store", () => {
     duration,
     removeTheGeometryOfRoute,
     geoJSONs,
+    isRouteInstalled,
   };
 });

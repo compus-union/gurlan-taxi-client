@@ -25,7 +25,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useRoute } from "vue-router";
-import { LayerGroup, Map } from "leaflet";
 import { loadingController, toastController } from "@ionic/vue";
 import { useRoutes } from "@/store/routes";
 
@@ -111,8 +110,10 @@ const debouncedGeocoding = geocodingDebounce(
 watch(
   () => [destinationCoords.value, mapMoving.value],
   async (newOne, oldOne) => {
-    await loadingStore.setLoading(true);
-    await debouncedGeocoding(newOne);
+    if (!newOne[1]) {
+      await loadingStore.setLoading(true);
+      await debouncedGeocoding(newOne);
+    }
   },
   {
     deep: true,
@@ -153,17 +154,9 @@ async function changeDestinationCoords(payload: { lat: number; lng: number }) {
     "void"
   );
 
-  if (route.path === "/ride/setDestination") {
-    sharedMap.value?.setView([payload.lat, payload.lng]);
+  sharedMap.value?.setView([payload.lat, payload.lng], defaultZoom.value);
 
-    const destinationMarker = markers.value.find((m) => {
-      return m._custom_id === "destination-marker";
-    });
-
-    destinationMarker
-      ?.setLatLng([payload.lat, payload.lng])
-      .addTo(sharedMap.value as Map | LayerGroup<any>);
-  }
+  return;
 }
 
 async function letsGo() {
@@ -210,9 +203,9 @@ async function letsGo() {
     }
 
     if (result.status === "ok") {
-      await loading.dismiss();
+      await mapsStore.addFixedMarkers();
       await router.push("/ride/letsgo");
-      await mapsStore.addFixedMarkers()
+      await loading.dismiss();
     }
   } catch (error) {
     console.log(error);
