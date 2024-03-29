@@ -72,8 +72,8 @@ watch(
     class="reverse-geocoding fixed top-20 w-full flex items-center justify-center text-center"
   >
     <div class="content drop-shadow-lg font-semibold text-primary">
-      <p>Sizning manzilingiz:</p>
-      <h3 v-if="props.componentType === 'origin'" class="text-lg font-bold">
+      <p class="font-manrope">Sizning manzilingiz:</p>
+      <h3 v-if="props.componentType === 'origin'" class="text-lg font-bold font-poppins">
         {{
           notFound
             ? errorMessage

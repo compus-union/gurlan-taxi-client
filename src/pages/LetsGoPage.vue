@@ -15,7 +15,6 @@ import { useRoutes } from "@/store/routes";
 import { CupertinoPane } from "cupertino-pane";
 import { useMaps } from "@/store/maps";
 import { useDestination } from "@/store/destination";
-import { Layer } from "leaflet";
 import { toastController } from "@ionic/vue";
 
 const router = useRouter();
@@ -77,9 +76,7 @@ onMounted(async () => {
 
 async function removeTheGeometryOfRoute() {
   try {
-    isRouteInstalled.value = null
-    console.log(mapsStore.sharedMap);
-    console.log(geoJSONs.value);
+    isRouteInstalled.value = null;
 
     if (!geoJSONs.value) return;
 
@@ -133,20 +130,20 @@ onBeforeRouteLeave(async (to, from, next) => {
     >
       <MainButton
         @click="goBack"
-        class="mb-4 justify-self-end self-end mr-4 absolute -top-14 right-0"
+        class="mb-4 justify-self-end self-end mr-4 absolute -top-14 right-0 font-manrope"
         ><ChevronLeft class="w-4 h-4 mr-2" /> Orqaga</MainButton
       >
       <div
         class="ride-type-buttons flex items-center justify-start space-x-3 mb-4"
       >
         <MainButton
-          class="px-4"
+          class="px-4 font-manrope"
           :class="{ 'border border-black': rideType === 'taxi' }"
           variant="secondary"
           >Taxi</MainButton
         >
         <MainButton
-          class="px-4"
+          class="px-4 font-manrope"
           :class="{ 'border border-black': rideType === 'delivery' }"
           variant="secondary"
           >Yetkazib berish</MainButton
@@ -174,8 +171,10 @@ onBeforeRouteLeave(async (to, from, next) => {
               />
             </div>
             <div class="name-and-price justify-self-end self-end text-left">
-              <p>{{ plan.name }}</p>
-              <p class="font-bold text-lg">{{ plan.formattedPrice }}</p>
+              <p class="font-manrope">{{ plan.name }}</p>
+              <p class="font-bold text-lg font-poppins">
+                {{ plan.formattedPrice }}
+              </p>
             </div>
           </button>
         </div>
@@ -185,10 +184,13 @@ onBeforeRouteLeave(async (to, from, next) => {
       >
         <Info class="w-3 h-3 mr-2" /> Ta'riflar haqida
       </button>
-      <Input class="promo-code mt-2" placeholder="Promokod kiriting" />
+      <Input
+        class="promo-code mt-2 placeholder:font-manrope font-manrope"
+        placeholder="Promokod kiriting"
+      />
       <div class="addresses mt-3 space-y-2">
         <div class="address origin flex items-center justify-between">
-          <div class="text-part flex items-center font-semibold">
+          <div class="text-part flex items-center font-medium font-manrope">
             <User class="w-4 h-4 mr-4" stroke-width="2px" />
             {{ originAddress?.name || originAddress?.displayName }}
           </div>
@@ -200,7 +202,7 @@ onBeforeRouteLeave(async (to, from, next) => {
         </div>
         <hr />
         <div class="address destination flex items-center justify-between">
-          <div class="text-part flex items-center font-semibold">
+          <div class="text-part flex items-center font-medium font-manrope">
             <Flag class="w-4 h-4 mr-4" stroke-width="2px" />
             {{ destinationAddress?.name || destinationAddress?.displayName }}
           </div>
@@ -214,7 +216,8 @@ onBeforeRouteLeave(async (to, from, next) => {
       <p class="text-sm opacity-50 my-2">
         {{ distance?.kmFull }}, {{ duration?.full }}
       </p>
-      <MainButton class="w-full flex items-center"
+      <MainButton
+        class="flex items-center transition-all py-6 text-lg font-manrope font-semibold w-full mb-2"
         ><Check class="w-4 h-4 mr-2" /> Chaqirish</MainButton
       >
     </div>

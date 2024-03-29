@@ -102,7 +102,7 @@ export const useRoutes = defineStore("routes-store", () => {
     try {
       console.log(mapsStore.sharedMap);
       console.log(geoJSONs.value);
-      
+
       if (!geoJSONs.value) return;
 
       markerVisible.value = true;
@@ -114,7 +114,7 @@ export const useRoutes = defineStore("routes-store", () => {
         minutes: string;
         seconds: string;
       };
-      
+
       mapsStore.sharedMap?.removeLayer(geoJSONs.value);
       mapsStore.sharedMap?.setView(
         [destinationCoords.value.lat, destinationCoords.value.lng],
