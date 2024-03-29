@@ -11,7 +11,7 @@ import { useLoading } from "./loading";
 import OriginFixedMarkerIcon from "@/assets/origin-fixed-marker.svg";
 import DestinationFixedMarkerIcon from "@/assets/destination-fixed-marker.svg";
 import { LayerGroup, Map } from "leaflet";
-import { useRoutes } from "./routes";
+import { Address, useRoutes } from "./routes";
 
 export interface CustomMarker extends L.Marker {
   latLng?: L.LatLng;
@@ -132,33 +132,15 @@ export const useMaps = defineStore("maps-store", () => {
   async function initialiseEvents() {
     try {
       // get origin marker
-
-      sharedMap.value?.addEventListener("drag", async (e) => {
-        console.log('drag');
-        
-        if (isSearching.value) isSearching.value = false;
-
-        if (route.path === "/ride/letsgo") return;
-
-        mapMoving.value = true;
-
-        return;
-      });
-      sharedMap.value?.addEventListener("move", async (e) => {
-        console.log('move');
-
+      sharedMap.value?.addEventListener("dragstart", async () => {
         if (isSearching.value) isSearching.value = false;
         if (route.path === "/ride/letsgo") return;
 
         mapMoving.value = true;
-
-        return;
       });
-      sharedMap.value?.addEventListener("zoom", async (e) => {
-        console.log('zoom');
-        
-        if (isSearching.value) isSearching.value = false;
 
+      sharedMap.value?.addEventListener("zoomstart", async (e) => {
+        if (isSearching.value) isSearching.value = false;
         if (route.path === "/ride/letsgo") return;
 
         mapMoving.value = true;
@@ -167,8 +149,6 @@ export const useMaps = defineStore("maps-store", () => {
       });
 
       sharedMap.value?.addEventListener("zoomend", async (e) => {
-        console.log("zoomend");
-
         mapMoving.value = false;
         if (typeof isRouteInstalled.value === "boolean") return;
         if (route.path === "/ride/letsgo") return;
@@ -192,8 +172,6 @@ export const useMaps = defineStore("maps-store", () => {
       });
 
       sharedMap.value?.addEventListener("dragend", async (e) => {
-        console.log("dragend");
-
         mapMoving.value = false;
         if (typeof isRouteInstalled.value === "boolean") return;
         if (route.path === "/ride/letsgo") return;
@@ -215,50 +193,20 @@ export const useMaps = defineStore("maps-store", () => {
           return;
         }
       });
-      sharedMap.value?.addEventListener("moveend", async (e) => {
-        setTimeout(async () => {
-          console.log("moveend");
-
-          mapMoving.value = false;
-          if (typeof isRouteInstalled.value === "boolean") return;
-          if (route.path === "/ride/letsgo") return;
-          if (isSearching.value) return;
-
-          isSearching.value = false;
-          const lat = sharedMap.value?.getCenter().lat as number;
-          const lng = sharedMap.value?.getCenter().lng as number;
-
-          if (route.path === "/ride/setOrigin") {
-            await originStore.changeCoords({ lat, lng });
-
-            return;
-          }
-
-          if (route.path === "/ride/setDestination") {
-            await destinationStore.changeCoords({ lat, lng }, "void");
-
-            return;
-          }
-        }, 200);
-      });
     } catch (error) {
       console.log(error);
     }
   }
 
-  async function addFixedMarkers() {
+  async function addFixedMarkers(origin: any, destination: any) {
     const originFixedIcon = L.icon({
       iconUrl: OriginFixedMarkerIcon,
       iconAnchor: [20, 67],
     });
 
-    const originFixedMarker = L.marker(
-      [originCoords.value.lat, originCoords.value.lng],
-      { icon: originFixedIcon }
-    )
-      .addTo(sharedMap.value as Map | LayerGroup<any>)
-      .bindTooltip("Siz shu yerdasiz")
-      .openTooltip() as CustomMarker;
+    const originFixedMarker = L.marker([origin.lat, origin.lng], {
+      icon: originFixedIcon,
+    }).addTo(sharedMap.value as Map | LayerGroup<any>) as CustomMarker;
 
     const destinationFixedIcon = L.icon({
       iconUrl: DestinationFixedMarkerIcon,
@@ -266,12 +214,9 @@ export const useMaps = defineStore("maps-store", () => {
     });
 
     const destinationFixedMarker = L.marker(
-      [destinationCoords.value.lat, destinationCoords.value.lng],
+      [destination.lat, destination.lng],
       { icon: destinationFixedIcon }
-    )
-      .addTo(sharedMap.value as Map | LayerGroup<any>)
-      .bindTooltip("Siz shu yerga borasiz")
-      .openTooltip() as CustomMarker;
+    ).addTo(sharedMap.value as Map | LayerGroup<any>) as CustomMarker;
 
     originFixedMarker._custom_id = "origin-marker-fixed";
     destinationFixedMarker._custom_id = "destination-marker-fixed";

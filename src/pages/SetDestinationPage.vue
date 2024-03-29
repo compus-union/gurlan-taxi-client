@@ -39,8 +39,6 @@ const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
 );
 
-const route = useRoute();
-
 const routesStore = useRoutes();
 const mapsStore = useMaps();
 const originStore = useOriginCoords();
@@ -50,15 +48,14 @@ const loadingStore = useLoading();
 const searchPlacesStore = useSearchPlaces();
 
 const { lat: originLat, lng: originLng } = storeToRefs(originStore);
-const { sharedMap, defaultZoom, markers, markerVisible } =
-  storeToRefs(mapsStore);
+const { sharedMap, defaultZoom, markerVisible } = storeToRefs(mapsStore);
 const {
   lat: destinationLat,
   lng: destinationLng,
   coords: destinationCoords,
 } = storeToRefs(destinationStore);
 const { loading } = storeToRefs(loadingStore);
-const { destinationAddress, notFound, errorMessage } =
+const { destinationAddress, notFound, errorMessage, originAddress } =
   storeToRefs(geocodingStore);
 const { mapMoving } = storeToRefs(mapsStore);
 const { notFound: searchPlaceNotFound, places } =
@@ -169,13 +166,13 @@ async function letsGo() {
 
     const result = await routesStore.getGeometryOfRoute(
       {
-        lat: destinationLat.value,
-        lng: destinationLng.value,
+        lat: destinationAddress.value?.lat as number,
+        lng: destinationAddress.value?.lng as number,
         name: "",
       },
       {
-        lat: originLat.value,
-        lng: originLng.value,
+        lat: originAddress.value?.lat as number,
+        lng: originAddress.value?.lng as number,
         name: "",
       }
     );
@@ -203,7 +200,7 @@ async function letsGo() {
     }
 
     if (result.status === "ok") {
-      await mapsStore.addFixedMarkers();
+      await mapsStore.addFixedMarkers(originAddress.value, destinationAddress.value);
       await router.push("/ride/letsgo");
       await loading.dismiss();
     }
@@ -227,20 +224,24 @@ const buttonDisabled = computed(() => {
 
 <template>
   <div class="set-destination-page h-auto flex flex-col">
-    <MainButton @click="goBack" class="mb-4 justify-self-end self-end mr-4"
+    <MainButton
+      @click="goBack"
+      class="mb-4 justify-self-end self-end mr-4 font-manrope"
       ><ChevronLeft class="w-4 h-4 mr-2" /> Orqaga</MainButton
     >
     <div
       class="main-content bg-primary-foreground text-foreground p-6 custom-style"
     >
-      <h1 class="text-primary font-bold text-xl mb-4">Boradigan manzilingiz</h1>
+      <h1 class="text-primary font-bold text-xl mb-4 font-poppins">
+        Boradigan manzilingiz
+      </h1>
       <p
         v-show="
           destinationAddress?.name ||
           destinationAddress?.displayName ||
           errorMessage
         "
-        class="text-primary flex items-start mb-4 font-semibold"
+        class="text-primary flex items-start mb-4 font-semibold font-manrope"
       >
         <Flag class="w-[20px] h-[20px] mr-2" />
         {{
