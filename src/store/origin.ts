@@ -46,14 +46,16 @@ export const useOriginCoords = defineStore("origin-store", () => {
     }
   }
 
-  async function getCoords() {
+  async function getCoords(changeCoordsOpt: boolean = true) {
     try {
       const results = await Geolocation.getCurrentPosition();
 
-      await changeCoords({
-        lat: results.coords.latitude,
-        lng: results.coords.longitude,
-      });
+      if (changeCoordsOpt) {
+        await changeCoords({
+          lat: results.coords.latitude,
+          lng: results.coords.longitude,
+        });
+      }
 
       realLat.value = results.coords.latitude;
       realLng.value = results.coords.longitude;

@@ -20,12 +20,7 @@ const originStore = useOriginCoords();
 const { originAddress, notFound, errorMessage } = storeToRefs(geocodingStore);
 const { mapMoving } = storeToRefs(mapsStore);
 const { loading } = storeToRefs(loadingStore);
-const { lat, lng, coords: originCoords } = storeToRefs(originStore);
-
-onMounted(async () => {
-  if (props.componentType === "origin") await originStore.getCoords();
-  await geocodingStore.geocoding(lat.value, lng.value, props.componentType);
-});
+const { coords: originCoords } = storeToRefs(originStore);
 
 function geocodingDebounce(func: Function, wait: number) {
   let timeout: ReturnType<typeof setTimeout> | null;
@@ -44,26 +39,19 @@ function geocodingDebounce(func: Function, wait: number) {
 }
 
 // Inside your component setup
-const debouncedGeocoding = geocodingDebounce(
-  async (newOne: any, oldOne: any) => {
-    await geocodingStore.geocoding(
-      newOne[0].lat,
-      newOne[0].lng,
-      props.componentType
-    );
-  },
-  800
-);
+const debouncedGeocoding = geocodingDebounce(async (newOne: any) => {
+  await geocodingStore.geocoding(newOne.lat, newOne.lng, props.componentType);
+}, 800);
 
 watch(
   () => [originCoords.value, mapMoving.value],
-  async (newOne, oldOne) => {
-    await loadingStore.setLoading(true);
-    await debouncedGeocoding(newOne);
+  async (newOne: any, oldOne) => {
+    if (!newOne[1]) {
+      await loadingStore.setLoading(true);
+      await debouncedGeocoding(newOne[0]);
+    }
   },
-  {
-    deep: true,
-  }
+  { immediate: true }
 );
 </script>
 
@@ -73,7 +61,10 @@ watch(
   >
     <div class="content drop-shadow-lg font-semibold text-primary">
       <p class="font-manrope">Sizning manzilingiz:</p>
-      <h3 v-if="props.componentType === 'origin'" class="text-lg font-bold font-poppins">
+      <h3
+        v-if="props.componentType === 'origin'"
+        class="text-lg font-bold font-poppins"
+      >
         {{
           notFound
             ? errorMessage
