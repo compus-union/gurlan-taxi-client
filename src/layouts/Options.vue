@@ -21,8 +21,8 @@ import { List, LogOut, MapPin, User, AlignJustify } from "lucide-vue-next";
           <Button size="icon" variant="ghost" class="hover:bg-none"
             ><AlignJustify class="h-4 w-4" /></Button
         ></DropdownMenuTrigger>
-        <DropdownMenuContent class="font-manrope font-semibold">
-          <DropdownMenuItem class="text-lg">
+        <DropdownMenuContent class="font-manrope font-semibold space-y-2">
+          <DropdownMenuItem class="text-lg" :class="{'bg-black text-white': $route.path === '/options/profile'}">
             <User class="w-5 h-5 mr-2" /> Profil
           </DropdownMenuItem>
           <DropdownMenuItem class="text-lg">
