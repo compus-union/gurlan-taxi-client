@@ -108,6 +108,9 @@ const routes: Array<RouteRecordRaw> = [
     ],
   },
   {
+    path: "/options/"
+  },
+  {
     path: "/no-internet",
     name: "no-internet",
     component: () => import("@/pages/NoInternetPage.vue"),

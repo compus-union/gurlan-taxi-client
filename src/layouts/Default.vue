@@ -7,13 +7,16 @@ import { useAuth } from "@/store/auth";
 import { ResponseStatus } from "@/constants";
 import { loadingController } from "@ionic/vue";
 import { toast } from "vue3-toastify";
-import { HamburgerMenuIcon } from "@radix-icons/vue";
 import { storeToRefs } from "pinia";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Marker from "@/components/functional/Marker.vue";
-
-const AsideComponent = defineAsyncComponent(
-  () => import("@/components/Aside.vue")
-);
+import { List, LogOut, MapPin, User, AlignJustify } from "lucide-vue-next";
 
 const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -23,12 +26,9 @@ const router = useRouter();
 const mapsStore = useMaps();
 const authStore = useAuth();
 const displayErrorMessage = ref(false);
-const showAside = ref(false);
 const canMapLoaded = ref(false);
 
-const { sharedMap, mapLoaded, isMarkerAnimating, markerVisible } = storeToRefs(mapsStore);
-
-const mapRef = ref(sharedMap);
+const { mapLoaded, isMarkerAnimating, markerVisible } = storeToRefs(mapsStore);
 
 const createLoading = async (message: string) => {
   const loading = await loadingController.create({ message });
@@ -115,16 +115,6 @@ const logout = async () => {
 
   await router.push({ path: "/auth/login" });
 };
-
-const openAside = () => {
-  if (showAside.value) return;
-  showAside.value = true;
-};
-
-const closeAside = () => {
-  if (!showAside.value) return;
-  showAside.value = false;
-};
 </script>
 
 <template>
@@ -136,27 +126,38 @@ const closeAside = () => {
       <nav
         class="navbar container mx-auto px-1 flex items-center border-b shadow-lg"
       >
-        <div class="left">
-          <Button
-            @click="openAside"
-            size="icon"
-            variant="ghost"
-            class="hover:bg-none"
-            ><HamburgerMenuIcon class="h-4 w-4"
-          /></Button>
-        </div>
-        <div class="right my-4 ml-2 text-lg font-semibold">
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button size="icon" variant="ghost" class="hover:bg-none"
+              ><AlignJustify class="h-4 w-4" /></Button
+          ></DropdownMenuTrigger>
+          <DropdownMenuContent class="font-manrope font-semibold">
+            <DropdownMenuItem class="text-lg">
+              <User class="w-5 h-5 mr-2" /> Profil
+            </DropdownMenuItem>
+            <DropdownMenuItem class="text-lg">
+              <MapPin class="w-5 h-5 mr-2" /> Saqlangan joylar
+            </DropdownMenuItem>
+            <DropdownMenuItem class="text-lg">
+              <List class="w-5 h-5 mr-2" /> Buyurtmalar
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem class="text-lg text-red-500">
+              <LogOut class="w-5 h-5 mr-2" /> Chiqish
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <div class="right my-4 ml-2 text-lg font-semibold font-manrope">
           Bonus: 45,000 so'm
         </div>
       </nav>
-      <transition name="slide-left">
-        <AsideComponent
-          @update:closeAside="closeAside"
-          :showAside="showAside"
-        />
-      </transition>
     </header>
-    <Marker v-show="markerVisible":isAnimated="isMarkerAnimating" class="marker fixed inset-1/2 z-50 -translate-x-1/2 -translate-y-[91px]" />
+    <Marker
+      v-show="markerVisible"
+      :isAnimated="isMarkerAnimating"
+      class="marker fixed inset-1/2 z-50 -translate-x-1/2 -translate-y-[91px]"
+    />
     <div id="map" class="map h-screen w-full z-[49]">
       <div v-if="displayErrorMessage" class="error-message mt-10 text-center">
         <h1 class="title text-foreground text-2xl font-bold">
