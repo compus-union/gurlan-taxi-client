@@ -8,7 +8,16 @@ import {
 } from "../components/ui/dropdown-menu";
 import { Button } from "../components/ui/button";
 import { RouterView } from "vue-router";
-import { List, LogOut, MapPin, User, AlignJustify } from "lucide-vue-next";
+import { List, LogOut, MapPin, User, AlignJustify, Map } from "lucide-vue-next";
+import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
+
+const router = useRouter();
+const route = useRoute();
+
+const navigatePage = async (path: string) => {
+  await router.push(path);
+};
 </script>
 
 <template>
@@ -22,7 +31,21 @@ import { List, LogOut, MapPin, User, AlignJustify } from "lucide-vue-next";
             ><AlignJustify class="h-4 w-4" /></Button
         ></DropdownMenuTrigger>
         <DropdownMenuContent class="font-manrope font-semibold space-y-2">
-          <DropdownMenuItem class="text-lg" :class="{'bg-black text-white': $route.path === '/options/profile'}">
+          <DropdownMenuItem
+            class="text-lg"
+            :class="{
+              'bg-black text-white': route.path === '/ride/setOrigin',
+            }"
+            @click="navigatePage('/ride/setOrigin')"
+          >
+            <Map class="w-5 h-5 mr-2" /> Buyurtma berish
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            class="text-lg"
+            :class="{
+              'bg-black text-white': route.path === '/options/profile',
+            }"
+          >
             <User class="w-5 h-5 mr-2" /> Profil
           </DropdownMenuItem>
           <DropdownMenuItem class="text-lg">
