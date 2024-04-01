@@ -17,7 +17,7 @@ onBeforeMount(async () => {
         router.go(-1);
       }
 
-      await originStore.getCoords();
+      await originStore.getCoords(false);
 
       return;
     }

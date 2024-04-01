@@ -24,7 +24,6 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useRoute } from "vue-router";
 import { loadingController, toastController } from "@ionic/vue";
 import { useRoutes } from "@/store/routes";
 
@@ -200,7 +199,10 @@ async function letsGo() {
     }
 
     if (result.status === "ok") {
-      await mapsStore.addFixedMarkers(originAddress.value, destinationAddress.value);
+      await mapsStore.addFixedMarkers(
+        originAddress.value,
+        destinationAddress.value
+      );
       await router.push("/ride/letsgo");
       await loading.dismiss();
     }

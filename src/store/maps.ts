@@ -171,28 +171,34 @@ export const useMaps = defineStore("maps-store", () => {
         }
       });
 
-      sharedMap.value?.addEventListener("dragend", async (e) => {
-        mapMoving.value = false;
-        if (typeof isRouteInstalled.value === "boolean") return;
-        if (route.path === "/ride/letsgo") return;
-        if (isSearching.value) return;
+      sharedMap.value?.addEventListener(
+        "dragend",
+        async (e) => {
+          setTimeout(async () => {
+            mapMoving.value = false;
+            if (typeof isRouteInstalled.value === "boolean") return;
+            if (route.path === "/ride/letsgo") return;
+            if (isSearching.value) return;
 
-        isSearching.value = false;
-        const lat = sharedMap.value?.getCenter().lat as number;
-        const lng = sharedMap.value?.getCenter().lng as number;
+            isSearching.value = false;
+            const lat = sharedMap.value?.getCenter().lat as number;
+            const lng = sharedMap.value?.getCenter().lng as number;
 
-        if (route.path === "/ride/setOrigin") {
-          await originStore.changeCoords({ lat, lng });
+            if (route.path === "/ride/setOrigin") {
+              await originStore.changeCoords({ lat, lng });
 
-          return;
-        }
+              return;
+            }
 
-        if (route.path === "/ride/setDestination") {
-          await destinationStore.changeCoords({ lat, lng }, "void");
+            if (route.path === "/ride/setDestination") {
+              await destinationStore.changeCoords({ lat, lng }, "void");
 
-          return;
-        }
-      });
+              return;
+            }
+          });
+        },
+        800
+      );
     } catch (error) {
       console.log(error);
     }
