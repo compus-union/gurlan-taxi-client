@@ -47,8 +47,8 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "letsgo",
         name: "layout-home-lets-go",
-        component: () => import("@/pages/LetsGoPage.vue")
-      }
+        component: () => import("@/pages/LetsGoPage.vue"),
+      },
     ],
   },
   {
@@ -104,6 +104,39 @@ const routes: Array<RouteRecordRaw> = [
 
           return next();
         },
+      },
+    ],
+  },
+  {
+    path: "/options/",
+    name: "options-layout",
+    component: () => import("@/layouts/Options.vue"),
+    async beforeEnter(to, from, next) {
+      const { value: token } = await Preferences.get({ key: "auth_token" });
+      const { value: oneId } = await Preferences.get({ key: "clientOneId" });
+      const { value: confirmation } = await Preferences.get({
+        key: "confirmation",
+      });
+
+      if (!oneId && !token && !confirmation) {
+        return next({ path: "/auth/login" });
+      }
+
+      if (!oneId && !token && confirmation === "false") {
+        return next({ path: "/auth/confirmation" });
+      }
+
+      if (confirmation === "true" && oneId && token) {
+        return next();
+      }
+
+      return next();
+    },
+    children: [
+      {
+        path: "profile",
+        name: "options-layout-profile-page",
+        component: () => import("@/pages/Options/ProfilePage.vue"),
       },
     ],
   },

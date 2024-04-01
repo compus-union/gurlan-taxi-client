@@ -13,12 +13,12 @@ const isAnimatedRef = toRef(props, "isAnimated");
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <circle cx="26" cy="26" r="26" fill="black" />
+    <circle cx="26" cy="26" r="26" class="transition-all":class="[isAnimatedRef ? 'fill-yellow' : 'fill-black']" />
     <path
       d="M22 50H30V87C30 89.2091 28.2091 91 26 91V91C23.7909 91 22 89.2091 22 87V50Z"
       fill="black"
       class="transition-all"
-      :class="[isAnimatedRef ? '-translate-y-5' : '']"
+      :class="[isAnimatedRef ? '-translate-y-5 fill-yellow' : 'fill-black']"
     />
     <circle
       :class="[isAnimatedRef ? 'animate-bounce-horizontal' : '']"
