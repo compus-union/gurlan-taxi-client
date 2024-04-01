@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
-import { useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
@@ -16,12 +16,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Marker from "@/components/functional/Marker.vue";
-import { List, LogOut, MapPin, User, AlignJustify } from "lucide-vue-next";
+import { List, LogOut, MapPin, User, AlignJustify, Map } from "lucide-vue-next";
+import { useRoute } from "vue-router";
 
 const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
 );
 
+const route = useRoute();
 const router = useRouter();
 const mapsStore = useMaps();
 const authStore = useAuth();
@@ -105,15 +107,30 @@ onMounted(async () => {
 
 watch(
   () => mapLoaded.value,
-  async () => {
-    await mapsStore.initialiseEvents();
+  async (newOne, oldOne) => {
+    if (newOne) {
+      await mapsStore.initialiseEvents();
+    }
   }
 );
+
+onBeforeRouteLeave(async (to, from, next) => {
+  if (to.path !== "/ride/setDestination") {
+    mapLoaded.value = false;
+    return next();
+  }
+
+  return next();
+});
 
 const logout = async () => {
   await Preferences.clear();
 
   await router.push({ path: "/auth/login" });
+};
+
+const navigatePage = async (path: string) => {
+  await router.push(path);
 };
 </script>
 
@@ -132,7 +149,22 @@ const logout = async () => {
               ><AlignJustify class="h-4 w-4" /></Button
           ></DropdownMenuTrigger>
           <DropdownMenuContent class="font-manrope font-semibold space-y-2">
-            <DropdownMenuItem class="text-lg">
+            <DropdownMenuItem
+              class="text-lg"
+              @click="navigatePage('/ride/setOrigin')"
+              :class="{
+                'bg-black text-white': route.path === '/ride/setOrigin',
+              }"
+            >
+              <Map class="w-5 h-5 mr-2" /> Buyurtma berish
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              class="text-lg"
+              :class="{
+                'bg-black text-white': route.path === '/options/profile',
+              }"
+              @click="navigatePage('/options/profile')"
+            >
               <User class="w-5 h-5 mr-2" /> Profil
             </DropdownMenuItem>
             <DropdownMenuItem class="text-lg">

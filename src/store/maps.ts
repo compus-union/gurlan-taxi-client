@@ -78,8 +78,10 @@ export const useMaps = defineStore("maps-store", () => {
   async function loadMap(id: string) {
     try {
       // get origin coords, where user is located
-      await originStore.getCoords();
-      await originStore.watchCoords();
+      if (!originCoords.value.lat && !originCoords.value.lng) {
+        await originStore.getCoords();
+        await originStore.watchCoords();
+      }
 
       // initalise the map
       if (originCoords.value) {
@@ -99,7 +101,7 @@ export const useMaps = defineStore("maps-store", () => {
           }
         )
           .addTo(sharedMap.value)
-          .addEventListener("load", () => {
+          .addEventListener("load", async () => {
             if (mapLoaded.value) return;
             mapLoaded.value = true;
           });
