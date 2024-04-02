@@ -199,28 +199,33 @@ const navigatePage = async (path: string) => {
       </div>
     </div>
     <RouterView
+      v-slot="{ Component }"
       v-if="!displayErrorMessage"
       class="h-auto fixed bottom-0 w-full z-[49]"
-    ></RouterView>
+    >
+      <transition name="slide-down" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </RouterView>
   </div>
 </template>
 
-<style scoped>
+<style>
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(300px);
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: 0.3s ease-out;
+}
 img[alt="Google"] {
   display: none;
 }
 
 div.gmnoprint {
   display: none;
-}
-
-.slide-left-enter-active,
-.slide-left-leave-active {
-  transition: transform 0.3s ease;
-}
-
-.slide-left-enter-from,
-.slide-left-leave-to {
-  transform: translateX(-100%);
 }
 </style>

@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { Network } from "@capacitor/network";
-import { onBeforeMount, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { onBeforeMount, ref, watch } from "vue";
+import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
-// import { useDarkMode } from "@/composables/useDarkMode";
 
-// const { isDarkMode, enableDarkMode, disableDarkMode, checkDarkMode } = useDarkMode();
 const originStore = useOriginCoords();
 const router = useRouter();
 const route = useRoute();
@@ -52,8 +50,8 @@ onBeforeMount(async () => {
     >
       {{ route.fullPath }}
     </div>
-    <router-view></router-view>
+    <router-view />
   </div>
 </template>
 
-<style scoped></style>
+<style></style>
