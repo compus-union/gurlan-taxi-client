@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
-import { onBeforeRouteLeave, useRouter } from "vue-router";
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRouter } from "vue-router";
 import { defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
@@ -132,6 +132,11 @@ const logout = async () => {
 const navigatePage = async (path: string) => {
   await router.push(path);
 };
+
+onBeforeRouteUpdate((to, from, next) => {
+  console.log(to.meta);
+  return next();
+});
 </script>
 
 <template>
@@ -199,28 +204,33 @@ const navigatePage = async (path: string) => {
       </div>
     </div>
     <RouterView
+      v-slot="{ Component }"
       v-if="!displayErrorMessage"
       class="h-auto fixed bottom-0 w-full z-[49]"
-    ></RouterView>
+    >
+      <transition name="slide-down" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </RouterView>
   </div>
 </template>
 
-<style scoped>
+<style>
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(300px);
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: 0.3s ease-out;
+}
 img[alt="Google"] {
   display: none;
 }
 
 div.gmnoprint {
   display: none;
-}
-
-.slide-left-enter-active,
-.slide-left-leave-active {
-  transition: transform 0.3s ease;
-}
-
-.slide-left-enter-from,
-.slide-left-leave-to {
-  transform: translateX(-100%);
 }
 </style>
