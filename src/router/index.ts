@@ -38,16 +38,25 @@ const routes: Array<RouteRecordRaw> = [
         path: "setOrigin",
         name: "layout-home-set-origin",
         component: () => import("@/pages/HomePage.vue"),
+        meta: {
+          layout: "default"
+        }
       },
       {
         path: "setDestination",
         name: "layout-home-set-destination",
         component: () => import("@/pages/SetDestinationPage.vue"),
+        meta: {
+          layout: "default"
+        }
       },
       {
         path: "letsgo",
         name: "layout-home-lets-go",
         component: () => import("@/pages/LetsGoPage.vue"),
+        meta: {
+          layout: "default"
+        }
       },
     ],
   },
@@ -61,6 +70,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "auth-login",
         path: "login",
         component: () => import("@/pages/Auth/LoginPage.vue"),
+        meta: {
+          layout: "auth"
+        },
         async beforeEnter(to, from, next) {
           const { value: confirmation } = await Preferences.get({
             key: "confirmation",
@@ -85,6 +97,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "auth-confirmation",
         path: "confirmation",
         component: () => import("@/pages/Auth/ConfirmationPage.vue"),
+        meta: {
+          layout: "auth"
+        },
         async beforeEnter(to, from, next) {
           const { value: confirmation } = await Preferences.get({
             key: "confirmation",
@@ -137,6 +152,9 @@ const routes: Array<RouteRecordRaw> = [
         path: "profile",
         name: "options-layout-profile-page",
         component: () => import("@/pages/Options/ProfilePage.vue"),
+        meta: {
+          layout: "options"
+        },
       },
     ],
   },

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
-import { onBeforeRouteLeave, useRouter } from "vue-router";
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRouter } from "vue-router";
 import { defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
@@ -132,6 +132,11 @@ const logout = async () => {
 const navigatePage = async (path: string) => {
   await router.push(path);
 };
+
+onBeforeRouteUpdate((to, from, next) => {
+  console.log(to.meta);
+  return next();
+});
 </script>
 
 <template>

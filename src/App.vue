@@ -41,6 +41,7 @@ onBeforeMount(async () => {
 
   await logCurrentNetworkStatus();
 });
+
 </script>
 
 <template>

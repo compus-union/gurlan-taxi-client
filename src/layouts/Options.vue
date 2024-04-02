@@ -18,6 +18,23 @@ const route = useRoute();
 const navigatePage = async (path: string) => {
   await router.push(path);
 };
+
+async function beforeEnter(el: any) {
+  el.style.transform = "translateX(100%)";
+}
+
+async function enter(el: any, done: Function) {
+  el.offsetWidth; // Trigger reflow to ensure transition is applied
+  el.style.transition = "transform 0.5s";
+  el.style.transform = "translateX(0)";
+  done();
+}
+
+async function leave(el: any, done: Function) {
+  el.style.transition = "transform 0.5s";
+  el.style.transform = "translateX(-100%)";
+  done();
+}
 </script>
 
 <template>
@@ -65,6 +82,8 @@ const navigatePage = async (path: string) => {
         Bonus: 45,000 so'm
       </div>
     </nav>
-    <RouterView />
+    <router-view />
   </div>
 </template>
+
+<style></style>
