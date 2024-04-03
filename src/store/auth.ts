@@ -183,8 +183,6 @@ export const useAuth = defineStore("auth-store", () => {
       ) {
         toast(response.data.msg);
 
-        await Promise.allSettled([Preferences.clear()]);
-
         return {
           status: response.data.status,
         };
@@ -204,8 +202,10 @@ export const useAuth = defineStore("auth-store", () => {
         };
       }
     } catch (error: any) {
+      console.log(error);
+
       toast(
-        error.response.data.msg ||
+        error.response?.data.msg ||
           error.message ||
           "Qandaydir xato yuzaga keldi, dasturni boshqatdan ishga tushiring"
       );

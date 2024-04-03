@@ -15,7 +15,7 @@ import { useRoutes } from "@/store/routes";
 import { CupertinoPane } from "cupertino-pane";
 import { useMaps } from "@/store/maps";
 import { useDestination } from "@/store/destination";
-import { toastController } from "@ionic/vue";
+import { toast } from "vue3-toastify";
 
 const router = useRouter();
 const geocodingStore = useGeocoding();
@@ -108,11 +108,7 @@ async function removeTheGeometryOfRoute() {
 
     return;
   } catch (error: any) {
-    const toast = await toastController.create({
-      message: "Qandaydir xatolik yuzaga keldi",
-      duration: 4000,
-    });
-    await toast.present();
+    toast("Qandaydir xatolik yuzaga keldi")
   }
 }
 

@@ -1,10 +1,10 @@
 import { defineStore, storeToRefs } from "pinia";
-import { ref, toRefs } from "vue";
+import { ref } from "vue";
 import { routeInstance } from "@/http/instances";
 import { useMaps } from "./maps";
 import L, { Map } from "leaflet";
-import { toastController } from "@ionic/vue";
 import { useDestination } from "./destination";
+import { toast } from "vue3-toastify";
 
 export interface Address {
   lat: number;
@@ -33,7 +33,7 @@ export const useRoutes = defineStore("routes-store", () => {
   }>();
   const isRouteInstalled = ref<true | false | null>(null);
 
-  const { sharedMap, defaultZoom, markerVisible } = storeToRefs(mapsStore);
+  const { defaultZoom, markerVisible } = storeToRefs(mapsStore);
   const { coords: destinationCoords } = storeToRefs(destinationStore);
 
   async function getGeometryOfRoute(d: Address, o: Address) {
@@ -70,30 +70,17 @@ export const useRoutes = defineStore("routes-store", () => {
       console.log(error);
 
       if (error.response) {
-        const toast = await toastController.create({
-          message: error.response.data,
-          duration: 4000,
-        });
-        await toast.present();
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
+        toast(error.response.data);
+
         console.log("Response error:", error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
         console.error("Request error:", error.request);
-        const toast = await toastController.create({
-          message: error.request,
-          duration: 4000,
-        });
-        await toast.present();
+        toast(error.request);
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Error:", error.message);
-        const toast = await toastController.create({
-          message: error.message,
-          duration: 4000,
-        });
-        await toast.present();
+        toast(error.message);
       }
     }
   }
@@ -135,11 +122,7 @@ export const useRoutes = defineStore("routes-store", () => {
 
       return;
     } catch (error: any) {
-      const toast = await toastController.create({
-        message: "Qandaydir xatolik yuzaga keldi",
-        duration: 4000,
-      });
-      await toast.present();
+      toast("Qandaydir xatolik yuzaga keldi");
     }
   }
 
