@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Network } from "@capacitor/network";
-import { onBeforeMount, ref, watch } from "vue";
-import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
+import { onBeforeMount, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
+import { PageTransition } from "vue3-page-transition";
 
 const originStore = useOriginCoords();
 const router = useRouter();
@@ -41,7 +42,6 @@ onBeforeMount(async () => {
 
   await logCurrentNetworkStatus();
 });
-
 </script>
 
 <template>
@@ -51,7 +51,11 @@ onBeforeMount(async () => {
     >
       {{ route.fullPath }}
     </div>
-    <router-view />
+    <router-view v-slot="{ Component }">
+      <PageTransition name="fade-in-up" appear>
+        <component :is="Component" />
+      </PageTransition>
+    </router-view>
   </div>
 </template>
 
