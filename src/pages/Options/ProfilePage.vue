@@ -8,6 +8,7 @@ import {
   LogOut,
   Trash,
   ArrowLeft,
+  RotateCcw,
 } from "lucide-vue-next";
 import { Button as MainButton } from "@/components/ui/button";
 import { onMounted, ref } from "vue";
@@ -24,6 +25,7 @@ const router = useRouter();
 const { client } = storeToRefs(clientStore);
 const { loading } = storeToRefs(loadingStore);
 
+const error = ref(false);
 const fullname = ref("Taxi Mijoz");
 
 const goBack = async () => {
@@ -43,13 +45,17 @@ async function getAccount() {
     const result = await clientStore.getClient();
 
     if (!result) {
+      error.value = true;
       toast("Xatolik yuzaga keldi, boshqatdan urinib ko'ring");
 
       return;
     }
 
+    if (error) error.value = false;
     return;
   } catch (error: any) {
+    error.value = true;
+
     toast(
       error.response.data.msg ||
         error.message ||
@@ -73,7 +79,8 @@ onMounted(async () => {
       /></MainButton>
       <p class="font-semibold font-manrope text-lg">Profil</p>
     </div>
-    <!-- <div
+    <div
+      v-show="!loading && !error"
       class="first-part h-[140px] border-b flex justify-between items-center w-full"
     >
       <div class="left flex items-center space-x-5">
@@ -95,8 +102,56 @@ onMounted(async () => {
       <div class="action">
         <MainButton size="icon"><Pencil /></MainButton>
       </div>
-    </div> -->
+    </div>
+    <div v-show="!loading && !error" class="middle">
+      <div class="bonus py-4 section flex justify-between items-center">
+        <div class="left mr-5">
+          <p
+            class="title flex items-center font-manrope font-bold text-xl mb-2"
+          >
+            <Wallet class="w-6 h-6 mr-2" /> Bonus
+          </p>
+          <p class="opacity-50 font-bold font-manrope">
+            Har bir buyurtmadan 1,500 so’m bonusga ega bo’ling!
+          </p>
+        </div>
+        <div class="right">
+          <h1 class="text-primary font-poppins font-bold text-2xl text-nowrap">
+            45,000 so'm
+          </h1>
+        </div>
+      </div>
+      <div class="divider w-full h-5 bg-gray-100"></div>
+      <div class="promocode py-4 section flex justify-between items-center">
+        <div class="left mr-5">
+          <p
+            class="title flex items-center font-manrope font-bold text-xl mb-2"
+          >
+            <Diamond class="w-6 h-6 mr-2" /> Promokod
+          </p>
+          <p class="opacity-50 font-bold font-manrope">
+            Ilovamizdan birinchi foydalanayotgan do’stingizga shu promokodni
+            ko’rsating!
+          </p>
+        </div>
+        <div class="right">
+          <h1 class="text-primary font-poppins font-bold text-2xl text-nowrap">
+            PFXQ2
+          </h1>
+        </div>
+      </div>
+      <div class="divider w-full h-5 bg-gray-100"></div>
+      <div class="buttons space-x-4 my-4">
+        <MainButton class="font-manrope font-semibold"
+          ><Trash class="w-4 h-4 mr-2" />Accountni o'chirish</MainButton
+        >
+        <MainButton variant="outline" class="font-manrope font-semibold"
+          ><LogOut class="w-4 h-4 mr-2" />Chiqish</MainButton
+        >
+      </div>
+    </div>
     <div
+      v-show="loading && !error"
       class="first-part h-[140px] border-b flex justify-between items-center w-full animate-pulse"
     >
       <div class="left flex items-center space-x-5 w-full">
@@ -107,7 +162,7 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    <div class="middle animate-pulse">
+    <div v-show="loading && !error" class="middle animate-pulse">
       <div class="bonus py-4 section flex justify-between items-center">
         <div class="left mr-5">
           <div
@@ -140,6 +195,24 @@ onMounted(async () => {
         </div>
       </div>
       <div class="divider w-full h-5 bg-gray-100"></div>
+    </div>
+
+    <div v-show="error" class="error text-center">
+      <h1 class="title text-primary font-bold text-2xl mt-6">
+        Xatolik yuzaga keldi
+      </h1>
+      <p class="desc text-primary mt-2">Boshqatdan urinib ko'ring</p>
+      <MainButton
+        @click="getAccount()"
+        :disabled="loading || !error"
+        class="font-semibold font-manrope my-4"
+        ><RotateCcw
+          class="w-4 h-4 mr-2"
+          :class="[!loading && error ? '' : 'animate-spin']"
+        />
+        <p v-show="!loading && error">Boshqatdan</p>
+        <p v-show="loading || !error">Yuklanmoqda...</p>
+      </MainButton>
     </div>
   </div>
 </template>
