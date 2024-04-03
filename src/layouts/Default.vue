@@ -73,9 +73,16 @@ const checkClient = async () => {
       return { status: "ok" };
     }
   } catch (error: any) {
+    console.log(error);
+
     displayErrorMessage.value = true;
 
-    toast(error);
+    toast(
+      error.message ||
+        error.response.data.msg ||
+        "Qandaydir xatolik yuzaga keldi"
+    );
+
     return { status: "no" };
   } finally {
     await checkLoading.dismiss();

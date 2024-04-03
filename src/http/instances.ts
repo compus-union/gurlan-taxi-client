@@ -223,7 +223,7 @@ export function clientInstance() {
   let clientOneId = ref<string | null>();
   let token = ref<string | null>();
 
-  async function getProfile(destination: Address, origin: Address) {
+  async function getProfile() {
     try {
       if (!clientOneId.value) {
         const { value } = await Preferences.get({ key: "clientOneId" });
@@ -238,9 +238,11 @@ export function clientInstance() {
       await loadingStore.setLoading(true);
 
       const response = await axios.get(
-        baseUrl + `/get-account/${clientOneId.value}`,
+        baseUrl + `/get-self/${clientOneId.value}`,
         {
           headers: { Authorization: `Bearer ${token.value}` },
+          timeout: 2000,
+          timeoutErrorMessage: "Kutish vaqti tugadi"
         }
       );
 

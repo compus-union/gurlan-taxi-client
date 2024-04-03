@@ -10,10 +10,19 @@ import {
   ArrowLeft,
 } from "lucide-vue-next";
 import { Button as MainButton } from "@/components/ui/button";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
+import { useClient } from "@/store/client";
+import { storeToRefs } from "pinia";
+import { useLoading } from "@/store/loading";
+import { toast } from "vue3-toastify";
 
+const clientStore = useClient();
+const loadingStore = useLoading();
 const router = useRouter();
+
+const { client } = storeToRefs(clientStore);
+const { loading } = storeToRefs(loadingStore);
 
 const fullname = ref("Taxi Mijoz");
 
@@ -21,13 +30,37 @@ const goBack = async () => {
   router.go(-1);
 };
 
-onBeforeRouteLeave(async (to, from,next) => {
-  if (to.path === '/ride/letsgo') {
-    return next("/ride/setOrigin")
+onBeforeRouteLeave(async (to, from, next) => {
+  if (to.path === "/ride/letsgo") {
+    return next("/ride/setOrigin");
   }
 
-  return next()
-})
+  return next();
+});
+
+async function getAccount() {
+  try {
+    const result = await clientStore.getClient();
+
+    if (!result) {
+      toast("Xatolik yuzaga keldi, boshqatdan urinib ko'ring");
+
+      return;
+    }
+
+    return;
+  } catch (error: any) {
+    toast(
+      error.response.data.msg ||
+        error.message ||
+        "Qandaydir muammo yuzaga keldi, dasturni boshqatdan ishga tushiring."
+    );
+  }
+}
+
+onMounted(async () => {
+  await getAccount();
+});
 </script>
 
 <template>
@@ -35,10 +68,12 @@ onBeforeRouteLeave(async (to, from,next) => {
     class="profile-page font-manrope h-full w-full bg-primary-foreground px-2"
   >
     <div class="header flex items-center space-x-2 pt-2">
-      <MainButton @click="goBack" variant="ghost" size="icon"><ArrowLeft /></MainButton>
+      <MainButton @click="goBack" variant="ghost" size="icon"
+        ><ArrowLeft
+      /></MainButton>
       <p class="font-semibold font-manrope text-lg">Profil</p>
     </div>
-    <div
+    <!-- <div
       class="first-part h-[140px] border-b flex justify-between items-center w-full"
     >
       <div class="left flex items-center space-x-5">
@@ -60,53 +95,51 @@ onBeforeRouteLeave(async (to, from,next) => {
       <div class="action">
         <MainButton size="icon"><Pencil /></MainButton>
       </div>
+    </div> -->
+    <div
+      class="first-part h-[140px] border-b flex justify-between items-center w-full animate-pulse"
+    >
+      <div class="left flex items-center space-x-5 w-full">
+        <div class="w-20 h-20 bg-gray-100 rounded-full"></div>
+        <div class="info flex flex-col w-[50%] space-y-4">
+          <div class="w-full rounded-full h-6 bg-gray-100"></div>
+          <div class="w-[70%] rounded-full h-4 bg-gray-100"></div>
+        </div>
+      </div>
     </div>
-    <div class="middle">
+    <div class="middle animate-pulse">
       <div class="bonus py-4 section flex justify-between items-center">
         <div class="left mr-5">
-          <p
-            class="title flex items-center font-manrope font-bold text-xl mb-2"
-          >
-            <Wallet class="w-6 h-6 mr-2" /> Bonus
-          </p>
-          <p class="opacity-50 font-bold font-manrope">
-            Har bir buyurtmadan 1,500 so’m bonusga ega bo’ling!
-          </p>
+          <div
+            class="title flex items-center mb-2 bg-gray-100 w-28 rounded-full h-4"
+          ></div>
+          <div class="flex flex-wrap gap-2 mt-4">
+            <div class="bg-gray-100 w-20 rounded-full h-2"></div>
+            <div class="bg-gray-100 w-32 rounded-full h-2"></div>
+            <div class="bg-gray-100 w-28 rounded-full h-2"></div>
+          </div>
         </div>
         <div class="right">
-          <h1 class="text-primary font-poppins font-bold text-2xl text-nowrap">
-            45,000 so'm
-          </h1>
+          <div class="w-24 h-10 bg-gray-100 rounded-full"></div>
         </div>
       </div>
       <div class="divider w-full h-5 bg-gray-100"></div>
       <div class="promocode py-4 section flex justify-between items-center">
         <div class="left mr-5">
-          <p
-            class="title flex items-center font-manrope font-bold text-xl mb-2"
-          >
-            <Diamond class="w-6 h-6 mr-2" /> Promokod
-          </p>
-          <p class="opacity-50 font-bold font-manrope">
-            Ilovamizdan birinchi foydalanayotgan do’stingizga shu promokodni
-            ko’rsating!
-          </p>
+          <div
+            class="title flex items-center mb-2 bg-gray-100 w-28 rounded-full h-4"
+          ></div>
+          <div class="flex flex-wrap gap-2 mt-4">
+            <div class="bg-gray-100 w-20 rounded-full h-2"></div>
+            <div class="bg-gray-100 w-32 rounded-full h-2"></div>
+            <div class="bg-gray-100 w-28 rounded-full h-2"></div>
+          </div>
         </div>
         <div class="right">
-          <h1 class="text-primary font-poppins font-bold text-2xl text-nowrap">
-            PFXQ2
-          </h1>
+          <div class="w-24 h-10 bg-gray-100 rounded-full"></div>
         </div>
       </div>
       <div class="divider w-full h-5 bg-gray-100"></div>
-      <div class="buttons space-x-4 my-4">
-        <MainButton class="font-manrope font-semibold"
-          ><Trash class="w-4 h-4 mr-2" />Accountni o'chirish</MainButton
-        >
-        <MainButton variant="outline" class="font-manrope font-semibold"
-          ><LogOut class="w-4 h-4 mr-2" />Chiqish</MainButton
-        >
-      </div>
     </div>
   </div>
 </template>

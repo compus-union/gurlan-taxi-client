@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { geocodingInstance } from "@/http/instances";
-import { toastController } from "@ionic/vue";
 import { useLoading } from "./loading";
+import { toast } from "vue3-toastify";
 
 export interface Address {
   lat?: number;
@@ -55,23 +55,11 @@ export const useGeocoding = defineStore("geocoding-store", () => {
     } catch (error: any) {
       await loadingStore.setLoading(false);
       errorMessage.value = error.message;
-      const toast = await toastController.create({
-        message:
-          error.message ||
+      toast(
+        error.message ||
           error.response.data.msg ||
-          "Qandaydir xatolik yuzaga keldi",
-        buttons: [
-          {
-            text: "OK",
-            handler: async () => {
-              await toast.dismiss();
-            },
-          },
-        ],
-        duration: 4000,
-      });
-
-      await toast.present();
+          "Qandaydir xatolik yuzaga keldi"
+      );
     }
   }
   return {
