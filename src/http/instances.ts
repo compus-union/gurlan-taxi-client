@@ -215,3 +215,50 @@ export function routeInstance() {
 
   return { getGeometryOfRoute };
 }
+
+export function clientInstance() {
+  const loadingStore = useLoading();
+
+  const baseUrl = config.SERVER_URL + "/client";
+  let clientOneId = ref<string | null>();
+  let token = ref<string | null>();
+
+  async function getProfile(destination: Address, origin: Address) {
+    try {
+      if (!clientOneId.value) {
+        const { value } = await Preferences.get({ key: "clientOneId" });
+        clientOneId.value = value;
+      }
+
+      if (!token.value) {
+        const { value } = await Preferences.get({ key: "auth_token" });
+        token.value = value;
+      }
+
+      await loadingStore.setLoading(true);
+
+      const response = await axios.get(
+        baseUrl + `/get-account/${clientOneId.value}`,
+        {
+          headers: { Authorization: `Bearer ${token.value}` },
+        }
+      );
+
+      console.log(response);
+
+      return response;
+    } catch (error: any) {
+      console.log(error);
+
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
+    } finally {
+      await loadingStore.setLoading(false);
+    }
+  }
+
+  return { getProfile };
+}
