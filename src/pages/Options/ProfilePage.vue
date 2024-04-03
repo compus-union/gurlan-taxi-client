@@ -11,7 +11,7 @@ import {
 } from "lucide-vue-next";
 import { Button as MainButton } from "@/components/ui/button";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
 
 const router = useRouter();
 
@@ -20,6 +20,14 @@ const fullname = ref("Taxi Mijoz");
 const goBack = async () => {
   router.go(-1);
 };
+
+onBeforeRouteLeave(async (to, from,next) => {
+  if (to.path === '/ride/letsgo') {
+    return next("/ride/setOrigin")
+  }
+
+  return next()
+})
 </script>
 
 <template>
