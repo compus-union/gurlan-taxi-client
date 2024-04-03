@@ -11,6 +11,7 @@ import { RouterView } from "vue-router";
 import { List, LogOut, MapPin, User, AlignJustify, Map } from "lucide-vue-next";
 import { useRouter } from "vue-router";
 import { useRoute } from "vue-router";
+import { PageTransition } from "vue3-page-transition";
 
 const router = useRouter();
 const route = useRoute();
@@ -18,23 +19,6 @@ const route = useRoute();
 const navigatePage = async (path: string) => {
   await router.push(path);
 };
-
-async function beforeEnter(el: any) {
-  el.style.transform = "translateX(100%)";
-}
-
-async function enter(el: any, done: Function) {
-  el.offsetWidth; // Trigger reflow to ensure transition is applied
-  el.style.transition = "transform 0.5s";
-  el.style.transform = "translateX(0)";
-  done();
-}
-
-async function leave(el: any, done: Function) {
-  el.style.transition = "transform 0.5s";
-  el.style.transform = "translateX(-100%)";
-  done();
-}
 </script>
 
 <template>
@@ -82,7 +66,12 @@ async function leave(el: any, done: Function) {
         Bonus: 45,000 so'm
       </div>
     </nav>
-    <router-view />
+
+    <router-view v-slot="{ Component }">
+      <PageTransition name="fade-in-up" appear>
+        <component :is="Component" />
+      </PageTransition>
+    </router-view>
   </div>
 </template>
 

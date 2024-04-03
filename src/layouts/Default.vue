@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
-import { onBeforeRouteLeave, onBeforeRouteUpdate, useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
@@ -18,6 +18,7 @@ import {
 import Marker from "@/components/functional/Marker.vue";
 import { List, LogOut, MapPin, User, AlignJustify, Map } from "lucide-vue-next";
 import { useRoute } from "vue-router";
+import { PageTransition } from "vue3-page-transition";
 
 const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -132,11 +133,6 @@ const logout = async () => {
 const navigatePage = async (path: string) => {
   await router.push(path);
 };
-
-onBeforeRouteUpdate((to, from, next) => {
-  console.log(to.meta);
-  return next();
-});
 </script>
 
 <template>
@@ -203,29 +199,19 @@ onBeforeRouteUpdate((to, from, next) => {
         <p>Dasturni boshqatdan ishga tushiring</p>
       </div>
     </div>
-    <RouterView
-      v-slot="{ Component }"
+    <router-view
       v-if="!displayErrorMessage"
       class="h-auto fixed bottom-0 w-full z-[49]"
+      v-slot="{ Component }"
     >
-      <transition name="slide-down" mode="out-in">
+      <PageTransition name="fade-in-up" appear>
         <component :is="Component" />
-      </transition>
-    </RouterView>
+      </PageTransition>
+    </router-view>
   </div>
 </template>
 
 <style>
-.slide-down-enter-from,
-.slide-down-leave-to {
-  opacity: 0;
-  transform: translateY(300px);
-}
-
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: 0.3s ease-out;
-}
 img[alt="Google"] {
   display: none;
 }
