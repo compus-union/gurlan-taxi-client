@@ -25,6 +25,7 @@ interface Client {
   confirmation: object;
   approvalId: string;
   confirmationId: string;
+  [key: string]: any
 }
 
 export const useClient = defineStore("client-store", () => {

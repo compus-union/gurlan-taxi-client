@@ -86,16 +86,16 @@ onMounted(async () => {
       <div class="left flex items-center space-x-5">
         <Avatar class="w-20 h-20">
           <AvatarImage
-            :src="`https://ui-avatars.com/api/?background=FCDC2A&color=fff&name=${fullname}&format=svg`"
+            :src="`https://ui-avatars.com/api/?background=FCDC2A&color=fff&name=${client?.fullname}&format=svg`"
           />
           <AvatarFallback>Yuklanmoqda...</AvatarFallback>
         </Avatar>
         <div class="info">
           <h1 class="text-primary text-xl font-manrope font-semibold">
-            {{ fullname }}
+            {{ client?.fullname }}
           </h1>
           <p class="flex items-center opacity-40 font-poppins font-semibold">
-            <Phone class="w-5 h-5 mr-2" /> +998 99 944 76 13
+            <Phone class="w-5 h-5 mr-2" /> {{ client?.phone }}
           </p>
         </div>
       </div>
@@ -117,7 +117,7 @@ onMounted(async () => {
         </div>
         <div class="right">
           <h1 class="text-primary font-poppins font-bold text-2xl text-nowrap">
-            45,000 so'm
+              {{ !client?.bonus ? '0' : client.bonus  }} so'm
           </h1>
         </div>
       </div>
@@ -136,7 +136,7 @@ onMounted(async () => {
         </div>
         <div class="right">
           <h1 class="text-primary font-poppins font-bold text-2xl text-nowrap">
-            PFXQ2
+            {{ client?.promocode.code }}
           </h1>
         </div>
       </div>
