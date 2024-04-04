@@ -17,6 +17,18 @@ import { useClient } from "@/store/client";
 import { storeToRefs } from "pinia";
 import { useLoading } from "@/store/loading";
 import { toast } from "vue3-toastify";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { vMaska } from "maska";
 
 const clientStore = useClient();
 const loadingStore = useLoading();
@@ -26,7 +38,6 @@ const { client } = storeToRefs(clientStore);
 const { loading } = storeToRefs(loadingStore);
 
 const error = ref(false);
-const fullname = ref("Taxi Mijoz");
 
 const goBack = async () => {
   router.go(-1);
@@ -86,21 +97,66 @@ onMounted(async () => {
       <div class="left flex items-center space-x-5">
         <Avatar class="w-20 h-20">
           <AvatarImage
-            :src="`https://ui-avatars.com/api/?background=FCDC2A&color=fff&name=${fullname}&format=svg`"
+            :src="`https://ui-avatars.com/api/?background=FCDC2A&color=fff&name=${client?.fullname}&format=svg`"
           />
           <AvatarFallback>Yuklanmoqda...</AvatarFallback>
         </Avatar>
         <div class="info">
           <h1 class="text-primary text-xl font-manrope font-semibold">
-            {{ fullname }}
+            {{ client?.fullname }}
           </h1>
           <p class="flex items-center opacity-40 font-poppins font-semibold">
-            <Phone class="w-5 h-5 mr-2" /> +998 99 944 76 13
+            <Phone class="w-5 h-5 mr-2" /> {{ client?.phone }}
           </p>
         </div>
       </div>
       <div class="action">
-        <MainButton size="icon"><Pencil /></MainButton>
+        <Dialog>
+          <DialogTrigger as-child>
+            <MainButton size="icon"><Pencil /></MainButton>
+          </DialogTrigger>
+          <DialogContent class="rounded-lg font-manrope">
+            <DialogHeader class="text-left">
+              <DialogTitle class="text-xl font-poppins font-bold"
+                >Yangilash</DialogTitle
+              >
+              <DialogDescription class="text-base">
+                Tugatganingizdan keyin "Saqlash" tugmasini bosing
+              </DialogDescription>
+            </DialogHeader>
+            <div class="flex flex-col py-4 space-y-4">
+              <div class="flex flex-col items-start">
+                <Label for="firstName" class="text-right text-lg font-bold">
+                  Ism
+                </Label>
+                <Input id="firstName" class="py-6 text-lg" />
+              </div>
+
+              <div class="flex flex-col items-start">
+                <Label for="lastName" class="text-right text-lg font-bold">
+                  Familiya
+                </Label>
+                <Input id="lastName" class="py-6 text-lg" />
+              </div>
+              <div class="flex flex-col items-start">
+                <Label for="phone" class="text-right text-lg font-bold">
+                  Telefon raqam
+                </Label>
+                <Input
+                  id="phone"
+                  class="py-6 text-lg"
+                  v-maska
+                  data-maska="998#########"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <MainButton class="py-6 text-lg font-manrope" type="submit">
+                Saqlash
+              </MainButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
     <div v-show="!loading && !error" class="middle">
@@ -117,7 +173,7 @@ onMounted(async () => {
         </div>
         <div class="right">
           <h1 class="text-primary font-poppins font-bold text-2xl text-nowrap">
-            45,000 so'm
+            {{ !client?.bonus ? "0" : client.bonus }} so'm
           </h1>
         </div>
       </div>
@@ -136,7 +192,7 @@ onMounted(async () => {
         </div>
         <div class="right">
           <h1 class="text-primary font-poppins font-bold text-2xl text-nowrap">
-            PFXQ2
+            {{ client?.promocode.code }}
           </h1>
         </div>
       </div>
