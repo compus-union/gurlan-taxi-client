@@ -89,11 +89,36 @@ onMounted(async () => {
 const newClientToUpdate = ref({
   firstname: "",
   lastname: "",
-  phone: "",
 });
 const fullname = computed(
   () =>
     newClientToUpdate.value.firstname + " " + newClientToUpdate.value.lastname
+);
+
+async function updatePersonalInfo() {
+  try {
+    const result = await clientStore.updatePersonalInfo();
+
+    if (result?.status !== "ok") {
+      return;
+    }
+  } catch (error) {}
+}
+
+const buttonDisabled = computed(() => {
+  if (newClientToUpdate.value.firstname || newClientToUpdate.value.lastname) {
+    return false;
+  }
+
+  return true;
+});
+
+watch(
+  () => newClientToUpdate.value,
+  (newOne) => {
+    console.log(newOne);
+  },
+  { deep: true }
 );
 </script>
 
@@ -167,23 +192,13 @@ const fullname = computed(
                   :placeholder="fullnameSplitted.lastname"
                 />
               </div>
-              <div class="flex flex-col items-start">
-                <Label for="phone" class="text-right text-lg font-bold">
-                  Telefon raqam
-                </Label>
-                <Input
-                  autocomplete="off"
-                  v-model:model-value="newClientToUpdate.phone"
-                  id="phone"
-                  class="py-6 text-lg"
-                  v-maska
-                  data-maska="998#########"
-                  :placeholder="client?.phone"
-                />
-              </div>
             </div>
             <DialogFooter>
-              <MainButton class="py-6 text-lg font-manrope" type="submit">
+              <MainButton
+                :disabled="buttonDisabled"
+                class="py-6 text-lg font-manrope"
+                type="submit"
+              >
                 Saqlash
               </MainButton>
             </DialogFooter>

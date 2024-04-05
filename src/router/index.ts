@@ -1,5 +1,8 @@
 import { Preferences } from "@capacitor/preferences";
 import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
+import { ProgressFinisher, useProgress } from "@marcoschulte/vue3-progress";
+
+const progresses = [] as ProgressFinisher[];
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -40,7 +43,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/pages/HomePage.vue"),
         meta: {
           layout: "default",
-          number: 0
+          number: 0,
         },
       },
       {
@@ -49,7 +52,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/pages/SetDestinationPage.vue"),
         meta: {
           layout: "default",
-          number: 0
+          number: 0,
         },
       },
       {
@@ -58,7 +61,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/pages/LetsGoPage.vue"),
         meta: {
           layout: "default",
-          number: 0
+          number: 0,
         },
       },
     ],
@@ -75,7 +78,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/pages/Auth/LoginPage.vue"),
         meta: {
           layout: "auth",
-          number: 0
+          number: 0,
         },
         async beforeEnter(to, from, next) {
           const { value: confirmation } = await Preferences.get({
@@ -103,7 +106,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/pages/Auth/ConfirmationPage.vue"),
         meta: {
           layout: "auth",
-          number: 0
+          number: 0,
         },
         async beforeEnter(to, from, next) {
           const { value: confirmation } = await Preferences.get({
@@ -159,7 +162,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/pages/Options/ProfilePage.vue"),
         meta: {
           layout: "options",
-          number: 1
+          number: 1,
         },
       },
     ],
@@ -179,6 +182,24 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+});
+
+router.beforeEach(async (to, from, next) => {
+  async function startProgressBar() {
+    progresses.push(useProgress().start());
+  }
+
+  await startProgressBar();
+
+  return next();
+});
+
+router.afterEach(async (to, from) => {
+  async function finishProgressBar() {
+    progresses.pop()?.finish();
+  }
+
+  await finishProgressBar();
 });
 
 export default router;

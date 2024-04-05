@@ -110,5 +110,5 @@ export const useClient = defineStore("client-store", () => {
     }
   }
 
-  return { client, setClient, getClient };
+  return { client, setClient, getClient, updatePersonalInfo };
 });
