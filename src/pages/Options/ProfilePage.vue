@@ -11,7 +11,7 @@ import {
   RotateCcw,
 } from "lucide-vue-next";
 import { Button as MainButton } from "@/components/ui/button";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { useClient } from "@/store/client";
 import { storeToRefs } from "pinia";
@@ -75,9 +75,26 @@ async function getAccount() {
   }
 }
 
+const fullnameSplitted = computed(() => {
+  const splittedFirstname = client.value?.fullname.split(" ")[0];
+  const splittedLastname = client.value?.fullname.split(" ")[1];
+
+  return { firstname: splittedFirstname, lastname: splittedLastname };
+});
+
 onMounted(async () => {
   await getAccount();
 });
+
+const newClientToUpdate = ref({
+  firstname: "",
+  lastname: "",
+  phone: "",
+});
+const fullname = computed(
+  () =>
+    newClientToUpdate.value.firstname + " " + newClientToUpdate.value.lastname
+);
 </script>
 
 <template>
@@ -129,24 +146,39 @@ onMounted(async () => {
                 <Label for="firstName" class="text-right text-lg font-bold">
                   Ism
                 </Label>
-                <Input id="firstName" class="py-6 text-lg" />
+                <Input
+                  autocomplete="off"
+                  v-model:model-value="newClientToUpdate.firstname"
+                  id="firstName"
+                  class="py-6 text-lg"
+                  :placeholder="fullnameSplitted.firstname"
+                />
               </div>
 
               <div class="flex flex-col items-start">
                 <Label for="lastName" class="text-right text-lg font-bold">
                   Familiya
                 </Label>
-                <Input id="lastName" class="py-6 text-lg" />
+                <Input
+                  autocomplete="off"
+                  v-model:model-value="newClientToUpdate.lastname"
+                  id="lastName"
+                  class="py-6 text-lg"
+                  :placeholder="fullnameSplitted.lastname"
+                />
               </div>
               <div class="flex flex-col items-start">
                 <Label for="phone" class="text-right text-lg font-bold">
                   Telefon raqam
                 </Label>
                 <Input
+                  autocomplete="off"
+                  v-model:model-value="newClientToUpdate.phone"
                   id="phone"
                   class="py-6 text-lg"
                   v-maska
                   data-maska="998#########"
+                  :placeholder="client?.phone"
                 />
               </div>
             </div>
