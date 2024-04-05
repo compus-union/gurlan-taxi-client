@@ -25,7 +25,7 @@ interface Client {
   confirmation: object;
   approvalId: string;
   confirmationId: string;
-  [key: string]: any
+  [key: string]: any;
 }
 
 export const useClient = defineStore("client-store", () => {
@@ -56,7 +56,7 @@ export const useClient = defineStore("client-store", () => {
       ) {
         await Preferences.clear();
         await router.push("/auth/login");
-        toast(response.data.msg)
+        toast(response.data.msg);
       }
 
       await setClient(response.data.client);
@@ -72,5 +72,43 @@ export const useClient = defineStore("client-store", () => {
     }
   }
 
-  return { client, setClient, getClient };
+  async function updatePersonalInfo() {
+    try {
+      const response = await clientHttp.updatePersonalInfo();
+
+      if (!response) {
+        throw new Error(
+          "Internet bilan aloqa mavjud emas, dasturni boshqatdan ishga tushiring"
+        );
+      }
+
+      if (
+        response.data.status === ResponseStatus.CLIENT_NOT_FOUND ||
+        response.data.status === ResponseStatus.TOKEN_NOT_FOUND ||
+        response.data.status === ResponseStatus.TOKEN_NOT_VALID ||
+        response.data.status === ResponseStatus.BANNED
+      ) {
+        await Preferences.clear();
+        await router.push("/auth/login");
+        toast(response.data.msg);
+      }
+      
+      await Promise.allSettled([
+        setClient(response.data.client),
+        Preferences.set({ key: "auth_token", value: response.data.token }),
+      ]);
+
+      return {
+        status: "ok",
+      };
+    } catch (error: any) {
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Xatolik yuzaga keldi, dasturni boshqatdan ishga tushiring"
+      );
+    }
+  }
+
+  return { client, setClient, getClient, updatePersonalInfo };
 });

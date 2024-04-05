@@ -181,6 +181,8 @@ export const useAuth = defineStore("auth-store", () => {
         response.data.status === ResponseStatus.TOKEN_NOT_VALID ||
         response.data.status === ResponseStatus.BANNED
       ) {
+        await Preferences.clear()
+        await router.push("/auth/login")
         toast(response.data.msg);
 
         return {

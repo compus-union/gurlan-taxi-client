@@ -242,7 +242,7 @@ export function clientInstance() {
         {
           headers: { Authorization: `Bearer ${token.value}` },
           timeout: 2000,
-          timeoutErrorMessage: "Kutish vaqti tugadi"
+          timeoutErrorMessage: "Kutish vaqti tugadi",
         }
       );
 
@@ -262,5 +262,42 @@ export function clientInstance() {
     }
   }
 
-  return { getProfile };
+  async function updatePersonalInfo() {
+    try {
+      if (!clientOneId.value) {
+        const { value } = await Preferences.get({ key: "clientOneId" });
+        clientOneId.value = value;
+      }
+
+      if (!token.value) {
+        const { value } = await Preferences.get({ key: "auth_token" });
+        token.value = value;
+      }
+
+      await loadingStore.setLoading(true);
+
+      const response = await axios.put(
+        baseUrl + `/update-personal-info/${clientOneId.value}`,
+        {
+          headers: { Authorization: `Bearer ${token.value}` },
+        }
+      );
+
+      console.log(response);
+
+      return response;
+    } catch (error: any) {
+      console.log(error);
+
+      toast(
+        error.message ||
+          error.response.data.msg ||
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+      );
+    } finally {
+      await loadingStore.setLoading(false);
+    }
+  }
+
+  return { getProfile, updatePersonalInfo };
 }

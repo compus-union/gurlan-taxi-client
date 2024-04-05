@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Network } from "@capacitor/network";
-import { onBeforeMount, watch } from "vue";
+import { onBeforeMount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
 import { PageTransition } from "vue3-page-transition";
@@ -51,6 +51,7 @@ onBeforeMount(async () => {
     >
       {{ route.fullPath }}
     </div>
+    <vue3-progress-bar></vue3-progress-bar>
     <router-view v-slot="{ Component }">
       <PageTransition name="fade-in-up" appear>
         <component :is="Component" />
@@ -59,4 +60,9 @@ onBeforeMount(async () => {
   </div>
 </template>
 
-<style></style>
+<style>
+.vue3-progress-bar-container .vue3-progress-bar {
+  background-color: #FCDC2A !important;
+  height: 5px !important;
+}
+</style>
