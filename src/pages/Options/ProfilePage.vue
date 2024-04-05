@@ -29,12 +29,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { vMaska } from "maska";
+import DialogClose from "@/components/ui/dialog/DialogClose.vue";
 
 const clientStore = useClient();
 const loadingStore = useLoading();
 const router = useRouter();
 
-const { client } = storeToRefs(clientStore);
+const { client, fullnameSplitted } = storeToRefs(clientStore);
 const { loading } = storeToRefs(loadingStore);
 
 const error = ref(false);
@@ -75,13 +76,6 @@ async function getAccount() {
   }
 }
 
-const fullnameSplitted = computed(() => {
-  const splittedFirstname = client.value?.fullname.split(" ")[0];
-  const splittedLastname = client.value?.fullname.split(" ")[1];
-
-  return { firstname: splittedFirstname, lastname: splittedLastname };
-});
-
 onMounted(async () => {
   await getAccount();
 });
@@ -95,14 +89,19 @@ const fullname = computed(
     newClientToUpdate.value.firstname + " " + newClientToUpdate.value.lastname
 );
 
-async function updatePersonalInfo() {
+async function updatePersonalInfo(e: Event) {
+  e.preventDefault();
   try {
-    const result = await clientStore.updatePersonalInfo();
+    const result = await clientStore.updatePersonalInfo(fullname.value);
 
     if (result?.status !== "ok") {
       return;
     }
-  } catch (error) {}
+
+    await getAccount()
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 const buttonDisabled = computed(() => {
@@ -112,14 +111,6 @@ const buttonDisabled = computed(() => {
 
   return true;
 });
-
-watch(
-  () => newClientToUpdate.value,
-  (newOne) => {
-    console.log(newOne);
-  },
-  { deep: true }
-);
 </script>
 
 <template>
@@ -194,13 +185,15 @@ watch(
               </div>
             </div>
             <DialogFooter>
-              <MainButton
-                :disabled="buttonDisabled"
-                class="py-6 text-lg font-manrope"
-                type="submit"
-              >
-                Saqlash
-              </MainButton>
+              <DialogClose asChild>
+                <MainButton
+                  :disabled="buttonDisabled"
+                  class="py-6 text-lg font-manrope"
+                  @click="updatePersonalInfo"
+                >
+                  Saqlash
+                </MainButton>
+              </DialogClose>
             </DialogFooter>
           </DialogContent>
         </Dialog>

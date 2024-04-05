@@ -3,7 +3,7 @@ import { useMaps } from "@/store/maps";
 import { useOriginCoords } from "@/store/origin";
 import { useRouter } from "vue-router";
 import { Preferences } from "@capacitor/preferences";
-import { computed, defineAsyncComponent, ref, watch } from "vue";
+import { computed, defineAsyncComponent, ref } from "vue";
 import {
   CircleSlash2,
   Locate,
@@ -27,6 +27,8 @@ import { onBeforeRouteLeave } from "vue-router";
 import { LayerGroup, Map } from "leaflet";
 import { Geolocation } from "@capacitor/geolocation";
 import { useLoading } from "@/store/loading";
+import { useClient } from "@/store/client";
+import SmileIcon from "@/assets/smile.png";
 
 const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -47,6 +49,7 @@ const router = useRouter();
 const searchPlacesStore = useSearchPlaces();
 const destinationStore = useDestination();
 const loadingStore = useLoading();
+const clientStore = useClient();
 
 const typing = ref(false);
 
@@ -57,6 +60,7 @@ const { lat: destinationLat, lng: destinationLng } =
   storeToRefs(destinationStore);
 const { watchingCoords } = storeToRefs(originStore);
 const { loading } = storeToRefs(loadingStore);
+const { fullnameSplitted } = storeToRefs(clientStore);
 
 function createDebounce() {
   let timeout: any;
@@ -104,7 +108,6 @@ const goBackToLocation = async () => {
         lng: result.longitude,
       });
 
-
       sharedMap.value?.setView([result.latitude, result.longitude]);
     }
 
@@ -124,7 +127,7 @@ async function changeOriginCoords(coords: { lat: number; lng: number }) {
   try {
     isSearching.value = true;
     await originStore.changeCoords({ lat: coords.lat, lng: coords.lng });
-    sharedMap.value?.setView([coords.lat, coords.lng], defaultZoom.value)
+    sharedMap.value?.setView([coords.lat, coords.lng], defaultZoom.value);
   } catch (error) {
     alert(error);
   }
@@ -201,21 +204,21 @@ const buttonDisabled = computed(() => {
     >
       <div class="buttons flex flex-col space-y-2">
         <MainButton
-          class="transition-all py-6 text-lg font-manrope font-semibold "
+          class="transition-all py-6 text-lg font-manrope font-semibold"
           :disabled="buttonDisabled"
           @click="navigateNextPage"
           ><span v-show="buttonDisabled" class="flex items-center animate-pulse"
             ><Loader class="w-5 h-5 mr-2 animate-spin" /> Yuklanmoqda...</span
           >
           <span v-show="!buttonDisabled" class="flex items-center">
-            <MapPin class="w-5 h-5 mr-2" /> Qayerga boramiz
+            <MapPin class="w-5 h-5 mr-2" /> Qayerga boramiz?
           </span></MainButton
         >
         <!-- <MainButton @click="$router.push('/options/profile')">Test</MainButton> -->
         <Sheet>
           <SheetTrigger as-child>
             <MainButton
-              class="w-full py-6 text-lg font-manrope font-semibold "
+              class="w-full py-6 text-lg font-manrope font-semibold"
               variant="outline"
               ><Search class="w-5 h-5 mr-2" /> Qidirish</MainButton
             >
