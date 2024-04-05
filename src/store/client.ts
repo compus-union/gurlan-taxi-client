@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { clientInstance } from "@/http/instances";
 import { ResponseStatus } from "@/constants";
 import { Preferences } from "@capacitor/preferences";
@@ -38,6 +38,13 @@ export const useClient = defineStore("client-store", () => {
     return;
   }
 
+  const fullnameSplitted = computed(() => {
+    const splittedFirstname = client.value?.fullname.split(" ")[0];
+    const splittedLastname = client.value?.fullname.split(" ")[1];
+
+    return { firstname: splittedFirstname, lastname: splittedLastname };
+  });
+
   async function getClient() {
     try {
       const response = await clientHttp.getProfile();
@@ -72,9 +79,9 @@ export const useClient = defineStore("client-store", () => {
     }
   }
 
-  async function updatePersonalInfo() {
+  async function updatePersonalInfo(fullname: string) {
     try {
-      const response = await clientHttp.updatePersonalInfo();
+      const response = await clientHttp.updatePersonalInfo({ fullname });
 
       if (!response) {
         throw new Error(
@@ -92,14 +99,16 @@ export const useClient = defineStore("client-store", () => {
         await router.push("/auth/login");
         toast(response.data.msg);
       }
-      
+
       await Promise.allSettled([
-        setClient(response.data.client),
         Preferences.set({ key: "auth_token", value: response.data.token }),
       ]);
 
+      toast(response.data.msg);
+
       return {
         status: "ok",
+        client: response.data.client,
       };
     } catch (error: any) {
       toast(
@@ -110,5 +119,5 @@ export const useClient = defineStore("client-store", () => {
     }
   }
 
-  return { client, setClient, getClient, updatePersonalInfo };
+  return { client, setClient, getClient, updatePersonalInfo, fullnameSplitted };
 });

@@ -262,7 +262,7 @@ export function clientInstance() {
     }
   }
 
-  async function updatePersonalInfo() {
+  async function updatePersonalInfo(account: { fullname: string }) {
     try {
       if (!clientOneId.value) {
         const { value } = await Preferences.get({ key: "clientOneId" });
@@ -278,6 +278,7 @@ export function clientInstance() {
 
       const response = await axios.put(
         baseUrl + `/update-personal-info/${clientOneId.value}`,
+        { fullname: account.fullname },
         {
           headers: { Authorization: `Bearer ${token.value}` },
         }

@@ -19,6 +19,7 @@ import Marker from "@/components/functional/Marker.vue";
 import { List, LogOut, MapPin, User, AlignJustify, Map } from "lucide-vue-next";
 import { useRoute } from "vue-router";
 import { PageTransition } from "vue3-page-transition";
+import { useClient } from "@/store/client";
 
 const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -30,6 +31,7 @@ const mapsStore = useMaps();
 const authStore = useAuth();
 const displayErrorMessage = ref(false);
 const canMapLoaded = ref(false);
+const clientStore = useClient()
 
 const { mapLoaded, isMarkerAnimating, markerVisible } = storeToRefs(mapsStore);
 
@@ -94,6 +96,7 @@ onMounted(async () => {
 
   try {
     const check = await checkClient();
+    await clientStore.getClient()
 
     if (check.status === "no") {
       throw new Error("Xaritani yuklashni imkoni yo'q");
