@@ -28,15 +28,20 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { vMaska } from "maska";
 import DialogClose from "@/components/ui/dialog/DialogClose.vue";
+import { useMaps } from "@/store/maps";
+import { useDestination } from "@/store/destination";
 
 const clientStore = useClient();
 const loadingStore = useLoading();
 const router = useRouter();
+const mapsStore = useMaps();
+const destinationStore = useDestination();
 
 const { client, fullnameSplitted } = storeToRefs(clientStore);
 const { loading } = storeToRefs(loadingStore);
+const { mapLoaded, sharedMap } = storeToRefs(mapsStore);
+const { coords: destinationCoords } = storeToRefs(destinationStore);
 
 const error = ref(false);
 
@@ -45,7 +50,19 @@ const goBack = async () => {
 };
 
 onBeforeRouteLeave(async (to, from, next) => {
+  if (to.path === "/ride/setDestination") {
+    if (mapsStore.sharedMap) {
+      mapsStore.sharedMap?.setView([
+        destinationCoords.value.lat,
+        destinationCoords.value.lng,
+      ]);
+      return next();
+    }
+
+    return next()
+  }
   if (to.path === "/ride/letsgo") {
+    mapLoaded.value = true;
     return next("/ride/setOrigin");
   }
 
@@ -98,7 +115,7 @@ async function updatePersonalInfo(e: Event) {
       return;
     }
 
-    await getAccount()
+    await getAccount();
   } catch (error) {
     console.log(error);
   }
