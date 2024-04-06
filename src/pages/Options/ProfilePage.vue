@@ -51,15 +51,13 @@ const goBack = async () => {
 
 onBeforeRouteLeave(async (to, from, next) => {
   if (to.path === "/ride/setDestination") {
-    if (mapsStore.sharedMap) {
-      mapsStore.sharedMap?.setView([
-        destinationCoords.value.lat,
-        destinationCoords.value.lng,
-      ]);
-      return next();
-    }
+    sharedMap.value?.setView([
+      destinationCoords.value.lat,
+      destinationCoords.value.lng,
+    ]);
+    return next();
 
-    return next()
+    return next();
   }
   if (to.path === "/ride/letsgo") {
     mapLoaded.value = true;
