@@ -1,5 +1,5 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div>Driver is going</div>
+  <div>Client Arrived to the destination</div>
 </template>

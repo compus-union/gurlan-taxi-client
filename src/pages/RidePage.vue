@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {} from "@/components/ride"
 type RideStatus =
   | "CLIENT_WAITING"
   | "RIDE_CANCELLED_BY_CLIENT"
