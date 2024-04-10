@@ -64,6 +64,15 @@ const routes: Array<RouteRecordRaw> = [
           number: 0,
         },
       },
+      {
+        path: "taxi",
+        name: "layout-home-taxi",
+        component: () => import("@/pages/RidePage.vue"),
+        meta: {
+          layout: "default",
+          number: 0,
+        },
+      },
     ],
   },
   {

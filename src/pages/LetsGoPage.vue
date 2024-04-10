@@ -119,6 +119,10 @@ onBeforeRouteLeave(async (to, from, next) => {
   return next();
 });
 
+const callTaxi = () => {
+  router.push("/ride/taxi");
+};
+
 // https://firebasestorage.googleapis.com/v0/b/taxi-app-test-395406.appspot.com/o/client-app%2Fstandard.png?alt=media&token=579297ce-3241-4e1d-9c1d-1fc4e022d194
 // https://firebasestorage.googleapis.com/v0/b/taxi-app-test-395406.appspot.com/o/client-app%2Fcomfort.png?alt=media&token=93fd4744-3653-4f5a-b467-9b7b705b8eb8
 // https://firebasestorage.googleapis.com/v0/b/taxi-app-test-395406.appspot.com/o/client-app%2Fmicrovan.png?alt=media&token=ddab7624-c4a2-421e-bbdd-8e476c2348c5
@@ -205,9 +209,16 @@ onBeforeRouteLeave(async (to, from, next) => {
       />
       <div class="addresses mt-3 space-y-1">
         <div class="address origin flex items-center justify-between">
-          <div class="text-part flex items-center font-medium font-manrope">
+          <div
+            class="text-part flex items-center font-medium font-manrope flex-1 min-w-0"
+          >
             <User class="w-4 h-4 mr-4" stroke-width="2px" />
-            {{ originAddress?.name || originAddress?.displayName }}
+            <p
+              class="overflow-hidden whitespace-nowrap w-full"
+              style="text-overflow: ellipsis"
+            >
+              {{ originAddress?.name || originAddress?.displayName }}
+            </p>
           </div>
           <div class="button-part">
             <MainButton variant="ghost" size="icon"
@@ -223,9 +234,16 @@ onBeforeRouteLeave(async (to, from, next) => {
           <Separator class="ml-2" />
         </div>
         <div class="address destination flex items-center justify-between">
-          <div class="text-part flex items-center font-medium font-manrope">
+          <div
+            class="text-part flex items-center font-medium font-manrope flex-1 min-w-0"
+          >
             <Flag class="w-4 h-4 mr-4" stroke-width="2px" />
-            {{ destinationAddress?.name || destinationAddress?.displayName }}
+            <p
+              class="overflow-hidden whitespace-nowrap w-full"
+              style="text-overflow: ellipsis"
+            >
+              {{ destinationAddress?.name || destinationAddress?.displayName }}
+            </p>
           </div>
           <div class="button-part">
             <MainButton variant="ghost" size="icon"
@@ -234,10 +252,13 @@ onBeforeRouteLeave(async (to, from, next) => {
           </div>
         </div>
       </div>
-      <p class="text-sm opacity-50 my-2">
+      <p
+        class="text-sm opacity-50 my-2 overflow-hidden whitespace-nowrap text-ellipsis"
+      >
         {{ distance?.kmFull }}, {{ duration?.full }}
       </p>
       <MainButton
+        @click="callTaxi"
         class="flex items-center transition-all py-6 text-lg font-manrope font-semibold w-full mb-2"
         ><Check class="w-4 h-4 mr-2" /> Chaqirish</MainButton
       >
