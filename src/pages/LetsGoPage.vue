@@ -61,7 +61,7 @@ onMounted(async () => {
 
   pane.value = new CupertinoPane(".sheet-pane", {
     breaks: {
-      top: { enabled: true, height: 600 },
+      top: { enabled: true, height: 560 },
       middle: { enabled: true, height: 440 },
       bottom: { enabled: true, height: 40 },
     },
