@@ -16,6 +16,7 @@ import { CupertinoPane } from "cupertino-pane";
 import { useMaps } from "@/store/maps";
 import { useDestination } from "@/store/destination";
 import { toast } from "vue3-toastify";
+import { Separator } from "@/components/ui/separator";
 
 const router = useRouter();
 const geocodingStore = useGeocoding();
@@ -42,11 +43,11 @@ async function goBack() {
 }
 
 type RideTaxi = "taxi" | "delivery";
-type PlanType = "Standard" | "Comfort" | "Mikrovan";
+type PlanType = "STANDARD" | "COMFORT" | "MICROVAN";
 
 const rideType = ref<RideTaxi>("taxi");
 
-const activePlan = ref<PlanType>("Standard");
+const activePlan = ref<PlanType>("COMFORT");
 
 async function changeActivePlan(plan: PlanType) {
   if (activePlan.value === plan) return;
@@ -60,8 +61,8 @@ onMounted(async () => {
 
   pane.value = new CupertinoPane(".sheet-pane", {
     breaks: {
-      top: { enabled: true, height: 460 },
-      middle: { enabled: true, height: 240 },
+      top: { enabled: true, height: 600 },
+      middle: { enabled: true, height: 440 },
       bottom: { enabled: true, height: 40 },
     },
     initialBreak: "top",
@@ -108,7 +109,7 @@ async function removeTheGeometryOfRoute() {
 
     return;
   } catch (error: any) {
-    toast("Qandaydir xatolik yuzaga keldi")
+    toast("Qandaydir xatolik yuzaga keldi");
   }
 }
 
@@ -117,6 +118,10 @@ onBeforeRouteLeave(async (to, from, next) => {
   await pane.value?.destroy();
   return next();
 });
+
+// https://firebasestorage.googleapis.com/v0/b/taxi-app-test-395406.appspot.com/o/client-app%2Fstandard.png?alt=media&token=579297ce-3241-4e1d-9c1d-1fc4e022d194
+// https://firebasestorage.googleapis.com/v0/b/taxi-app-test-395406.appspot.com/o/client-app%2Fcomfort.png?alt=media&token=93fd4744-3653-4f5a-b467-9b7b705b8eb8
+// https://firebasestorage.googleapis.com/v0/b/taxi-app-test-395406.appspot.com/o/client-app%2Fmicrovan.png?alt=media&token=ddab7624-c4a2-421e-bbdd-8e476c2348c5
 </script>
 
 <template>
@@ -145,30 +150,44 @@ onBeforeRouteLeave(async (to, from, next) => {
           >Yetkazib berish</MainButton
         >
       </div>
-      <div class="whitespace-nowrap w-full overflow-x-auto">
-        <div class="select-plan flex items-start justify-start space-x-2">
+      <div class="whitespace-nowrap w-full overflow-x-scroll">
+        <div
+          class="select-plan flex items-start justify-start space-x-2 overflow-x-scroll w-max"
+        >
           <button
             v-for="plan in price.planPrices"
             :key="plan.id"
             @click="changeActivePlan(plan.name)"
-            class="plan bg-gray-100 rounded-lg p-2 transition border-2 relative h-[102px] flex"
-            :class="[
-              activePlan === plan.name ? 'border-black' : 'border-gray-100 ',
-            ]"
+            class="plan bg-gray-100 rounded-3xl transition border-gray-100 relative h-[160px] w-[260px] flex overflow-hidden"
           >
             <div
-              class="img object-cover h-[50px] w-[50px] flex items-center justify-center absolute right-2 -top-0.5"
+              :class="[
+                activePlan === plan.name
+                  ? 'bg-yellow border-black -translate-x-8'
+                  : 'bg-gray-200 border-transparent -translate-x-24',
+              ]"
+              class="bg-overlay absolute w-full h-[57%] border -top-4 right-0 rounded-[30px] transition-all"
+            ></div>
+            <div
+              :class="[
+                activePlan === plan.name
+                  ? 'opacity-100 translate-x-0'
+                  : 'opacity-25 -translate-x-12',
+              ]"
+              class="img object-cover h-[52px] w-auto flex items-center justify-center absolute left-0 top-6 transition-all"
             >
               <img
+                loading="lazy"
                 :src="plan.img"
                 :alt="plan.name"
-                class="w-full h-full transition"
-                :class="[activePlan === plan.name ? 'scale-1' : 'scale-[0.9]']"
+                class="w-full h-full transition z-50"
               />
             </div>
-            <div class="name-and-price justify-self-end self-end text-left">
-              <p class="font-manrope">{{ plan.name }}</p>
-              <p class="font-bold text-lg font-poppins">
+            <div class="name-and-price justify-self-end self-end text-left p-4">
+              <p class="font-manrope font-bold text-gray-400">
+                {{ plan.name }}
+              </p>
+              <p class="font-extrabold font-poppins text-xl">
                 {{ plan.formattedPrice }}
               </p>
             </div>
@@ -184,7 +203,7 @@ onBeforeRouteLeave(async (to, from, next) => {
         class="promo-code mt-2 placeholder:font-manrope font-manrope"
         placeholder="Promokod kiriting"
       />
-      <div class="addresses mt-3 space-y-2">
+      <div class="addresses mt-3 space-y-1">
         <div class="address origin flex items-center justify-between">
           <div class="text-part flex items-center font-medium font-manrope">
             <User class="w-4 h-4 mr-4" stroke-width="2px" />
@@ -196,7 +215,13 @@ onBeforeRouteLeave(async (to, from, next) => {
             /></MainButton>
           </div>
         </div>
-        <hr />
+        <div class="seperators flex items-center">
+          <Separator
+            orientation="vertical"
+            class="h-10 w-1 rounded bg-black mx-[6px]"
+          />
+          <Separator class="ml-2" />
+        </div>
         <div class="address destination flex items-center justify-between">
           <div class="text-part flex items-center font-medium font-manrope">
             <Flag class="w-4 h-4 mr-4" stroke-width="2px" />
