@@ -203,7 +203,7 @@ export const useMaps = defineStore("maps-store", () => {
       );
     } catch (error) {
       console.log(error);
-    }
+    } 
   }
 
   async function addFixedMarkers(origin: any, destination: any) {
