@@ -44,14 +44,10 @@ onMounted(async () => {
 
 <template>
   <div class="ride-page flex flex-col w-full h-auto">
-    <div
-      class="sheet-pane main-content bg-primary-foreground text-foreground p-6 w-full h-auto"
-    >
-      <SearchingScreen v-if="rideStatus === 'CLIENT_WAITING'" />
-      <DriverGoingScreen v-if="rideStatus === 'DRIVER_GOING'" />
-      <DriverArrivedScreen v-if="rideStatus === 'DRIVER_ARRIVED'" />
-      <RideActiveScreen v-if="rideStatus === 'RIDE_ACTIVE'" />
-      <WaitingDuringRideScreen v-if="rideStatus === 'DRIVER_WAITING'" />
-    </div>
+    <SearchingScreen v-if="rideStatus === 'CLIENT_WAITING'" />
+    <DriverGoingScreen v-if="rideStatus === 'DRIVER_GOING'" />
+    <DriverArrivedScreen v-if="rideStatus === 'DRIVER_ARRIVED'" />
+    <RideActiveScreen v-if="rideStatus === 'RIDE_ACTIVE'" />
+    <WaitingDuringRideScreen v-if="rideStatus === 'DRIVER_WAITING'" />
   </div>
 </template>

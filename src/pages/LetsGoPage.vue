@@ -17,18 +17,21 @@ import { useMaps } from "@/store/maps";
 import { useDestination } from "@/store/destination";
 import { toast } from "vue3-toastify";
 import { Separator } from "@/components/ui/separator";
+import { useOriginCoords } from "@/store/origin";
 
 const router = useRouter();
 const geocodingStore = useGeocoding();
 const routesStore = useRoutes();
 const mapsStore = useMaps();
 const destinationStore = useDestination();
+const originStore = useOriginCoords();
 
 const { destinationAddress, originAddress } = storeToRefs(geocodingStore);
 const { price, distance, duration, geoJSONs, isRouteInstalled } =
   storeToRefs(routesStore);
 const { sharedMap, markerVisible, defaultZoom } = storeToRefs(mapsStore);
 const { coords: destinationCoords } = storeToRefs(destinationStore);
+const { coords: originCoords } = storeToRefs(originStore);
 
 const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -39,7 +42,16 @@ const Input = defineAsyncComponent(
 );
 
 async function goBack() {
+  sharedMap.value?.setView([
+    destinationCoords.value.lat,
+    destinationCoords.value.lng,
+  ]);
   await router.push("/ride/setDestination");
+}
+
+async function goHome() {
+  sharedMap.value?.setView([originCoords.value.lat, originCoords.value.lng]);
+  await router.push("/ride/setOrigin");
 }
 
 type RideTaxi = "taxi" | "delivery";
@@ -75,7 +87,7 @@ onMounted(async () => {
   await pane.value.present({ animate: true });
 });
 
-async function removeTheGeometryOfRoute() {
+async function removeTheGeometryOfRoute(backToDestination: boolean = true) {
   try {
     isRouteInstalled.value = null;
 
@@ -92,10 +104,13 @@ async function removeTheGeometryOfRoute() {
     };
 
     sharedMap.value?.removeLayer(geoJSONs.value as any);
-    sharedMap.value?.setView(
-      [destinationCoords.value.lat, destinationCoords.value.lng],
-      defaultZoom.value
-    );
+    if (backToDestination) {
+      sharedMap.value?.setView(
+        [destinationCoords.value.lat, destinationCoords.value.lng],
+        defaultZoom.value
+      );
+    }
+
     geoJSONs.value = {} as L.LayerGroup;
 
     const originMarkerFixed = await mapsStore.findMarker("origin-marker-fixed");
@@ -114,7 +129,11 @@ async function removeTheGeometryOfRoute() {
 }
 
 onBeforeRouteLeave(async (to, from, next) => {
-  await removeTheGeometryOfRoute();
+  if (to.path !== "/ride/setDestination") {
+    await removeTheGeometryOfRoute(false);
+  } else {
+    await removeTheGeometryOfRoute();
+  }
   await pane.value?.destroy();
   return next();
 });
@@ -221,7 +240,7 @@ const callTaxi = () => {
             </p>
           </div>
           <div class="button-part">
-            <MainButton variant="ghost" size="icon"
+            <MainButton @click="goHome" variant="ghost" size="icon"
               ><Settings2 class="w-4 h-4"
             /></MainButton>
           </div>
@@ -246,7 +265,7 @@ const callTaxi = () => {
             </p>
           </div>
           <div class="button-part">
-            <MainButton variant="ghost" size="icon"
+            <MainButton @click="goBack" variant="ghost" size="icon"
               ><Settings2 class="w-4 h-4"
             /></MainButton>
           </div>
