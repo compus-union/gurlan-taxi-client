@@ -50,7 +50,7 @@ async function goBack() {
 }
 
 async function goHome() {
-  sharedMap.value?.setView([originCoords.value.lat, originCoords.value.lng]);
+  sharedMap.value?.setView([originCoords.value.lat, originCoords.value.lng], defaultZoom.value);
   await router.push("/ride/setOrigin");
 }
 
@@ -87,52 +87,11 @@ onMounted(async () => {
   await pane.value.present({ animate: true });
 });
 
-async function removeTheGeometryOfRoute(backToDestination: boolean = true) {
-  try {
-    isRouteInstalled.value = null;
-
-    if (!geoJSONs.value) return;
-
-    markerVisible.value = true;
-    price.value = {};
-    distance.value = {} as { kmFixed: string; kmFull: string };
-    duration.value = {} as {
-      full: string;
-      hours: string;
-      minutes: string;
-      seconds: string;
-    };
-
-    sharedMap.value?.removeLayer(geoJSONs.value as any);
-    if (backToDestination) {
-      sharedMap.value?.setView(
-        [destinationCoords.value.lat, destinationCoords.value.lng],
-        defaultZoom.value
-      );
-    }
-
-    geoJSONs.value = {} as L.LayerGroup;
-
-    const originMarkerFixed = await mapsStore.findMarker("origin-marker-fixed");
-    const destinationMarkerFixed = await mapsStore.findMarker(
-      "destination-marker-fixed"
-    );
-
-    if (originMarkerFixed) await mapsStore.removeMarker(originMarkerFixed);
-    if (destinationMarkerFixed)
-      await mapsStore.removeMarker(destinationMarkerFixed);
-
-    return;
-  } catch (error: any) {
-    toast("Qandaydir xatolik yuzaga keldi");
-  }
-}
-
 onBeforeRouteLeave(async (to, from, next) => {
   if (to.path !== "/ride/setDestination") {
-    await removeTheGeometryOfRoute(false);
+    await mapsStore.removeTheGeometryOfRoute(false);
   } else {
-    await removeTheGeometryOfRoute();
+    await mapsStore.removeTheGeometryOfRoute();
   }
   await pane.value?.destroy();
   return next();

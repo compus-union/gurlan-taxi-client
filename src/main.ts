@@ -5,7 +5,6 @@ import { createPinia } from "pinia";
 import Vue3Toasity, { toast, type ToastContainerOptions } from "vue3-toastify";
 import { Vue3ProgressPlugin } from "@marcoschulte/vue3-progress";
 import "@marcoschulte/vue3-progress/dist/index.css";
-
 /* Theme variables */
 import "./theme/variables.css";
 import "./theme/base.css";
@@ -27,3 +26,4 @@ const app = createApp(App)
 router.isReady().then(() => {
   app.mount("#app");
 });
+

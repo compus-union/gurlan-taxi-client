@@ -1,9 +1,8 @@
-import { defineStore, storeToRefs } from "pinia";
+import { defineStore } from "pinia";
 import { ref } from "vue";
 import { routeInstance } from "@/http/instances";
 import { useMaps } from "./maps";
 import L, { Map } from "leaflet";
-import { useDestination } from "./destination";
 import { toast } from "vue3-toastify";
 
 export interface Address {
@@ -17,7 +16,6 @@ export interface RouteGeoJSON extends L.GeoJSON {
 }
 
 export const useRoutes = defineStore("routes-store", () => {
-  const destinationStore = useDestination();
   const mapsStore = useMaps();
   const routeHttp = routeInstance();
   const destination = ref<Address>();
@@ -33,8 +31,6 @@ export const useRoutes = defineStore("routes-store", () => {
   }>();
   const isRouteInstalled = ref<true | false | null>(null);
 
-  const { defaultZoom, markerVisible } = storeToRefs(mapsStore);
-  const { coords: destinationCoords } = storeToRefs(destinationStore);
 
   async function getGeometryOfRoute(d: Address, o: Address) {
     isRouteInstalled.value = false;
@@ -85,53 +81,13 @@ export const useRoutes = defineStore("routes-store", () => {
     }
   }
 
-  async function removeTheGeometryOfRoute() {
-    try {
-      console.log(mapsStore.sharedMap);
-      console.log(geoJSONs.value);
-
-      if (!geoJSONs.value) return;
-
-      markerVisible.value = true;
-      price.value = {};
-      distance.value = {} as { kmFixed: string; kmFull: string };
-      duration.value = {} as {
-        full: string;
-        hours: string;
-        minutes: string;
-        seconds: string;
-      };
-
-      mapsStore.sharedMap?.removeLayer(geoJSONs.value);
-      mapsStore.sharedMap?.setView(
-        [destinationCoords.value.lat, destinationCoords.value.lng],
-        defaultZoom.value
-      );
-      geoJSONs.value = {} as L.LayerGroup;
-
-      const originMarkerFixed = await mapsStore.findMarker(
-        "origin-marker-fixed"
-      );
-      const destinationMarkerFixed = await mapsStore.findMarker(
-        "destination-marker-fixed"
-      );
-
-      if (originMarkerFixed) await mapsStore.removeMarker(originMarkerFixed);
-      if (destinationMarkerFixed)
-        await mapsStore.removeMarker(destinationMarkerFixed);
-
-      return;
-    } catch (error: any) {
-      toast("Qandaydir xatolik yuzaga keldi");
-    }
-  }
+  
 
   return {
     getGeometryOfRoute,
     price,
     distance,
     duration,
-    removeTheGeometryOfRoute,
     geoJSONs,
     isRouteInstalled,
   };

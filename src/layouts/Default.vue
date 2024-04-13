@@ -20,20 +20,27 @@ import { List, LogOut, MapPin, User, AlignJustify, Map } from "lucide-vue-next";
 import { useRoute } from "vue-router";
 import { PageTransition } from "vue3-page-transition";
 import { useClient } from "@/store/client";
+import { useOriginCoords } from "@/store/origin";
+import { useDestination } from "@/store/destination";
+import { App as CapApp } from "@capacitor/app";
 
 const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
 );
 
+const originStore = useOriginCoords();
+const destinationStore = useDestination();
 const route = useRoute();
 const router = useRouter();
 const mapsStore = useMaps();
 const authStore = useAuth();
 const displayErrorMessage = ref(false);
 const canMapLoaded = ref(false);
-const clientStore = useClient()
+const clientStore = useClient();
 
-const { mapLoaded, isMarkerAnimating, markerVisible } = storeToRefs(mapsStore);
+const { mapLoaded, isMarkerAnimating, markerVisible, sharedMap, defaultZoom } =
+  storeToRefs(mapsStore);
+const { lat: originLat, lng: originLng } = storeToRefs(originStore);
 
 const createLoading = async (message: string) => {
   const loading = await loadingController.create({ message });
@@ -96,7 +103,7 @@ onMounted(async () => {
 
   try {
     const check = await checkClient();
-    await clientStore.getClient()
+    await clientStore.getClient();
 
     if (check.status === "no") {
       throw new Error("Xaritani yuklashni imkoni yo'q");
@@ -143,6 +150,50 @@ const logout = async () => {
 const navigatePage = async (path: string) => {
   await router.push(path);
 };
+
+async function extractCoordsFromUrl(data: string) {
+  const geoOnly = data.split("?")[0];
+
+  const regex = /geo:([-+]?\d*\.?\d+),([-+]?\d*\.?\d+)/;
+  const match = geoOnly.match(regex);
+
+  if (match) {
+    const latitude = parseFloat(match[1]);
+    const longitude = parseFloat(match[2]);
+
+    return { latitude, longitude };
+  } else {
+    return;
+  }
+}
+
+CapApp.addListener("appUrlOpen", async (data) => {
+  const destinationCoords = await extractCoordsFromUrl(data.url);
+
+  await router.push("/ride/setDestination");
+
+  await destinationStore.changeCoords(
+    {
+      lat: destinationCoords?.latitude as number,
+      lng: destinationCoords?.longitude as number,
+    },
+    "void"
+  );
+
+  setTimeout(async () => {
+    sharedMap.value?.setView(
+      [
+        destinationCoords?.latitude as number,
+        destinationCoords?.longitude as number,
+      ],
+      defaultZoom.value
+    );
+  
+    if (!originLat.value && !originLng.value) {
+      await originStore.getCoords();
+    } 
+  }, 600);
+});
 </script>
 
 <template>
