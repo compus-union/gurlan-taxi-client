@@ -319,6 +319,19 @@ export const useMaps = defineStore("maps-store", () => {
     }
   }
 
+  async function enableEvents() {
+    try {
+      sharedMap.value?.dragging.enable();
+      sharedMap.value?.boxZoom.enable();
+      sharedMap.value?.touchZoom.enable();
+      sharedMap.value?.doubleClickZoom.enable();
+      sharedMap.value?.scrollWheelZoom.enable();
+      return;
+    } catch (error) {
+      toast.error("Error at enabling events");
+    }
+  }
+
   return {
     loadMap,
     setMap,
@@ -337,5 +350,6 @@ export const useMaps = defineStore("maps-store", () => {
     removeTheGeometryOfRoute,
     isRadarVisible,
     disableEvents,
+    enableEvents
   };
 });
