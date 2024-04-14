@@ -14,7 +14,7 @@ import Button from "../../components/ui/button/Button.vue";
 import { Preferences } from "@capacitor/preferences";
 import { vMaska } from "maska";
 import { loadingController } from "@ionic/vue";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 
 const authStore = useAuth();
 const router = useRouter();
@@ -100,7 +100,7 @@ async function resetLogin() {
 
     await Preferences.clear();
     await router.push({ path: "/auth/login" });
-    toast("Boshqatdan ro'yxatdan o'tishingiz mumkin");
+    toast.info("Boshqatdan ro'yxatdan o'tishingiz mumkin", {duration: 4000});
   } catch (error) {
     alert(error);
   } finally {

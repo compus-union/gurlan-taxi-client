@@ -4,7 +4,7 @@ import { clientInstance } from "@/http/instances";
 import { ResponseStatus } from "@/constants";
 import { Preferences } from "@capacitor/preferences";
 import { useRouter } from "vue-router";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 
 interface Client {
   id: string;
@@ -63,7 +63,7 @@ export const useClient = defineStore("client-store", () => {
       ) {
         await Preferences.clear();
         await router.push("/auth/login");
-        toast(response.data.msg);
+        toast.error(response.data.msg, { duration: 4000 });
       }
 
       await setClient(response.data.client);
@@ -71,10 +71,11 @@ export const useClient = defineStore("client-store", () => {
         status: "ok",
       };
     } catch (error: any) {
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Xatolik yuzaga keldi, dasturni boshqatdan ishga tushiring"
+          "Xatolik yuzaga keldi, dasturni boshqatdan ishga tushiring",
+        { duration: 4000 }
       );
     }
   }
@@ -97,24 +98,25 @@ export const useClient = defineStore("client-store", () => {
       ) {
         await Preferences.clear();
         await router.push("/auth/login");
-        toast(response.data.msg);
+        toast.error(response.data.msg, { duration: 4000 });
       }
 
       await Promise.allSettled([
         Preferences.set({ key: "auth_token", value: response.data.token }),
       ]);
 
-      toast(response.data.msg);
+      toast.success(response.data.msg, { duration: 4000 });
 
       return {
         status: "ok",
         client: response.data.client,
       };
     } catch (error: any) {
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Xatolik yuzaga keldi, dasturni boshqatdan ishga tushiring"
+          "Xatolik yuzaga keldi, dasturni boshqatdan ishga tushiring",
+        { duration: 4000 }
       );
     }
   }

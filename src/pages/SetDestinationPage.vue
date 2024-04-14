@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/sheet";
 import { loadingController } from "@ionic/vue";
 import { useRoutes } from "@/store/routes";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 
 const Input = defineAsyncComponent(
   () => import("@/components/ui/input/Input.vue")
@@ -179,14 +179,18 @@ async function letsGo() {
 
     if (!result) {
       await loading.dismiss();
-      toast("Xatolik yuzaga keldi, boshqatdan urinib ko'ring");
+      toast.error("Xatolik yuzaga keldi, boshqatdan urinib ko'ring", {
+        duration: 4000,
+      });
 
       return;
     }
 
     if (result?.status !== "ok") {
       await loading.dismiss();
-      toast("Xatolik yuzaga keldi, boshqatdan urinib ko'ring");
+      toast.error("Xatolik yuzaga keldi, boshqatdan urinib ko'ring", {
+        duration: 4000,
+      });
 
       return;
     }
@@ -201,7 +205,9 @@ async function letsGo() {
     }
   } catch (error) {
     console.log(error);
-    toast("Xatolik yuzaga keldi, boshqatdan urinib ko'ring");
+    toast.error("Xatolik yuzaga keldi, boshqatdan urinib ko'ring", {
+      duration: 4000,
+    });
   }
 }
 

@@ -2,7 +2,7 @@ import { defineStore, storeToRefs } from "pinia";
 import { useOriginCoords } from "./origin";
 import { useDestination } from "./destination";
 import { computed, ref, watch } from "vue";
-import L from "leaflet";
+import L, { marker } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useRoute } from "vue-router";
 import RealLocationPointIcon from "@/assets/real-location-point.svg";
@@ -11,7 +11,9 @@ import { useLoading } from "./loading";
 import OriginFixedMarkerIcon from "@/assets/origin-fixed-marker.svg";
 import DestinationFixedMarkerIcon from "@/assets/destination-fixed-marker.svg";
 import { LayerGroup, Map } from "leaflet";
-import { Address, useRoutes } from "./routes";
+import { useRoutes } from "./routes";
+import { toast } from "vue-sonner";
+import { useRouter } from "vue-router";
 
 export interface CustomMarker extends L.Marker {
   latLng?: L.LatLng;
@@ -32,16 +34,18 @@ export const useMaps = defineStore("maps-store", () => {
   const originStore = useOriginCoords();
   const markers = ref<CustomMarker[]>([]);
   const defaultZoom = ref(16);
-  const minZoom = ref(13);
   const mapMoving = ref(false);
   const destinationStore = useDestination();
   const route = useRoute();
   const mapLoaded = ref(false);
   const markerVisible = ref(true);
   const isSearching = ref<true | false | null>(null);
+  const router = useRouter();
+  const isRadarVisible = ref(false);
 
   const { loading } = storeToRefs(loadingStore);
-  const { isRouteInstalled } = storeToRefs(routesStore);
+  const { isRouteInstalled, geoJSONs, distance, duration, price } =
+    storeToRefs(routesStore);
 
   const isMarkerAnimating = computed(() => {
     if (loading.value || mapMoving.value) {
@@ -203,7 +207,47 @@ export const useMaps = defineStore("maps-store", () => {
       );
     } catch (error) {
       console.log(error);
-    } 
+    }
+  }
+
+  async function removeTheGeometryOfRoute(backToDestination: boolean = true) {
+    try {
+      isRouteInstalled.value = null;
+
+      if (!geoJSONs.value) return;
+
+      markerVisible.value = true;
+      price.value = {};
+      distance.value = {} as { kmFixed: string; kmFull: string };
+      duration.value = {} as {
+        full: string;
+        hours: string;
+        minutes: string;
+        seconds: string;
+      };
+
+      sharedMap.value?.removeLayer(geoJSONs.value as any);
+      if (backToDestination) {
+        sharedMap.value?.setView(
+          [destinationCoords.value.lat, destinationCoords.value.lng],
+          defaultZoom.value
+        );
+      }
+
+      geoJSONs.value = {} as L.LayerGroup;
+
+      const originMarkerFixed = await findMarker("origin-marker-fixed");
+      const destinationMarkerFixed = await findMarker(
+        "destination-marker-fixed"
+      );
+
+      if (originMarkerFixed) await removeMarker(originMarkerFixed);
+      if (destinationMarkerFixed) await removeMarker(destinationMarkerFixed);
+
+      return;
+    } catch (error: any) {
+      toast.error("Qandaydir xatolik yuzaga keldi", { duration: 4000 });
+    }
   }
 
   async function addFixedMarkers(origin: any, destination: any) {
@@ -214,7 +258,14 @@ export const useMaps = defineStore("maps-store", () => {
 
     const originFixedMarker = L.marker([origin.lat, origin.lng], {
       icon: originFixedIcon,
-    }).addTo(sharedMap.value as Map | LayerGroup<any>) as CustomMarker;
+    })
+      .on("click", async (e) => {
+        await removeTheGeometryOfRoute(false);
+        sharedMap.value?.setView([origin.lat, origin.lng], defaultZoom.value);
+        markerVisible.value = true;
+        await router.push("/ride/setOrigin");
+      })
+      .addTo(sharedMap.value as Map | LayerGroup<any>) as CustomMarker;
 
     const destinationFixedIcon = L.icon({
       iconUrl: DestinationFixedMarkerIcon,
@@ -224,7 +275,17 @@ export const useMaps = defineStore("maps-store", () => {
     const destinationFixedMarker = L.marker(
       [destination.lat, destination.lng],
       { icon: destinationFixedIcon }
-    ).addTo(sharedMap.value as Map | LayerGroup<any>) as CustomMarker;
+    )
+      .on("click", async (e) => {
+        await removeTheGeometryOfRoute();
+        sharedMap.value?.setView(
+          [destination.lat, destination.lng],
+          defaultZoom.value
+        );
+        markerVisible.value = true;
+        await router.push("/ride/setDestination");
+      })
+      .addTo(sharedMap.value as Map | LayerGroup<any>) as CustomMarker;
 
     originFixedMarker._custom_id = "origin-marker-fixed";
     destinationFixedMarker._custom_id = "destination-marker-fixed";
@@ -245,6 +306,19 @@ export const useMaps = defineStore("maps-store", () => {
     return;
   }
 
+  async function disableEvents() {
+    try {
+      sharedMap.value?.dragging.disable();
+      sharedMap.value?.boxZoom.disable();
+      sharedMap.value?.touchZoom.disable();
+      sharedMap.value?.doubleClickZoom.disable();
+      sharedMap.value?.scrollWheelZoom.disable();
+      return;
+    } catch (error) {
+      toast.error("Error at disabling events");
+    }
+  }
+
   return {
     loadMap,
     setMap,
@@ -260,5 +334,8 @@ export const useMaps = defineStore("maps-store", () => {
     markerVisible,
     removeMarker,
     isSearching,
+    removeTheGeometryOfRoute,
+    isRadarVisible,
+    disableEvents,
   };
 });

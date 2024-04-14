@@ -15,20 +15,23 @@ import { useRoutes } from "@/store/routes";
 import { CupertinoPane } from "cupertino-pane";
 import { useMaps } from "@/store/maps";
 import { useDestination } from "@/store/destination";
-import { toast } from "vue3-toastify";
 import { Separator } from "@/components/ui/separator";
+import { useOriginCoords } from "@/store/origin";
+import { toast } from "vue-sonner";
 
 const router = useRouter();
 const geocodingStore = useGeocoding();
 const routesStore = useRoutes();
 const mapsStore = useMaps();
 const destinationStore = useDestination();
+const originStore = useOriginCoords();
 
 const { destinationAddress, originAddress } = storeToRefs(geocodingStore);
-const { price, distance, duration, geoJSONs, isRouteInstalled } =
+const { price, distance, duration } =
   storeToRefs(routesStore);
-const { sharedMap, markerVisible, defaultZoom } = storeToRefs(mapsStore);
+const { sharedMap, defaultZoom, isRadarVisible, markerVisible } = storeToRefs(mapsStore);
 const { coords: destinationCoords } = storeToRefs(destinationStore);
+const { coords: originCoords } = storeToRefs(originStore);
 
 const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -39,7 +42,19 @@ const Input = defineAsyncComponent(
 );
 
 async function goBack() {
+  sharedMap.value?.setView([
+    destinationCoords.value.lat,
+    destinationCoords.value.lng,
+  ]);
   await router.push("/ride/setDestination");
+}
+
+async function goHome() {
+  sharedMap.value?.setView(
+    [originCoords.value.lat, originCoords.value.lng],
+    defaultZoom.value
+  );
+  await router.push("/ride/setOrigin");
 }
 
 type RideTaxi = "taxi" | "delivery";
@@ -75,53 +90,35 @@ onMounted(async () => {
   await pane.value.present({ animate: true });
 });
 
-async function removeTheGeometryOfRoute() {
-  try {
-    isRouteInstalled.value = null;
-
-    if (!geoJSONs.value) return;
-
-    markerVisible.value = true;
-    price.value = {};
-    distance.value = {} as { kmFixed: string; kmFull: string };
-    duration.value = {} as {
-      full: string;
-      hours: string;
-      minutes: string;
-      seconds: string;
-    };
-
-    sharedMap.value?.removeLayer(geoJSONs.value as any);
-    sharedMap.value?.setView(
-      [destinationCoords.value.lat, destinationCoords.value.lng],
-      defaultZoom.value
-    );
-    geoJSONs.value = {} as L.LayerGroup;
-
-    const originMarkerFixed = await mapsStore.findMarker("origin-marker-fixed");
-    const destinationMarkerFixed = await mapsStore.findMarker(
-      "destination-marker-fixed"
-    );
-
-    if (originMarkerFixed) await mapsStore.removeMarker(originMarkerFixed);
-    if (destinationMarkerFixed)
-      await mapsStore.removeMarker(destinationMarkerFixed);
-
-    return;
-  } catch (error: any) {
-    toast("Qandaydir xatolik yuzaga keldi");
-  }
-}
-
 onBeforeRouteLeave(async (to, from, next) => {
-  await removeTheGeometryOfRoute();
+  if (to.path !== "/ride/setDestination") {
+    await mapsStore.removeTheGeometryOfRoute(false);
+  } else {
+    await mapsStore.removeTheGeometryOfRoute();
+  }
   await pane.value?.destroy();
   return next();
 });
 
-const callTaxi = () => {
-  router.push("/ride/taxi");
-};
+async function callTaxi() {
+  try {
+    await router.push("/ride/taxi");
+    sharedMap.value?.setView(
+      [originCoords.value.lat, originCoords.value.lng],
+      defaultZoom.value
+    );
+    await mapsStore.disableEvents();
+    isRadarVisible.value = true;
+    markerVisible.value = false
+  } catch (error: any) {
+    console.log(error);
+
+    toast.error(
+      error.message ||
+        "Qandaydir xatolik yuzaga keldi, boshqatdan urinib ko'ring"
+    );
+  }
+}
 
 // https://firebasestorage.googleapis.com/v0/b/taxi-app-test-395406.appspot.com/o/client-app%2Fstandard.png?alt=media&token=579297ce-3241-4e1d-9c1d-1fc4e022d194
 // https://firebasestorage.googleapis.com/v0/b/taxi-app-test-395406.appspot.com/o/client-app%2Fcomfort.png?alt=media&token=93fd4744-3653-4f5a-b467-9b7b705b8eb8
@@ -221,7 +218,7 @@ const callTaxi = () => {
             </p>
           </div>
           <div class="button-part">
-            <MainButton variant="ghost" size="icon"
+            <MainButton @click="goHome" variant="ghost" size="icon"
               ><Settings2 class="w-4 h-4"
             /></MainButton>
           </div>
@@ -246,7 +243,7 @@ const callTaxi = () => {
             </p>
           </div>
           <div class="button-part">
-            <MainButton variant="ghost" size="icon"
+            <MainButton @click="goBack" variant="ghost" size="icon"
               ><Settings2 class="w-4 h-4"
             /></MainButton>
           </div>

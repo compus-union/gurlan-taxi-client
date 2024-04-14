@@ -1,10 +1,9 @@
-import { defineStore, storeToRefs } from "pinia";
+import { defineStore } from "pinia";
 import { ref } from "vue";
 import { routeInstance } from "@/http/instances";
 import { useMaps } from "./maps";
 import L, { Map } from "leaflet";
-import { useDestination } from "./destination";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 
 export interface Address {
   lat: number;
@@ -17,7 +16,6 @@ export interface RouteGeoJSON extends L.GeoJSON {
 }
 
 export const useRoutes = defineStore("routes-store", () => {
-  const destinationStore = useDestination();
   const mapsStore = useMaps();
   const routeHttp = routeInstance();
   const destination = ref<Address>();
@@ -32,9 +30,6 @@ export const useRoutes = defineStore("routes-store", () => {
     seconds: string;
   }>();
   const isRouteInstalled = ref<true | false | null>(null);
-
-  const { defaultZoom, markerVisible } = storeToRefs(mapsStore);
-  const { coords: destinationCoords } = storeToRefs(destinationStore);
 
   async function getGeometryOfRoute(d: Address, o: Address) {
     isRouteInstalled.value = false;
@@ -70,59 +65,18 @@ export const useRoutes = defineStore("routes-store", () => {
       console.log(error);
 
       if (error.response) {
-        toast(error.response.data);
+        toast.error(error.response.data, { duration: 4000 });
 
         console.log("Response error:", error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
         console.error("Request error:", error.request);
-        toast(error.request);
+        toast.error(error.response.data, { duration: 4000 });
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Error:", error.message);
-        toast(error.message);
+        toast.error(error.response.data, { duration: 4000 });
       }
-    }
-  }
-
-  async function removeTheGeometryOfRoute() {
-    try {
-      console.log(mapsStore.sharedMap);
-      console.log(geoJSONs.value);
-
-      if (!geoJSONs.value) return;
-
-      markerVisible.value = true;
-      price.value = {};
-      distance.value = {} as { kmFixed: string; kmFull: string };
-      duration.value = {} as {
-        full: string;
-        hours: string;
-        minutes: string;
-        seconds: string;
-      };
-
-      mapsStore.sharedMap?.removeLayer(geoJSONs.value);
-      mapsStore.sharedMap?.setView(
-        [destinationCoords.value.lat, destinationCoords.value.lng],
-        defaultZoom.value
-      );
-      geoJSONs.value = {} as L.LayerGroup;
-
-      const originMarkerFixed = await mapsStore.findMarker(
-        "origin-marker-fixed"
-      );
-      const destinationMarkerFixed = await mapsStore.findMarker(
-        "destination-marker-fixed"
-      );
-
-      if (originMarkerFixed) await mapsStore.removeMarker(originMarkerFixed);
-      if (destinationMarkerFixed)
-        await mapsStore.removeMarker(destinationMarkerFixed);
-
-      return;
-    } catch (error: any) {
-      toast("Qandaydir xatolik yuzaga keldi");
     }
   }
 
@@ -131,7 +85,6 @@ export const useRoutes = defineStore("routes-store", () => {
     price,
     distance,
     duration,
-    removeTheGeometryOfRoute,
     geoJSONs,
     isRouteInstalled,
   };

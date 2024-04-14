@@ -28,7 +28,6 @@ import { LayerGroup, Map } from "leaflet";
 import { Geolocation } from "@capacitor/geolocation";
 import { useLoading } from "@/store/loading";
 import { useClient } from "@/store/client";
-import SmileIcon from "@/assets/smile.png";
 
 const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")

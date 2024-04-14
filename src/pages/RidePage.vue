@@ -7,51 +7,30 @@ import {
   SearchingScreen,
   WaitingDuringRideScreen,
 } from "@/components/ride";
-import { CupertinoPane } from "cupertino-pane";
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 
 type RideStatus =
-  | "CLIENT_WAITING"
+  | "CLIENT_SEARCH_FOR_TAXI"
   | "RIDE_CANCELLED_BY_CLIENT"
-  | "DRIVER_GOING"
-  | "DRIVER_ARRIVED"
+  | "DRIVER_GOING_TO_CLIENT"
+  | "DRIVER_ARRIVED_TO_CLIENT"
   | "RIDE_ACTIVE"
-  | "DRIVER_WAITING"
+  | "DRIVER_WAITING_FOR_CLIENT" //during the ride, client might have to do smth else
   | "RIDE_CANCELLED_BY_DRIVER"
-  | "CLIENT_ARRIVED";
+  | "RIDE_FINISHED";
 
-const rideStatus = ref<RideStatus>("CLIENT_WAITING");
-
-const pane = ref<CupertinoPane>();
-
-onMounted(async () => {
-  pane.value = new CupertinoPane(".sheet-pane", {
-    breaks: {
-      top: { enabled: true, height: 460 },
-      middle: { enabled: true, height: 240 },
-      bottom: { enabled: true, height: 40 },
-    },
-    initialBreak: "top",
-    draggableOver: true,
-    parentElement: ".app",
-    cssClass: "z-50",
-    buttonDestroy: false,
-  });
-
-  await pane.value.present({ animate: true });
-});
+const rideStatus = ref<RideStatus>("CLIENT_SEARCH_FOR_TAXI");
 </script>
 
 <template>
   <div class="ride-page flex flex-col w-full h-auto">
-    <div
-      class="sheet-pane main-content bg-primary-foreground text-foreground p-6 w-full h-auto"
-    >
-      <SearchingScreen v-if="rideStatus === 'CLIENT_WAITING'" />
-      <DriverGoingScreen v-if="rideStatus === 'DRIVER_GOING'" />
-      <DriverArrivedScreen v-if="rideStatus === 'DRIVER_ARRIVED'" />
-      <RideActiveScreen v-if="rideStatus === 'RIDE_ACTIVE'" />
-      <WaitingDuringRideScreen v-if="rideStatus === 'DRIVER_WAITING'" />
-    </div>
+    <SearchingScreen v-if="rideStatus === 'CLIENT_SEARCH_FOR_TAXI'" />
+    <DriverGoingScreen v-if="rideStatus === 'DRIVER_GOING_TO_CLIENT'" />
+    <DriverArrivedScreen v-if="rideStatus === 'DRIVER_ARRIVED_TO_CLIENT'" />
+    <RideActiveScreen v-if="rideStatus === 'RIDE_ACTIVE'" />
+    <WaitingDuringRideScreen
+      v-if="rideStatus === 'DRIVER_WAITING_FOR_CLIENT'"
+    />
+    <!-- <RideFinishedScreen /> -->
   </div>
 </template>

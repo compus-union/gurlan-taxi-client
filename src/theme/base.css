@@ -85,7 +85,7 @@ ion-loading {
   justify-content: center;
   position: fixed;
   inset: 0;
-  z-index: 99999999999999999999999999999999999999999999999999 ;
+  z-index: 99999999999999999999999999999999999999999999999999;
 }
 
 ion-loading .loading-wrapper {
@@ -103,39 +103,6 @@ ion-loading .loading-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.Toastify__toast {
-  padding: 6px 10px;
-  border-radius: 10px;
-  min-height: auto;
-  max-height: auto;
-  height: auto;
-}
-
-@media (prefers-color-scheme: light) {
-  .Toastify__toast {
-    background: #000;
-    color: #fff;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .Toastify__toast {
-    background: #fff;
-    color: #000;
-  }
-}
-
-.Toastify__toast-container {
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
-  width: calc(100vw - 20px);
-  border-radius: 30px;
-  font-size: 14px;
-  font-weight: 500;
-  @apply space-y-2;
 }
 
 @media (prefers-color-scheme: light) {

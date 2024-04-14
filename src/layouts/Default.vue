@@ -6,7 +6,7 @@ import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
 import { ResponseStatus } from "@/constants";
 import { loadingController } from "@ionic/vue";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 import { storeToRefs } from "pinia";
 import {
   DropdownMenu,
@@ -20,20 +20,28 @@ import { List, LogOut, MapPin, User, AlignJustify, Map } from "lucide-vue-next";
 import { useRoute } from "vue-router";
 import { PageTransition } from "vue3-page-transition";
 import { useClient } from "@/store/client";
+import { useOriginCoords } from "@/store/origin";
+import { useDestination } from "@/store/destination";
+import { App as CapApp } from "@capacitor/app";
+import RadarWave from "@/components/functional/RadarWave.vue";
 
 const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
 );
 
+const originStore = useOriginCoords();
+const destinationStore = useDestination();
 const route = useRoute();
 const router = useRouter();
 const mapsStore = useMaps();
 const authStore = useAuth();
 const displayErrorMessage = ref(false);
 const canMapLoaded = ref(false);
-const clientStore = useClient()
+const clientStore = useClient();
 
-const { mapLoaded, isMarkerAnimating, markerVisible } = storeToRefs(mapsStore);
+const { mapLoaded, isMarkerAnimating, markerVisible, sharedMap, defaultZoom, isRadarVisible } =
+  storeToRefs(mapsStore);
+const { lat: originLat, lng: originLng } = storeToRefs(originStore);
 
 const createLoading = async (message: string) => {
   const loading = await loadingController.create({ message });
@@ -79,10 +87,11 @@ const checkClient = async () => {
 
     displayErrorMessage.value = true;
 
-    toast(
+    toast.error(
       error.message ||
         error.response.data.msg ||
-        "Qandaydir xatolik yuzaga keldi"
+        "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+      { duration: 4000 }
     );
 
     return { status: "no" };
@@ -91,12 +100,28 @@ const checkClient = async () => {
   }
 };
 
+async function extractCoordsFromUrl(data: string) {
+  const geoOnly = data.split("?")[0];
+
+  const regex = /geo:([-+]?\d*\.?\d+),([-+]?\d*\.?\d+)/;
+  const match = geoOnly.match(regex);
+
+  if (match) {
+    const latitude = parseFloat(match[1]);
+    const longitude = parseFloat(match[2]);
+
+    return { latitude, longitude };
+  } else {
+    return;
+  }
+}
+
 onMounted(async () => {
   const mapLoading = await createLoading("Xarita yuklanmoqda...");
 
   try {
     const check = await checkClient();
-    await clientStore.getClient()
+    await clientStore.getClient();
 
     if (check.status === "no") {
       throw new Error("Xaritani yuklashni imkoni yo'q");
@@ -104,12 +129,41 @@ onMounted(async () => {
 
     await mapsStore.loadMap("map");
 
+    CapApp.addListener("appUrlOpen", async (data) => {
+      const destinationCoords = await extractCoordsFromUrl(data.url);
+
+      await router.push("/ride/setDestination");
+
+      await destinationStore.changeCoords(
+        {
+          lat: destinationCoords?.latitude as number,
+          lng: destinationCoords?.longitude as number,
+        },
+        "void"
+      );
+
+      setTimeout(async () => {
+        sharedMap.value?.setView(
+          [
+            destinationCoords?.latitude as number,
+            destinationCoords?.longitude as number,
+          ],
+          defaultZoom.value
+        );
+
+        if (!originLat.value && !originLng.value) {
+          await originStore.getCoords();
+        }
+      }, 100);
+    });
+
     return;
   } catch (error: any) {
-    toast(
-      error.response?.data?.msg ||
-        error.message ||
-        "Xaritani yuklashda xatolik yuz berdi, dasturni boshqatdan ishga tushiring"
+    toast.error(
+      error.message ||
+        error.response.data.msg ||
+        "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+      { duration: 4000 }
     );
   } finally {
     await mapLoading.dismiss();
@@ -201,6 +255,7 @@ const navigatePage = async (path: string) => {
       :isAnimated="isMarkerAnimating"
       class="marker fixed inset-1/2 z-50 -translate-x-1/2 -translate-y-[91px]"
     />
+    <RadarWave v-show="isRadarVisible" class="fixed inset-[50%] z-50 my-[-10px] mx-[-10px]"/>
     <div id="map" class="map h-screen w-full z-[49]">
       <div v-if="displayErrorMessage" class="error-message mt-10 text-center">
         <h1 class="title text-foreground text-2xl font-bold">

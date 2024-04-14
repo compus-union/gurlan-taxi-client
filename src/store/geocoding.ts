@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { geocodingInstance } from "@/http/instances";
 import { useLoading } from "./loading";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 
 export interface Address {
   lat?: number;
@@ -55,10 +55,11 @@ export const useGeocoding = defineStore("geocoding-store", () => {
     } catch (error: any) {
       await loadingStore.setLoading(false);
       errorMessage.value = error.message;
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Qandaydir xatolik yuzaga keldi"
+          "Qandaydir xatolik yuzaga keldi",
+        { duration: 4000 }
       );
     }
   }

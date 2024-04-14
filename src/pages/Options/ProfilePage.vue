@@ -16,7 +16,7 @@ import { onBeforeRouteLeave, useRouter } from "vue-router";
 import { useClient } from "@/store/client";
 import { storeToRefs } from "pinia";
 import { useLoading } from "@/store/loading";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 import {
   Dialog,
   DialogContent,
@@ -56,8 +56,6 @@ onBeforeRouteLeave(async (to, from, next) => {
       destinationCoords.value.lng,
     ]);
     return next();
-
-    return next();
   }
   if (to.path === "/ride/letsgo") {
     mapLoaded.value = true;
@@ -73,7 +71,9 @@ async function getAccount() {
 
     if (!result) {
       error.value = true;
-      toast("Xatolik yuzaga keldi, boshqatdan urinib ko'ring");
+      toast.error("Xatolik yuzaga keldi, boshqatdan urinib ko'ring", {
+        duration: 4000,
+      });
 
       return;
     }
@@ -83,10 +83,11 @@ async function getAccount() {
   } catch (error: any) {
     error.value = true;
 
-    toast(
+    toast.error(
       error.response.data.msg ||
         error.message ||
-        "Qandaydir muammo yuzaga keldi, dasturni boshqatdan ishga tushiring."
+        "Qandaydir muammo yuzaga keldi, dasturni boshqatdan ishga tushiring.",
+      { duration: 4000 }
     );
   }
 }

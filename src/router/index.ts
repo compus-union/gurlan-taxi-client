@@ -9,6 +9,9 @@ const routes: Array<RouteRecordRaw> = [
     path: "/",
     name: "blank",
     redirect: "/ride/setOrigin",
+    beforeEnter(to, from, next) {
+      return next()
+    }
   },
   {
     path: "/ride",
