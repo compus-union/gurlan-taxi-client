@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { Geolocation } from "@capacitor/geolocation";
 import router from "@/router";
 import { loadingController } from "@ionic/vue";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 import { CustomMarker, useMaps } from "./maps";
 import { LayerGroup, Map } from "leaflet";
 
@@ -34,13 +34,17 @@ export const useOriginCoords = defineStore("origin-store", () => {
           if (err) {
             console.log(err);
 
-            toast("Joylashuvni aniqlashni iloji bo'lmadi");
+            toast.error("Joylashuvni aniqlashni iloji bo'lmadi", {
+              duration: 4000,
+            });
             return;
           }
         }
       );
     } catch (error: any) {
-      toast(error);
+      toast.error(error, {
+        duration: 4000,
+      });
     } finally {
       await loading.dismiss();
     }

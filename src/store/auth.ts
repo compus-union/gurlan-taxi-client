@@ -5,7 +5,7 @@ import { Preferences } from "@capacitor/preferences";
 import { Network } from "@capacitor/network";
 import { ResponseStatus } from "@/constants";
 import { loadingController } from "@ionic/vue";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 import { useRouter } from "vue-router";
 
 interface ClientDetails {
@@ -47,7 +47,7 @@ export const useAuth = defineStore("auth-store", () => {
     try {
       await loading.present();
       if (!clientDetails.value.phone) {
-        toast("Telefon raqam kiritilishi lozim");
+        toast.error("Telefon raqam kiritilishi lozim", { duration: 4000 });
 
         return {
           status: ResponseStatus.AUTH_WARNING,
@@ -55,7 +55,7 @@ export const useAuth = defineStore("auth-store", () => {
       }
 
       if (!clientDetails.value.password) {
-        toast("Parol kiritilishi lozim");
+        toast.error("Parol kiritilishi lozim", { duration: 4000 });
 
         return {
           status: ResponseStatus.AUTH_WARNING,
@@ -63,8 +63,9 @@ export const useAuth = defineStore("auth-store", () => {
       }
 
       if (!networkStatus.connected) {
-        toast(
-          "Internet bilan aloqa borligini tekshirib, boshqatdan urinib ko'ring"
+        toast.error(
+          "Internet bilan aloqa borligini tekshirib, boshqatdan urinib ko'ring",
+          { duration: 4000 }
         );
 
         return {
@@ -79,13 +80,16 @@ export const useAuth = defineStore("auth-store", () => {
       // Serverda xatolik yoki internet bilan aloqa bo'lmaganida
       if (!response || response.status >= 400) {
         await loading.dismiss();
-        toast("Server bilan aloqa mavjud emas, boshqatdan urinib ko'ring");
+        toast.error(
+          "Server bilan aloqa mavjud emas, boshqatdan urinib ko'ring",
+          { duration: 4000 }
+        );
 
         return;
       }
 
       if (response.data.status === ResponseStatus.AUTH_WARNING) {
-        toast(response.data.msg);
+        toast.warning(response.data.msg, { duration: 4000 });
         return;
       }
 
@@ -97,7 +101,7 @@ export const useAuth = defineStore("auth-store", () => {
         await Preferences.set({ key: "confirmation", value: "false" });
         await Preferences.set({ key: "oneId", value: response.data.oneId });
 
-        toast(response.data.msg, { autoClose: 10000 });
+        toast.success(response.data.msg, { duration: 4000 });
 
         return {
           status: ResponseStatus.CONFIRMATION_CODE_SENT,
@@ -114,7 +118,7 @@ export const useAuth = defineStore("auth-store", () => {
       }
 
       if (response.data.status === ResponseStatus.CLIENT_LOGIN_DONE) {
-        toast(response.data.msg);
+        toast.success(response.data.msg, { duration: 4000 });
         await Promise.allSettled([
           Preferences.set({
             key: "clientOneId",
@@ -131,14 +135,15 @@ export const useAuth = defineStore("auth-store", () => {
       }
     } catch (error: any) {
       if (error.name === "AbortError") {
-        toast("Amal bekor qilindi.");
+        toast("Amal bekor qilindi.", { duration: 4000 });
         return;
       }
 
-      toast(
+      toast.error(
         error.response.data.msg ||
           error.message ||
-          "Qandaydir xatolik yuzaga keldi, boshqatdan urinib ko'ring"
+          "Qandaydir xatolik yuzaga keldi, boshqatdan urinib ko'ring",
+        { duration: 4000 }
       );
 
       return {
@@ -159,8 +164,9 @@ export const useAuth = defineStore("auth-store", () => {
       const networkStatus = await Network.getStatus();
 
       if (!networkStatus.connected) {
-        toast(
-          "Internet bilan aloqa mavjud emas, internetingizni tekshirib, dasturga boshqatdan kiring"
+        toast.error(
+          "Internet bilan aloqa mavjud emas, internetingizni tekshirib, dasturga boshqatdan kiring",
+          { duration: 4000 }
         );
 
         return { status: ResponseStatus.NETWORK_ERR };
@@ -168,7 +174,10 @@ export const useAuth = defineStore("auth-store", () => {
       const response = await authHttp.check();
 
       if (!response || response.status >= 400) {
-        toast("Serverga ulanib bo'lmadi, dasturni boshqatdan ishga tushiring");
+        toast.error(
+          "Serverga ulanib bo'lmadi, dasturni boshqatdan ishga tushiring",
+          { duration: 4000 }
+        );
 
         return {
           status: ResponseStatus.NETWORK_ERR,
@@ -181,9 +190,9 @@ export const useAuth = defineStore("auth-store", () => {
         response.data.status === ResponseStatus.TOKEN_NOT_VALID ||
         response.data.status === ResponseStatus.BANNED
       ) {
-        await Preferences.clear()
-        await router.push("/auth/login")
-        toast(response.data.msg);
+        await Preferences.clear();
+        await router.push("/auth/login");
+        toast.error(response.data.msg, { duration: 4000 });
 
         return {
           status: response.data.status,
@@ -206,10 +215,11 @@ export const useAuth = defineStore("auth-store", () => {
     } catch (error: any) {
       console.log(error);
 
-      toast(
+      toast.error(
         error.response?.data.msg ||
           error.message ||
-          "Qandaydir xato yuzaga keldi, dasturni boshqatdan ishga tushiring"
+          "Qandaydir xato yuzaga keldi, dasturni boshqatdan ishga tushiring",
+        { duration: 4000 }
       );
       return { status: ResponseStatus.UNKNOWN_ERR };
     }
@@ -226,7 +236,9 @@ export const useAuth = defineStore("auth-store", () => {
       await loading.present();
 
       if (!networkStatus.connected) {
-        toast("Internetingizni tekshirib, boshqatdan urinib ko'ring");
+        toast.error("Internetingizni tekshirib, boshqatdan urinib ko'ring", {
+          duration: 4000,
+        });
 
         return {
           status: ResponseStatus.NETWORK_ERR,
@@ -236,8 +248,9 @@ export const useAuth = defineStore("auth-store", () => {
       const { value: oneId } = await Preferences.get({ key: "oneId" });
 
       if (!oneId) {
-        toast(
-          "Sizda bu amalni bajarish uchun malumotlar yetarli emas, boshqatdan ro'yxatdan urining"
+        toast.error(
+          "Sizda bu amalni bajarish uchun malumotlar yetarli emas, boshqatdan ro'yxatdan urining",
+          { duration: 4000 }
         );
 
         return {
@@ -249,7 +262,7 @@ export const useAuth = defineStore("auth-store", () => {
         !clientDetails.value.confirmationCode ||
         clientDetails.value.confirmationCode.length < 6
       ) {
-        toast("Belgilangan qatorni to'ldiring");
+        toast.warning("Belgilangan qatorni to'ldiring", { duration: 4000 });
         return {
           status: ResponseStatus.AUTH_WARNING,
         };
@@ -261,7 +274,10 @@ export const useAuth = defineStore("auth-store", () => {
       );
 
       if (!res || res.status >= 400) {
-        toast("Serverga ulanib bo'lmadi, dasturni boshqatdan ishga tushiring");
+        toast.error(
+          "Serverga ulanib bo'lmadi, dasturni boshqatdan ishga tushiring",
+          { duration: 4000 }
+        );
 
         return {
           status: ResponseStatus.NETWORK_ERR,
@@ -269,8 +285,9 @@ export const useAuth = defineStore("auth-store", () => {
       }
 
       if (res.data.status === ResponseStatus.CLIENT_NOT_FOUND) {
-        toast(
-          "Sizning akkauntingiz tizimda mavjud emas, boshqatdan ro'yxatdan o'ting"
+        toast.error(
+          "Sizning akkauntingiz tizimda mavjud emas, boshqatdan ro'yxatdan o'ting",
+          { duration: 4000 }
         );
         await Preferences.clear();
 
@@ -280,7 +297,7 @@ export const useAuth = defineStore("auth-store", () => {
       }
 
       if (res.data.status === ResponseStatus.AUTH_WARNING) {
-        toast(res.data.msg);
+        toast.warning(res.data.msg, { duration: 4000 });
 
         return { status: ResponseStatus.AUTH_WARNING };
       }
@@ -295,17 +312,18 @@ export const useAuth = defineStore("auth-store", () => {
 
         await Promise.allSettled(promises);
 
-        toast(res.data.msg);
+        toast.success(res.data.msg, { duration: 4000 });
 
         return { status: res.data.status };
       }
 
       return;
     } catch (error: any) {
-      toast(
+      toast.error(
         error.response.data.msg ||
           error.message ||
-          "Qandaydir xato yuzaga keldi, dasturni boshqatdan ishga tushiring"
+          "Qandaydir xato yuzaga keldi, dasturni boshqatdan ishga tushiring",
+        { duration: 4000 }
       );
       return { status: ResponseStatus.UNKNOWN_ERR };
     } finally {
@@ -322,8 +340,9 @@ export const useAuth = defineStore("auth-store", () => {
       const networkStatus = await Network.getStatus();
 
       if (!networkStatus.connected) {
-        toast(
-          "Internet bilan aloqa mavjud emas, internetingizni tekshirib, dasturga boshqatdan kiring"
+        toast.error(
+          "Internet bilan aloqa mavjud emas, internetingizni tekshirib, dasturga boshqatdan kiring",
+          { duration: 4000 }
         );
 
         return { status: ResponseStatus.NETWORK_ERR };
@@ -332,8 +351,9 @@ export const useAuth = defineStore("auth-store", () => {
       const { value: oneId } = await Preferences.get({ key: "oneId" });
 
       if (!oneId) {
-        toast(
-          "Kodni boshqatdan olish uchun sizdagi malumotlar yetarli emas, boshqatdan ro'yxatdan o'ting."
+        toast.error(
+          "Kodni boshqatdan olish uchun sizdagi malumotlar yetarli emas, boshqatdan ro'yxatdan o'ting.",
+          { duration: 4000 }
         );
         await Preferences.clear();
         await router.push({ path: "/auth/login" });
@@ -345,7 +365,9 @@ export const useAuth = defineStore("auth-store", () => {
       );
 
       if (!response || response.data.status >= 400) {
-        toast("Serverdan javob yo'q, boshqatdan urinib ko'ring");
+        toast.error("Serverdan javob yo'q, boshqatdan urinib ko'ring", {
+          duration: 4000,
+        });
 
         return {
           status: ResponseStatus.NETWORK_ERR,
@@ -357,17 +379,18 @@ export const useAuth = defineStore("auth-store", () => {
         response.data.status === ResponseStatus.AUTH_WARNING ||
         response.data.status === ResponseStatus.CONFIRMATION_CODE_SENT
       ) {
-        toast(response.data.msg);
+        toast(response.data.msg, { duration: 4000 });
 
         return {
           status: response.data.status,
         };
       }
     } catch (error: any) {
-      toast(
+      toast.error(
         error.response.data.msg ||
           error.message ||
-          "Qandaydir xato yuzaga keldi, dasturni boshqatdan ishga tushiring"
+          "Qandaydir xato yuzaga keldi, dasturni boshqatdan ishga tushiring",
+        { duration: 4000 }
       );
       return { status: ResponseStatus.UNKNOWN_ERR };
     } finally {

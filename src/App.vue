@@ -4,7 +4,7 @@ import { onBeforeMount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
 import { PageTransition } from "vue3-page-transition";
-import {Toaster} from "vue-sonner"
+import { Toaster } from "vue-sonner";
 
 const originStore = useOriginCoords();
 const router = useRouter();
@@ -52,7 +52,7 @@ onBeforeMount(async () => {
     >
       {{ route.fullPath }}
     </div>
-    <Toaster/>
+    <Toaster :close-button="true" :toast-options="{ class: 'font-manrope' }" />
     <vue3-progress-bar></vue3-progress-bar>
     <router-view v-slot="{ Component }">
       <PageTransition name="fade-in-up" appear>
@@ -64,7 +64,7 @@ onBeforeMount(async () => {
 
 <style>
 .vue3-progress-bar-container .vue3-progress-bar {
-  background-color: #FCDC2A !important;
+  background-color: #fcdc2a !important;
   height: 5px !important;
 }
 </style>

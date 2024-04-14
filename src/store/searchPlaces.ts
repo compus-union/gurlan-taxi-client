@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { geocodingInstance } from "@/http/instances";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 
 export const useSearchPlaces = defineStore("search-places-store", () => {
   const places = ref([]);
@@ -36,7 +36,10 @@ export const useSearchPlaces = defineStore("search-places-store", () => {
         notFound.value = true;
       }
     } catch (error: any) {
-      toast(error.message || error.response.data.msg || "Xatolik yuzaga keldi");
+      toast.error(
+        error.message || error.response.data.msg || "Xatolik yuzaga keldi",
+        { duration: 4000 }
+      );
     }
   }
 
