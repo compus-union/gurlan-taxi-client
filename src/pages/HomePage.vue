@@ -29,6 +29,7 @@ import { Geolocation } from "@capacitor/geolocation";
 import { useLoading } from "@/store/loading";
 import { useClient } from "@/store/client";
 import SmileIcon from "@/assets/smile.png";
+import { toast } from "vue-sonner";
 
 const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -184,6 +185,13 @@ const buttonDisabled = computed(() => {
     return true;
   }
 });
+
+const openToast = () => {
+  toast.success("Hello, this is the first toast!", {
+    closeButton: true,
+    duration: 4000,
+  });
+};
 </script>
 
 <template>
@@ -206,7 +214,7 @@ const buttonDisabled = computed(() => {
         <MainButton
           class="transition-all py-6 text-lg font-manrope font-semibold"
           :disabled="buttonDisabled"
-          @click="navigateNextPage"
+          @click="openToast"
           ><span v-show="buttonDisabled" class="flex items-center animate-pulse"
             ><Loader class="w-5 h-5 mr-2 animate-spin" /> Yuklanmoqda...</span
           >
