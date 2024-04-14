@@ -12,7 +12,7 @@ import OriginFixedMarkerIcon from "@/assets/origin-fixed-marker.svg";
 import DestinationFixedMarkerIcon from "@/assets/destination-fixed-marker.svg";
 import { LayerGroup, Map } from "leaflet";
 import { useRoutes } from "./routes";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 import { useRouter } from "vue-router";
 
 export interface CustomMarker extends L.Marker {
@@ -245,7 +245,7 @@ export const useMaps = defineStore("maps-store", () => {
 
       return;
     } catch (error: any) {
-      toast("Qandaydir xatolik yuzaga keldi");
+      toast.error("Qandaydir xatolik yuzaga keldi", {duration: 4000});
     }
   }
 

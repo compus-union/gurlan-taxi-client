@@ -15,7 +15,6 @@ import { useRoutes } from "@/store/routes";
 import { CupertinoPane } from "cupertino-pane";
 import { useMaps } from "@/store/maps";
 import { useDestination } from "@/store/destination";
-import { toast } from "vue3-toastify";
 import { Separator } from "@/components/ui/separator";
 import { useOriginCoords } from "@/store/origin";
 

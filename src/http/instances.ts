@@ -3,8 +3,8 @@ import axios from "axios";
 import { useLoading } from "@/store/loading";
 import { Preferences } from "@capacitor/preferences";
 import { ref } from "vue";
-import { toast } from "vue3-toastify";
 import { Address } from "@/store/routes";
+import { toast } from "vue-sonner";
 
 export function authInstance() {
   let baseUrl = config.SERVER_URL + "/client";
@@ -21,10 +21,11 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+        { duration: 4000 }
       );
     }
   }
@@ -43,10 +44,11 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+        { duration: 4000 }
       );
     }
   }
@@ -62,10 +64,11 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+        { duration: 4000 }
       );
     }
   }
@@ -79,10 +82,11 @@ export function authInstance() {
       return response;
     } catch (error: any) {
       console.log(error);
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+        { duration: 4000 }
       );
     }
   }
@@ -120,10 +124,11 @@ export function geocodingInstance() {
     } catch (error: any) {
       console.log(error);
 
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+        { duration: 4000 }
       );
     } finally {
       await loadingStore.setLoading(false);
@@ -155,10 +160,11 @@ export function geocodingInstance() {
     } catch (error: any) {
       console.log(error);
 
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+        { duration: 4000 }
       );
     } finally {
       await loadingStore.setLoading(false);
@@ -203,10 +209,11 @@ export function routeInstance() {
     } catch (error: any) {
       console.log(error);
 
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+        { duration: 4000 }
       );
     } finally {
       await loadingStore.setLoading(false);
@@ -252,10 +259,11 @@ export function clientInstance() {
     } catch (error: any) {
       console.log(error);
 
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+        { duration: 4000 }
       );
     } finally {
       await loadingStore.setLoading(false);
@@ -290,10 +298,11 @@ export function clientInstance() {
     } catch (error: any) {
       console.log(error);
 
-      toast(
+      toast.error(
         error.message ||
           error.response.data.msg ||
-          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring"
+          "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+        { duration: 4000 }
       );
     } finally {
       await loadingStore.setLoading(false);

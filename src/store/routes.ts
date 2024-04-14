@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { routeInstance } from "@/http/instances";
 import { useMaps } from "./maps";
 import L, { Map } from "leaflet";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 
 export interface Address {
   lat: number;
@@ -30,7 +30,6 @@ export const useRoutes = defineStore("routes-store", () => {
     seconds: string;
   }>();
   const isRouteInstalled = ref<true | false | null>(null);
-
 
   async function getGeometryOfRoute(d: Address, o: Address) {
     isRouteInstalled.value = false;
@@ -66,22 +65,20 @@ export const useRoutes = defineStore("routes-store", () => {
       console.log(error);
 
       if (error.response) {
-        toast(error.response.data);
+        toast.error(error.response.data, { duration: 4000 });
 
         console.log("Response error:", error.response.data);
       } else if (error.request) {
         // The request was made but no response was received
         console.error("Request error:", error.request);
-        toast(error.request);
+        toast.error(error.response.data, { duration: 4000 });
       } else {
         // Something happened in setting up the request that triggered an Error
         console.log("Error:", error.message);
-        toast(error.message);
+        toast.error(error.response.data, { duration: 4000 });
       }
     }
   }
-
-  
 
   return {
     getGeometryOfRoute,

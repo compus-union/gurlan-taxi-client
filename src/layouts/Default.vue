@@ -6,7 +6,7 @@ import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
 import { ResponseStatus } from "@/constants";
 import { loadingController } from "@ionic/vue";
-import { toast } from "vue3-toastify";
+import { toast } from "vue-sonner";
 import { storeToRefs } from "pinia";
 import {
   DropdownMenu,
@@ -86,10 +86,11 @@ const checkClient = async () => {
 
     displayErrorMessage.value = true;
 
-    toast(
+    toast.error(
       error.message ||
         error.response.data.msg ||
-        "Qandaydir xatolik yuzaga keldi"
+        "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+      { duration: 4000 }
     );
 
     return { status: "no" };
@@ -152,15 +153,16 @@ onMounted(async () => {
         if (!originLat.value && !originLng.value) {
           await originStore.getCoords();
         }
-      }, 600);
+      }, 100);
     });
 
     return;
   } catch (error: any) {
-    toast(
-      error.response?.data?.msg ||
-        error.message ||
-        "Xaritani yuklashda xatolik yuz berdi, dasturni boshqatdan ishga tushiring"
+    toast.error(
+      error.message ||
+        error.response.data.msg ||
+        "Qandaydir xatolik yuz berdi, boshqatdan urinib ko'ring",
+      { duration: 4000 }
     );
   } finally {
     await mapLoading.dismiss();
