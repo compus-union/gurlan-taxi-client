@@ -98,6 +98,22 @@ const checkClient = async () => {
   }
 };
 
+async function extractCoordsFromUrl(data: string) {
+  const geoOnly = data.split("?")[0];
+
+  const regex = /geo:([-+]?\d*\.?\d+),([-+]?\d*\.?\d+)/;
+  const match = geoOnly.match(regex);
+
+  if (match) {
+    const latitude = parseFloat(match[1]);
+    const longitude = parseFloat(match[2]);
+
+    return { latitude, longitude };
+  } else {
+    return;
+  }
+}
+
 onMounted(async () => {
   const mapLoading = await createLoading("Xarita yuklanmoqda...");
 
@@ -110,6 +126,34 @@ onMounted(async () => {
     }
 
     await mapsStore.loadMap("map");
+
+    CapApp.addListener("appUrlOpen", async (data) => {
+      const destinationCoords = await extractCoordsFromUrl(data.url);
+
+      await router.push("/ride/setDestination");
+
+      await destinationStore.changeCoords(
+        {
+          lat: destinationCoords?.latitude as number,
+          lng: destinationCoords?.longitude as number,
+        },
+        "void"
+      );
+
+      setTimeout(async () => {
+        sharedMap.value?.setView(
+          [
+            destinationCoords?.latitude as number,
+            destinationCoords?.longitude as number,
+          ],
+          defaultZoom.value
+        );
+
+        if (!originLat.value && !originLng.value) {
+          await originStore.getCoords();
+        }
+      }, 600);
+    });
 
     return;
   } catch (error: any) {
@@ -150,50 +194,6 @@ const logout = async () => {
 const navigatePage = async (path: string) => {
   await router.push(path);
 };
-
-async function extractCoordsFromUrl(data: string) {
-  const geoOnly = data.split("?")[0];
-
-  const regex = /geo:([-+]?\d*\.?\d+),([-+]?\d*\.?\d+)/;
-  const match = geoOnly.match(regex);
-
-  if (match) {
-    const latitude = parseFloat(match[1]);
-    const longitude = parseFloat(match[2]);
-
-    return { latitude, longitude };
-  } else {
-    return;
-  }
-}
-
-CapApp.addListener("appUrlOpen", async (data) => {
-  const destinationCoords = await extractCoordsFromUrl(data.url);
-
-  await router.push("/ride/setDestination");
-
-  await destinationStore.changeCoords(
-    {
-      lat: destinationCoords?.latitude as number,
-      lng: destinationCoords?.longitude as number,
-    },
-    "void"
-  );
-
-  setTimeout(async () => {
-    sharedMap.value?.setView(
-      [
-        destinationCoords?.latitude as number,
-        destinationCoords?.longitude as number,
-      ],
-      defaultZoom.value
-    );
-  
-    if (!originLat.value && !originLng.value) {
-      await originStore.getCoords();
-    } 
-  }, 600);
-});
 </script>
 
 <template>
