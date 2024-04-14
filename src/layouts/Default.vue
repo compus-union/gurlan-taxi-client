@@ -23,6 +23,7 @@ import { useClient } from "@/store/client";
 import { useOriginCoords } from "@/store/origin";
 import { useDestination } from "@/store/destination";
 import { App as CapApp } from "@capacitor/app";
+import RadarWave from "@/components/functional/RadarWave.vue";
 
 const Button = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -38,7 +39,7 @@ const displayErrorMessage = ref(false);
 const canMapLoaded = ref(false);
 const clientStore = useClient();
 
-const { mapLoaded, isMarkerAnimating, markerVisible, sharedMap, defaultZoom } =
+const { mapLoaded, isMarkerAnimating, markerVisible, sharedMap, defaultZoom, isRadarVisible } =
   storeToRefs(mapsStore);
 const { lat: originLat, lng: originLng } = storeToRefs(originStore);
 
@@ -254,6 +255,7 @@ const navigatePage = async (path: string) => {
       :isAnimated="isMarkerAnimating"
       class="marker fixed inset-1/2 z-50 -translate-x-1/2 -translate-y-[91px]"
     />
+    <RadarWave v-show="isRadarVisible" class="fixed inset-[50%] z-50 my-[-10px] mx-[-10px]"/>
     <div id="map" class="map h-screen w-full z-[49]">
       <div v-if="displayErrorMessage" class="error-message mt-10 text-center">
         <h1 class="title text-foreground text-2xl font-bold">

@@ -17,6 +17,7 @@ import { useMaps } from "@/store/maps";
 import { useDestination } from "@/store/destination";
 import { Separator } from "@/components/ui/separator";
 import { useOriginCoords } from "@/store/origin";
+import { toast } from "vue-sonner";
 
 const router = useRouter();
 const geocodingStore = useGeocoding();
@@ -26,9 +27,9 @@ const destinationStore = useDestination();
 const originStore = useOriginCoords();
 
 const { destinationAddress, originAddress } = storeToRefs(geocodingStore);
-const { price, distance, duration, geoJSONs, isRouteInstalled } =
+const { price, distance, duration } =
   storeToRefs(routesStore);
-const { sharedMap, markerVisible, defaultZoom } = storeToRefs(mapsStore);
+const { sharedMap, defaultZoom, isRadarVisible, markerVisible } = storeToRefs(mapsStore);
 const { coords: destinationCoords } = storeToRefs(destinationStore);
 const { coords: originCoords } = storeToRefs(originStore);
 
@@ -49,7 +50,10 @@ async function goBack() {
 }
 
 async function goHome() {
-  sharedMap.value?.setView([originCoords.value.lat, originCoords.value.lng], defaultZoom.value);
+  sharedMap.value?.setView(
+    [originCoords.value.lat, originCoords.value.lng],
+    defaultZoom.value
+  );
   await router.push("/ride/setOrigin");
 }
 
@@ -96,9 +100,25 @@ onBeforeRouteLeave(async (to, from, next) => {
   return next();
 });
 
-const callTaxi = () => {
-  router.push("/ride/taxi");
-};
+async function callTaxi() {
+  try {
+    await router.push("/ride/taxi");
+    sharedMap.value?.setView(
+      [originCoords.value.lat, originCoords.value.lng],
+      defaultZoom.value
+    );
+    await mapsStore.disableEvents();
+    isRadarVisible.value = true;
+    markerVisible.value = false
+  } catch (error: any) {
+    console.log(error);
+
+    toast.error(
+      error.message ||
+        "Qandaydir xatolik yuzaga keldi, boshqatdan urinib ko'ring"
+    );
+  }
+}
 
 // https://firebasestorage.googleapis.com/v0/b/taxi-app-test-395406.appspot.com/o/client-app%2Fstandard.png?alt=media&token=579297ce-3241-4e1d-9c1d-1fc4e022d194
 // https://firebasestorage.googleapis.com/v0/b/taxi-app-test-395406.appspot.com/o/client-app%2Fcomfort.png?alt=media&token=93fd4744-3653-4f5a-b467-9b7b705b8eb8

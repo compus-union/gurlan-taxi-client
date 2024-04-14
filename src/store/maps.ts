@@ -41,6 +41,7 @@ export const useMaps = defineStore("maps-store", () => {
   const markerVisible = ref(true);
   const isSearching = ref<true | false | null>(null);
   const router = useRouter();
+  const isRadarVisible = ref(false);
 
   const { loading } = storeToRefs(loadingStore);
   const { isRouteInstalled, geoJSONs, distance, duration, price } =
@@ -245,7 +246,7 @@ export const useMaps = defineStore("maps-store", () => {
 
       return;
     } catch (error: any) {
-      toast.error("Qandaydir xatolik yuzaga keldi", {duration: 4000});
+      toast.error("Qandaydir xatolik yuzaga keldi", { duration: 4000 });
     }
   }
 
@@ -277,7 +278,10 @@ export const useMaps = defineStore("maps-store", () => {
     )
       .on("click", async (e) => {
         await removeTheGeometryOfRoute();
-        sharedMap.value?.setView([destination.lat, destination.lng], defaultZoom.value);
+        sharedMap.value?.setView(
+          [destination.lat, destination.lng],
+          defaultZoom.value
+        );
         markerVisible.value = true;
         await router.push("/ride/setDestination");
       })
@@ -302,6 +306,19 @@ export const useMaps = defineStore("maps-store", () => {
     return;
   }
 
+  async function disableEvents() {
+    try {
+      sharedMap.value?.dragging.disable();
+      sharedMap.value?.boxZoom.disable();
+      sharedMap.value?.touchZoom.disable();
+      sharedMap.value?.doubleClickZoom.disable();
+      sharedMap.value?.scrollWheelZoom.disable();
+      return;
+    } catch (error) {
+      toast.error("Error at disabling events");
+    }
+  }
+
   return {
     loadMap,
     setMap,
@@ -318,5 +335,7 @@ export const useMaps = defineStore("maps-store", () => {
     removeMarker,
     isSearching,
     removeTheGeometryOfRoute,
+    isRadarVisible,
+    disableEvents,
   };
 });
