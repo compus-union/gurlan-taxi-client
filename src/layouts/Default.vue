@@ -154,7 +154,7 @@ onMounted(async () => {
         if (!originLat.value && !originLng.value) {
           await originStore.getCoords();
         }
-      }, 100);
+      }, 1000);
     });
 
     return;
