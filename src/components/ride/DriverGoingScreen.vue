@@ -10,6 +10,7 @@ import {
   Timer,
   Phone,
   Ban,
+  MessageCircleWarning,
 } from "lucide-vue-next";
 import { Button as MainButton } from "@/components/ui/button";
 
@@ -63,6 +64,7 @@ onMounted(async () => {
         >
           90 A 989 RA
         </div>
+        <MainButton class="font-manrope justify-self-end"><MessageCircleWarning class="h-5 w-5 mr-2"/> Shikoyat qilish</MainButton>
       </div>
       <div class="driver flex space-x-4 mt-5">
         <div
@@ -78,7 +80,7 @@ onMounted(async () => {
             </p>
           </h3>
           <p class="phone flex items-center font-manrope text-sm font-semibold">
-            <Phone class="w-4 h-4 mr-2" /> +998999447613
+            +998999447613
           </p>
         </div>
       </div>
