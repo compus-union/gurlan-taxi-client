@@ -8,13 +8,25 @@ import { useRouter } from "vue-router";
 import { useGeocoding } from "@/store/geocoding";
 import { toast } from "vue-sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 const mapsStore = useMaps();
 const routesStore = useRoutes();
 const geocodingStore = useGeocoding();
 
 const router = useRouter();
 
-const { sharedMap, markerVisible, isRadarVisible } = storeToRefs(mapsStore);
+const { markerVisible, isRadarVisible } = storeToRefs(mapsStore);
 const { destinationAddress, originAddress } = storeToRefs(geocodingStore);
 
 async function cancel() {
@@ -61,9 +73,26 @@ async function cancel() {
     <p class="text-foreground font-manrope">
       Eng yaqin haydovchi sizga javob beradi.
     </p>
-    <MainButton @click="cancel" class="py-6 text-lg font-manrope w-full mt-4"
-      ><Ban class="mr-2" /> Bekor qilish</MainButton
-    >
+    <AlertDialog>
+      <AlertDialogTrigger as-child>
+        <MainButton
+          class="py-6 text-lg font-manrope w-full mt-4"
+          ><Ban class="mr-2" /> Bekor qilish</MainButton
+        >
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle class="text-xl font-poppins font-bold">Ishonchingiz komilmi?</AlertDialogTitle>
+          <AlertDialogDescription class="text-lg font-manrope">
+            Haydovchi qidirishni haqiqatdan ham to'xtatmoqchimisiz?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel class="py-6 text-lg font-manrope">Yo'q</AlertDialogCancel>
+          <AlertDialogAction class="py-6 text-lg font-manrope"@click="cancel">Ha</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>
 

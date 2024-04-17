@@ -7,7 +7,7 @@ import {
   SearchingScreen,
   WaitingDuringRideScreen,
 } from "@/components/ride";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 type RideStatus =
   | "CLIENT_SEARCH_FOR_TAXI"
@@ -19,7 +19,7 @@ type RideStatus =
   | "RIDE_CANCELLED_BY_DRIVER"
   | "RIDE_FINISHED";
 
-const rideStatus = ref<RideStatus>("CLIENT_SEARCH_FOR_TAXI");
+const rideStatus = ref<RideStatus>("DRIVER_ARRIVED_TO_CLIENT");
 </script>
 
 <template>
@@ -31,6 +31,6 @@ const rideStatus = ref<RideStatus>("CLIENT_SEARCH_FOR_TAXI");
     <WaitingDuringRideScreen
       v-if="rideStatus === 'DRIVER_WAITING_FOR_CLIENT'"
     />
-    <!-- <RideFinishedScreen /> -->
+    <RideFinishedScreen v-if="rideStatus === 'RIDE_FINISHED'" />
   </div>
 </template>
