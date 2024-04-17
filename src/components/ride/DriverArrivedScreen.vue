@@ -18,8 +18,8 @@ const pane = ref();
 onMounted(async () => {
   pane.value = new CupertinoPane(".sheet-pane", {
     breaks: {
-      top: { enabled: true, height: 420 },
-      middle: { enabled: true, height: 340 },
+      top: { enabled: true, height: 380 },
+      middle: { enabled: true, height: 305 },
       bottom: { enabled: true, height: 40 },
     },
     initialBreak: "middle",
@@ -35,17 +35,13 @@ onMounted(async () => {
 
 <template>
   <div
-    class="main-content sheet-pane bg-primary-foreground text-center text-foreground px-6 pt-2"
+    class="main-content sheet-pane bg-primary-foreground text-center relative text-foreground px-6 pt-2"
   >
     <div class="top flex items-center justify-between border-b pb-4">
       <div class="left flex flex-col items-start">
-        <p class="font-manrope text-gray-300">Haydovchi manzili</p>
-        <div class="flex items-center mt-2">
-          <Navigation class="w-5 h-5 mr-2" />
-          <h2 class="text-primary font-poppins text-lg font-bold">
-            Bobur ko'ch.
-          </h2>
-        </div>
+        <h2 class="text-primary font-poppins text-lg font-bold">
+          Haydovchi shu yerda
+        </h2>
       </div>
       <div
         class="right space-x-2 flex items-center font-poppins font-semibold text-lg"
@@ -81,10 +77,11 @@ onMounted(async () => {
             +998999447613
           </p>
         </div>
+      
       </div>
       <div class="time flex items-center font-manrope mt-6 font-semibold">
-        <Timer class="mr-2 w-5 h-5" /> 3 daqiqada boradi
-      </div>
+          <Timer class="mr-2 w-5 h-5" /> Sizni bepul kutish vaqti: 02:59
+        </div>
     </div>
     <div class="buttons space-y-4 mt-4">
       <MainButton variant="outline" class="w-full py-6 text-lg font-manrope"

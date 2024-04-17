@@ -19,7 +19,7 @@ type RideStatus =
   | "RIDE_CANCELLED_BY_DRIVER"
   | "RIDE_FINISHED";
 
-const rideStatus = ref<RideStatus>("DRIVER_GOING_TO_CLIENT");
+const rideStatus = ref<RideStatus>("DRIVER_ARRIVED_TO_CLIENT");
 </script>
 
 <template>
