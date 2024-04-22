@@ -46,6 +46,7 @@
     "vue": "^3.4.15",
     "vue-router": "^4.2.5",
     "vue-sonner": "^1.1.2",
+    "vue-star-rating": "^2.1.0",
     "vue3-page-transition": "^0.1.5"
   },
   "devDependencies": {
