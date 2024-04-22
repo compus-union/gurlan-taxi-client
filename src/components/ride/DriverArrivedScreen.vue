@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { CupertinoPane } from "cupertino-pane";
 import {
   Banknote,
-  Navigation,
   Car,
   UserRound,
   Star,
   Timer,
   Phone,
-  Ban,
+  Hand,
 } from "lucide-vue-next";
 import { Button as MainButton } from "@/components/ui/button";
 
-const pane = ref();
+const pane = ref<CupertinoPane>();
 
 onMounted(async () => {
   pane.value = new CupertinoPane(".sheet-pane", {
@@ -30,6 +29,10 @@ onMounted(async () => {
   });
 
   await pane.value.present({ animate: true });
+});
+
+onUnmounted(async () => {
+  await pane.value?.destroy();
 });
 </script>
 
@@ -77,18 +80,17 @@ onMounted(async () => {
             +998999447613
           </p>
         </div>
-      
       </div>
       <div class="time flex items-center font-manrope mt-6 font-semibold">
-          <Timer class="mr-2 w-5 h-5" /> Sizni bepul kutish vaqti: 02:59
-        </div>
+        <Timer class="mr-2 w-5 h-5" /> Sizni bepul kutish vaqti: 02:59
+      </div>
     </div>
     <div class="buttons space-y-4 mt-4">
       <MainButton variant="outline" class="w-full py-6 text-lg font-manrope"
-        ><Phone class="w-5 h-5 mr-2" /> Qo'ng'iroq qilish</MainButton
+        ><Hand class="w-5 h-5 mr-2" /> Chiqyabman</MainButton
       >
       <MainButton class="w-full py-6 text-lg font-manrope"
-        ><Ban class="w-5 h-5 mr-2" /> Bekor qilish</MainButton
+        ><Phone class="w-5 h-5 mr-2" /> Qo'ng'iroq qilish</MainButton
       >
     </div>
   </div>
