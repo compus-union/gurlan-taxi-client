@@ -32,6 +32,7 @@ export const useClient = defineStore("client-store", () => {
   const clientHttp = clientInstance();
   const client = ref<Client>();
   const router = useRouter();
+  const bonus = ref();
 
   async function setClient(payload: Client) {
     client.value = payload;
@@ -121,5 +122,41 @@ export const useClient = defineStore("client-store", () => {
     }
   }
 
-  return { client, setClient, getClient, updatePersonalInfo, fullnameSplitted };
+  async function getBonus() {
+    try {
+      const response = await clientHttp.getBonus();
+
+      if (!response) {
+        throw new Error(
+          "Internet bilan aloqa mavjud emas, dasturni boshqatdan ishga tushiring"
+        );
+      }
+
+      if (
+        response.data.status === ResponseStatus.CLIENT_NOT_FOUND ||
+        response.data.status === ResponseStatus.TOKEN_NOT_FOUND ||
+        response.data.status === ResponseStatus.TOKEN_NOT_VALID ||
+        response.data.status === ResponseStatus.BANNED
+      ) {
+        await Preferences.clear();
+        await router.push("/auth/login");
+        toast.error(response.data.msg, { duration: 4000 });
+      }
+
+      bonus.value = response.data.bonus;
+
+      return {
+        status: "ok",
+      };
+    } catch (error: any) {
+      toast.error(
+        error.message ||
+          error.response.data.msg ||
+          "Xatolik yuzaga keldi, dasturni boshqatdan ishga tushiring",
+        { duration: 4000 }
+      );
+    }
+  }
+
+  return { client, setClient, getClient, updatePersonalInfo, fullnameSplitted, bonus };
 });
