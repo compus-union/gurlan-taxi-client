@@ -57,15 +57,15 @@ const buttonDisabled = computed(() => {
 <template>
   <Card class="w-full">
     <CardHeader>
-      <CardTitle>Tizimga kirish</CardTitle>
-      <CardDescription
+      <CardTitle class="text-lg font-bold">Tizimga kirish</CardTitle>
+      <CardDescription class="text-base"
         >Telefon raqam va parolingiz orqali tizimga kirishni amalga
         oshiring.</CardDescription
       >
     </CardHeader>
     <CardContent class="form">
       <div class="form-group mb-4">
-        <Label for="phone"> Telefon raqam </Label>
+        <Label for="phone" class="text-lg"> Telefon raqam </Label>
         <Input
           data-maska="998#########"
           v-maska
@@ -73,17 +73,14 @@ const buttonDisabled = computed(() => {
           id="phone"
           autofocus
           type="text"
+          class="py-6 text-lg"
           v-model.trim="authStore.clientDetails.phone"
         />
       </div>
       <div class="form-group">
-        <Label for="password">Parol</Label>
-        <input
-          :class="
-            cn(
-              'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50'
-            )
-          "
+        <Label for="password" class="text-lg">Parol</Label>
+        <Input
+          class="py-6 text-lg"
           placeholder="******"
           id="password"
           v-model.trim="authStore.clientDetails.password"
@@ -92,10 +89,10 @@ const buttonDisabled = computed(() => {
       </div>
       <div class="form-group mt-4 flex items-center space-x-4">
         <Checkbox @update:checked="handleShowPassword" id="showPass" />
-        <Label for="showPass">Parolni ko'rsatish</Label>
+        <Label for="showPass" class="text-lg">Parolni ko'rsatish</Label>
       </div>
       <div class="form-group mt-4 flex items-center space-x-4">
-        <Button :disabled="buttonDisabled" @click="login" class="w-full"
+        <Button :disabled="buttonDisabled" @click="login" class="w-full text-lg py-6"
           >Kirish</Button
         >
       </div>
