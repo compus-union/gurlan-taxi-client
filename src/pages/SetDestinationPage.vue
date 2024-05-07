@@ -272,11 +272,26 @@ const buttonDisabled = computed(() => {
             >
           </MainButton>
         </SheetTrigger>
-        <SheetContent class="h-screen overflow-hidden flex" side="bottom">
+        <SheetContent
+          class="h-screen overflow-hidden flex flex-col"
+          side="bottom"
+        >
+          <SheetHeader class="w-full flex items-center flex-row space-y-0">
+            <SheetClose as-child>
+              <MainButton variant="ghost" size="icon">
+                <ArrowLeft />
+              </MainButton>
+            </SheetClose>
+            <h1
+              class="title text-xl text-foreground ml-2 font-semibold font-poppins"
+            >
+              Joy qidirish
+            </h1>
+          </SheetHeader>
           <div
-            class="search-place-modal w-full bg-primary-foreground mt-3 overflow-y-auto h-screen z-[100]"
+            class="search-place-modal w-full bg-primary-foreground overflow-y-auto h-screen z-[100]"
           >
-            <div class="form-group">
+            <div class="form-part flex items-center justify-between">
               <Input
                 type="text"
                 v-model="placeName"
@@ -287,12 +302,19 @@ const buttonDisabled = computed(() => {
                   )
                 "
                 placeholder="Joy izlash"
-                class="outline-none focus-visible:ring-0 focus-visible:outline-none"
+                class="outline-none focus-visible:ring-0 focus-visible:outline-none focus-visible:ring-transparent text-lg placeholder:text-base font-manrope focus-visible:border-primary"
               />
+              <SheetClose as-child>
+                <button
+                  class="py-2 rounded text-primary-foreground bg-primary px-2 ml-4 font-manrope font-semibold"
+                >
+                  Xarita
+                </button></SheetClose
+              >
             </div>
             <div
               v-show="!typing && !places?.length && !notFound"
-              class="suggestion text-center mt-4"
+              class="suggestion text-center mt-4 font-manrope"
             >
               O'zingizga kerakli joy nomini izlang, masalan:
               <b>dehqon bozor</b>,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
-import { defineAsyncComponent, onMounted, ref, watch } from "vue";
+import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
 import { ResponseStatus } from "@/constants";
@@ -16,7 +16,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Marker from "@/components/functional/Marker.vue";
-import { List, LogOut, MapPin, User, AlignJustify, Map } from "lucide-vue-next";
+import {
+  List,
+  LogOut,
+  MapPin,
+  User,
+  AlignJustify,
+  Map,
+  ChevronRight,
+  ArrowLeft,
+CircleSlash2,
+} from "lucide-vue-next";
 import { useRoute } from "vue-router";
 import { PageTransition } from "vue3-page-transition";
 import { useClient } from "@/store/client";
@@ -24,8 +34,21 @@ import { useOriginCoords } from "@/store/origin";
 import { useDestination } from "@/store/destination";
 import { App as CapApp } from "@capacitor/app";
 import RadarWave from "@/components/functional/RadarWave.vue";
+import ReverseGeocoding from "@/components/functional/ReverseGeocoding.vue";
+import { useLoading } from "@/store/loading";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetClose,
+} from "@/components/ui/sheet";
 
-const Button = defineAsyncComponent(
+import { Input } from "@/components/ui/input";
+import { useSearchPlaces } from "@/store/searchPlaces";
+import SkeletonLoading from "@/components/functional/SkeletonLoading.vue";
+
+const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
 );
 
@@ -38,6 +61,8 @@ const authStore = useAuth();
 const displayErrorMessage = ref(false);
 const canMapLoaded = ref(false);
 const clientStore = useClient();
+const loadingStore = useLoading();
+const searchPlacesStore = useSearchPlaces();
 
 const {
   mapLoaded,
@@ -46,9 +71,14 @@ const {
   sharedMap,
   defaultZoom,
   isRadarVisible,
+  mapMoving,
+  isSearching,
 } = storeToRefs(mapsStore);
 const { lat: originLat, lng: originLng } = storeToRefs(originStore);
-const { bonus } = storeToRefs(clientStore);
+const { loading } = storeToRefs(loadingStore);
+const { places, notFound } = storeToRefs(searchPlacesStore);
+
+const typing = ref(false);
 
 const createLoading = async (message: string) => {
   const loading = await loadingController.create({ message });
@@ -204,21 +234,62 @@ const logout = async () => {
 const navigatePage = async (path: string) => {
   await router.push(path);
 };
+
+const geocodingBtnDisabled = computed(() => {
+  if (loading.value || mapMoving.value || (loading.value && mapMoving.value)) {
+    return true;
+  }
+
+  return false;
+});
+
+async function changeOriginCoords(coords: { lat: number; lng: number }) {
+  try {
+    isSearching.value = true;
+    await originStore.changeCoords({ lat: coords.lat, lng: coords.lng });
+    sharedMap.value?.setView([coords.lat, coords.lng], defaultZoom.value);
+  } catch (error) {
+    alert(error);
+  }
+}
+
+function createDebounce() {
+  let timeout: any;
+  return function (fnc?: () => Promise<void>, delayMs?: number) {
+    notFound.value = false;
+    typing.value = true;
+    places.value = [];
+    return new Promise<void>((resolve) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(async () => {
+        if (fnc) await fnc();
+        typing.value = false;
+        resolve();
+      }, delayMs || 500);
+    });
+  };
+}
+
+const debounce = ref<
+  (fnc?: () => Promise<void>, delayMs?: number) => Promise<void>
+>(createDebounce());
+
+const placeName = ref<string>("");
 </script>
 
 <template>
   <div class="default-layout">
     <header
       v-if="displayErrorMessage === false"
-      class="header bg-primary-foreground fixed top-0 w-full h-auto z-50"
+      class="header fixed top-0 w-full h-auto z-50"
     >
-      <nav
-        class="navbar container mx-auto px-1 flex items-center border-b shadow-lg"
-      >
+      <nav class="navbar container mx-auto p-4 flex items-center">
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <Button size="icon" variant="ghost" class="hover:bg-none"
-              ><AlignJustify class="h-4 w-4" /></Button
+            <button
+              class="bg-primary-foreground p-2 flex items-center text-primary shadow-lg rounded-full"
+            >
+              <AlignJustify :size="24" /></button
           ></DropdownMenuTrigger>
           <DropdownMenuContent class="font-manrope font-semibold space-y-2">
             <DropdownMenuItem
@@ -252,9 +323,122 @@ const navigatePage = async (path: string) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <div class="right my-4 ml-2 text-lg font-semibold font-manrope">
-          Bonus: {{ bonus }}
-        </div>
+        <Sheet>
+          <SheetTrigger as-child>
+            <button
+              :disabled="geocodingBtnDisabled"
+              class="right ml-2 flex items-center justify-between text-left bg-primary-foreground text-primary overflow-hidden shadow-lg w-full rounded-md px-3 py-2 disabled:bg-gray-100 disabled:text-gray-400 transition-all"
+            >
+              <ReverseGeocoding component-type="origin" />
+              <ChevronRight :size="18" />
+            </button>
+          </SheetTrigger>
+          <SheetContent
+            class="h-screen overflow-hidden flex flex-col"
+            side="bottom"
+          >
+            <SheetHeader class="w-full flex items-center flex-row space-y-0">
+              <SheetClose as-child>
+                <MainButton variant="ghost" size="icon">
+                  <ArrowLeft />
+                </MainButton>
+              </SheetClose>
+              <h1
+                class="title text-xl text-foreground ml-2 font-semibold font-poppins"
+              >
+                Joy qidirish
+              </h1>
+            </SheetHeader>
+            <div
+              class="search-place-modal w-full bg-primary-foreground overflow-y-auto h-screen z-[100]"
+            >
+              <div class="form-part flex items-center justify-between">
+                <Input
+                  type="text"
+                  v-model="placeName"
+                  @input="
+                    debounce(
+                      async () =>
+                        await searchPlacesStore.searchPlaces(placeName),
+                      1000
+                    )
+                  "
+                  placeholder="Joy izlash"
+                  class="outline-none focus-visible:ring-0 focus-visible:outline-none focus-visible:ring-transparent text-lg placeholder:text-base font-manrope focus-visible:border-primary"
+                />
+                <SheetClose as-child>
+                  <button
+                    class="py-2 rounded text-primary-foreground bg-primary px-2 ml-4 font-manrope font-semibold"
+                  >
+                    Xarita
+                  </button></SheetClose
+                >
+              </div>
+              <div
+                v-show="!typing && !places?.length && !notFound"
+                class="suggestion text-center mt-4 font-manrope"
+              >
+                O'zingizga kerakli joy nomini izlang, masalan:
+                <b>dehqon bozor</b>,
+                <b>hokimiyat</b>
+              </div>
+              <div v-show="typing" class="typing mt-6">
+                <SkeletonLoading v-for="i in 5" :key="i" />
+              </div>
+              <div
+                v-show="places?.length && !typing && !notFound"
+                class="results mt-4 overflow-x-hidden overflow-y-scroll h-[80%] w-full"
+              >
+                <!-- @vue-skip -->
+                <div
+                  v-for="place in places"
+                  :key="place.place_id"
+                  class="result overflow-x-hidden w-full"
+                >
+                  <SheetClose as-child>
+                    <button
+                      @click="
+                        changeOriginCoords({ lat: +place.lat, lng: +place.lon })
+                      "
+                      class="flex items-start justify-start py-4 border-t overflow-x-hidden w-full"
+                    >
+                      <div class="icon mr-2">
+                        <MapPin class="w-8 h-8" />
+                      </div>
+                      <div class="overflow-x-hidden text-left w-full">
+                        <h3
+                          class="place-name font-bold text-left overflow-hidden text-ellipsis whitespace-nowrap"
+                        >
+                          {{ place.name }}
+                        </h3>
+                        <p
+                          class="place-detailed text-ellipsis whitespace-nowrap overflow-hidden text-sm w-full"
+                        >
+                          {{ place.display_name }}
+                        </p>
+                      </div>
+                    </button>
+                  </SheetClose>
+                </div>
+              </div>
+              <p
+                v-show="places?.length && !typing && !notFound"
+                class="text-sm text-gray-400 text-center mt-2"
+              >
+                Ko'proq ko'rish uchun pastga torting
+              </p>
+              <div
+                v-show="!places?.length && !typing && notFound"
+                class="not-found my-10 text-center flex flex-col items-center justify-center"
+              >
+                <CircleSlash2 class="w-16 h-16 text-[#71717A]" />
+                <h4 class="text-xl font-semibold text-[#71717A] mt-4">
+                  Joy topilmadi
+                </h4>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </nav>
     </header>
     <Marker

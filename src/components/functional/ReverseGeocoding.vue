@@ -4,7 +4,8 @@ import { useMaps } from "@/store/maps";
 import { useLoading } from "@/store/loading";
 import { useOriginCoords } from "@/store/origin";
 import { storeToRefs } from "pinia";
-import { onMounted, watch } from "vue";
+import { computed, watch } from "vue";
+import { ChevronRight } from "lucide-vue-next";
 
 type ComponentType = "origin" | "destination";
 
@@ -56,23 +57,18 @@ watch(
 </script>
 
 <template>
-  <div
-    class="reverse-geocoding fixed top-20 w-full flex items-center justify-center text-center"
+  <p
+    v-if="props.componentType === 'origin'"
+    class="font-manrope w-full font-semibold text-sm overflow-hidden whitespace-nowrap text-ellipsis"
   >
-    <div class="content drop-shadow-lg font-semibold text-primary">
-      <p class="font-manrope">Sizning manzilingiz:</p>
-      <h3
-        v-if="props.componentType === 'origin'"
-        class="text-lg font-bold font-poppins"
-      >
-        {{
-          notFound
-            ? errorMessage
-            : loading || mapMoving
-            ? "Aniqlanmoqda..."
-            : originAddress?.name || originAddress?.displayName
-        }}
-      </h3>
-    </div>
-  </div>
+    {{
+      notFound
+        ? errorMessage
+        : loading || mapMoving
+        ? "Aniqlanmoqda..."
+        : originAddress?.name || originAddress?.displayName
+        ? originAddress?.name || originAddress?.displayName
+        : "Joylashuvingiz"
+    }}
+  </p>
 </template>
