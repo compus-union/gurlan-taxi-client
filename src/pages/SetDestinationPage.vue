@@ -7,13 +7,13 @@ import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
 import {
-  Flag,
   Check,
   ChevronLeft,
   Search,
   CircleSlash2,
   MapPin,
   Loader,
+  ArrowLeft
 } from "lucide-vue-next";
 import { useDestination } from "@/store/destination";
 import { useLoading } from "@/store/loading";
@@ -23,6 +23,7 @@ import {
   SheetClose,
   SheetContent,
   SheetTrigger,
+  SheetHeader
 } from "@/components/ui/sheet";
 import { loadingController } from "@ionic/vue";
 import { useRoutes } from "@/store/routes";
@@ -228,26 +229,6 @@ const buttonDisabled = computed(() => {
     <div
       class="main-content bg-primary-foreground text-foreground p-6 custom-style"
     >
-      <h1 class="text-primary font-bold text-xl mb-4 font-poppins">
-        Boradigan manzilingiz
-      </h1>
-      <p
-        v-show="
-          destinationAddress?.name ||
-          destinationAddress?.displayName ||
-          errorMessage
-        "
-        class="text-primary flex items-start mb-4 font-semibold font-manrope"
-      >
-        <Flag class="w-[20px] h-[20px] mr-2" />
-        {{
-          notFound
-            ? errorMessage
-            : loading || mapMoving
-            ? "Aniqlanmoqda..."
-            : destinationAddress?.name || destinationAddress?.displayName
-        }}
-      </p>
       <MainButton
         :disabled="buttonDisabled"
         @click="letsGo"

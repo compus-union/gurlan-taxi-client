@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
-import { onBeforeRouteLeave, useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRouter, useRoute } from "vue-router";
 import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
@@ -25,9 +25,8 @@ import {
   Map,
   ChevronRight,
   ArrowLeft,
-CircleSlash2,
+  CircleSlash2,
 } from "lucide-vue-next";
-import { useRoute } from "vue-router";
 import { PageTransition } from "vue3-page-transition";
 import { useClient } from "@/store/client";
 import { useOriginCoords } from "@/store/origin";
@@ -275,6 +274,34 @@ const debounce = ref<
 >(createDebounce());
 
 const placeName = ref<string>("");
+const addressTypePage = ref<"origin" | "destination">();
+
+watch(
+  () => route,
+  async (newOne) => {
+    if (newOne.fullPath === "/ride/setOrigin") {
+      addressTypePage.value = "origin";
+      return;
+    }
+
+    if (newOne.fullPath === "/ride/setDestination") {
+      addressTypePage.value = "destination";
+      return;
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+async function changeDestinationCoords(payload: { lat: number; lng: number }) {
+  await destinationStore.changeCoords(
+    { lat: payload.lat, lng: payload.lng },
+    "void"
+  );
+
+  sharedMap.value?.setView([payload.lat, payload.lng], defaultZoom.value);
+
+  return;
+}
 </script>
 
 <template>
@@ -283,7 +310,7 @@ const placeName = ref<string>("");
       v-if="displayErrorMessage === false"
       class="header fixed top-0 w-full h-auto z-50"
     >
-      <nav class="navbar container mx-auto p-4 flex items-center">
+      <nav class="navbar container mx-auto px-2 py-4 flex items-center">
         <DropdownMenu>
           <DropdownMenuTrigger>
             <button
@@ -327,9 +354,9 @@ const placeName = ref<string>("");
           <SheetTrigger as-child>
             <button
               :disabled="geocodingBtnDisabled"
-              class="right ml-2 flex items-center justify-between text-left bg-primary-foreground text-primary overflow-hidden shadow-lg w-full rounded-md px-3 py-2 disabled:bg-gray-100 disabled:text-gray-400 transition-all"
+              class="right ml-2 flex items-center justify-between text-left bg-primary-foreground text-primary overflow-hidden shadow-lg w-full rounded-md px-3 py-3 disabled:bg-gray-100 disabled:text-gray-400 transition-all"
             >
-              <ReverseGeocoding component-type="origin" />
+              <ReverseGeocoding :component-type="addressTypePage as any" />
               <ChevronRight :size="18" />
             </button>
           </SheetTrigger>
@@ -397,8 +424,35 @@ const placeName = ref<string>("");
                 >
                   <SheetClose as-child>
                     <button
+                      v-show="addressTypePage === 'origin'"
                       @click="
                         changeOriginCoords({ lat: +place.lat, lng: +place.lon })
+                      "
+                      class="flex items-start justify-start py-4 border-t overflow-x-hidden w-full"
+                    >
+                      <div class="icon mr-2">
+                        <MapPin class="w-8 h-8" />
+                      </div>
+                      <div class="overflow-x-hidden text-left w-full">
+                        <h3
+                          class="place-name font-bold text-left overflow-hidden text-ellipsis whitespace-nowrap"
+                        >
+                          {{ place.name }}
+                        </h3>
+                        <p
+                          class="place-detailed text-ellipsis whitespace-nowrap overflow-hidden text-sm w-full"
+                        >
+                          {{ place.display_name }}
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      v-show="addressTypePage === 'destination'"
+                      @click="
+                        changeDestinationCoords({
+                          lat: +place.lat,
+                          lng: +place.lon,
+                        })
                       "
                       class="flex items-start justify-start py-4 border-t overflow-x-hidden w-full"
                     >
