@@ -13,7 +13,7 @@ import {
   CircleSlash2,
   MapPin,
   Loader,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-vue-next";
 import { useDestination } from "@/store/destination";
 import { useLoading } from "@/store/loading";
@@ -23,11 +23,13 @@ import {
   SheetClose,
   SheetContent,
   SheetTrigger,
-  SheetHeader
+  SheetHeader,
 } from "@/components/ui/sheet";
 import { loadingController } from "@ionic/vue";
 import { useRoutes } from "@/store/routes";
 import { toast } from "vue-sonner";
+import SheetTitle from "@/components/ui/sheet/SheetTitle.vue";
+import SheetDescription from "@/components/ui/sheet/SheetDescription.vue";
 
 const Input = defineAsyncComponent(
   () => import("@/components/ui/input/Input.vue")
@@ -56,7 +58,7 @@ const {
   coords: destinationCoords,
 } = storeToRefs(destinationStore);
 const { loading } = storeToRefs(loadingStore);
-const { destinationAddress, notFound, errorMessage, originAddress } =
+const { destinationAddress, notFound, originAddress } =
   storeToRefs(geocodingStore);
 const { mapMoving } = storeToRefs(mapsStore);
 const { notFound: searchPlaceNotFound, places } =
@@ -257,17 +259,21 @@ const buttonDisabled = computed(() => {
           class="h-screen overflow-hidden flex flex-col"
           side="bottom"
         >
-          <SheetHeader class="w-full flex items-center flex-row space-y-0">
+          <SheetHeader
+            class="w-full flex items-start space-x-4 flex-row space-y-0"
+          >
             <SheetClose as-child>
               <MainButton variant="ghost" size="icon">
                 <ArrowLeft />
               </MainButton>
             </SheetClose>
-            <h1
-              class="title text-xl text-foreground ml-2 font-semibold font-poppins"
-            >
-              Joy qidirish
-            </h1>
+            <div class="titles text-left">
+              <SheetTitle> Joy qidirish </SheetTitle>
+              <SheetDescription
+                >O'zingizga kerakli joy nomini izlang. Dehqon bozor, buyum
+                bozor, 6-maktab</SheetDescription
+              >
+            </div>
           </SheetHeader>
           <div
             class="search-place-modal w-full bg-primary-foreground overflow-y-auto h-screen z-[100]"
@@ -292,14 +298,6 @@ const buttonDisabled = computed(() => {
                   Xarita
                 </button></SheetClose
               >
-            </div>
-            <div
-              v-show="!typing && !places?.length && !notFound"
-              class="suggestion text-center mt-4 font-manrope"
-            >
-              O'zingizga kerakli joy nomini izlang, masalan:
-              <b>dehqon bozor</b>,
-              <b>hokimiyat</b>
             </div>
             <div v-show="typing" class="typing mt-6">
               <SkeletonLoading v-for="i in 5" :key="i" />

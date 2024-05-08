@@ -11,7 +11,7 @@ import { Flag, Locate } from "lucide-vue-next";
 type ComponentType = "origin" | "destination";
 
 const props = defineProps<{
-  componentType: ComponentType;
+  componentType?: string;
 }>();
 
 const { componentType } = toRefs(props);
@@ -46,14 +46,18 @@ function geocodingDebounce(func: Function, wait: number) {
 }
 
 // Inside your component setup
-const debouncedGeocoding = geocodingDebounce(async (newOne: any, component: ComponentType) => {
-  await geocodingStore.geocoding(newOne.lat, newOne.lng, component);
-}, 800);
+const debouncedGeocoding = geocodingDebounce(
+  async (newOne: any, component: ComponentType) => {
+    await geocodingStore.geocoding(newOne.lat, newOne.lng, component);
+  },
+  800
+);
 
 watch(
   () => [originCoords.value, mapMoving.value, destinationCoords.value],
   async (newOne: any, oldOne) => {
     if (newOne[1]) return;
+    if (!oldOne) return;
     if (newOne[0].lat !== oldOne[0].lat && newOne[0].lng !== oldOne[0].lng) {
       await loadingStore.setLoading(true);
       await debouncedGeocoding(newOne[0], "origin");
@@ -71,9 +75,9 @@ watch(
 <template>
   <p
     v-if="componentType === 'origin'"
-    class="font-manrope w-full flex items-center font-semibold text-lg overflow-hidden whitespace-nowrap text-ellipsis"
+    class="font-manrope w-full font-bold flex items-center text-lg overflow-hidden whitespace-nowrap text-ellipsis"
   >
-    <Locate class="mr-2" :size="18" />
+    <Locate class="mr-2 shrink-0" :size="18" />
     {{
       notFound
         ? errorMessage
@@ -86,9 +90,9 @@ watch(
   </p>
   <p
     v-if="componentType === 'destination'"
-    class="font-manrope w-full flex items-center font-semibold text-lg overflow-hidden whitespace-nowrap text-ellipsis"
+    class="font-manrope w-full font-bold flex items-center text-lg overflow-hidden whitespace-nowrap text-ellipsis"
   >
-    <Flag class="mr-2" :size="18" />
+    <Flag class="mr-2 shrink-0" :size="18" />
     {{
       notFound
         ? errorMessage

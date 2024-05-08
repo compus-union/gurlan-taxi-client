@@ -23,9 +23,9 @@ import {
   User,
   AlignJustify,
   Map,
-  ChevronRight,
-  ArrowLeft,
-  CircleSlash2,
+  Locate,
+  Flag,
+  Settings2,
 } from "lucide-vue-next";
 import { PageTransition } from "vue3-page-transition";
 import { useClient } from "@/store/client";
@@ -35,21 +35,8 @@ import { App as CapApp } from "@capacitor/app";
 import RadarWave from "@/components/functional/RadarWave.vue";
 import ReverseGeocoding from "@/components/functional/ReverseGeocoding.vue";
 import { useLoading } from "@/store/loading";
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetClose,
-} from "@/components/ui/sheet";
-
-import { Input } from "@/components/ui/input";
 import { useSearchPlaces } from "@/store/searchPlaces";
-import SkeletonLoading from "@/components/functional/SkeletonLoading.vue";
-
-const MainButton = defineAsyncComponent(
-  () => import("@/components/ui/button/Button.vue")
-);
+import { useGeocoding } from "@/store/geocoding";
 
 const originStore = useOriginCoords();
 const destinationStore = useDestination();
@@ -62,6 +49,7 @@ const canMapLoaded = ref(false);
 const clientStore = useClient();
 const loadingStore = useLoading();
 const searchPlacesStore = useSearchPlaces();
+const geocodingStore = useGeocoding();
 
 const {
   mapLoaded,
@@ -76,6 +64,9 @@ const {
 const { lat: originLat, lng: originLng } = storeToRefs(originStore);
 const { loading } = storeToRefs(loadingStore);
 const { places, notFound } = storeToRefs(searchPlacesStore);
+const { destinationAddress, originAddress } = storeToRefs(geocodingStore);
+const { lat: destinationLat, lng: destinationLng } =
+  storeToRefs(destinationStore);
 
 const typing = ref(false);
 
@@ -274,7 +265,7 @@ const debounce = ref<
 >(createDebounce());
 
 const placeName = ref<string>("");
-const addressTypePage = ref<"origin" | "destination">();
+const addressTypePage = ref<"origin" | "destination" | "">();
 
 watch(
   () => route,
@@ -286,6 +277,14 @@ watch(
 
     if (newOne.fullPath === "/ride/setDestination") {
       addressTypePage.value = "destination";
+      return;
+    }
+
+    if (
+      newOne.fullPath === "/ride/letsgo" ||
+      newOne.fullPath === "/ride/taxi"
+    ) {
+      addressTypePage.value = "";
       return;
     }
   },
@@ -302,6 +301,28 @@ async function changeDestinationCoords(payload: { lat: number; lng: number }) {
 
   return;
 }
+
+const showReverseGeocodingComponent = computed(() => {
+  if (
+    route.fullPath === "/ride/setOrigin" ||
+    route.fullPath === "/ride/setDestination"
+  ) {
+    return true;
+  }
+
+  return false;
+});
+
+async function goBackTo(path: string) {
+  if (route.fullPath === "/ride/taxi") return;
+  if (path === "/ride/setDestination") {
+    sharedMap.value?.setView([destinationLat.value, destinationLng.value]);
+  }
+  if (path === "/ride/setOrigin") {
+    sharedMap.value?.setView([originLat.value, originLng.value]);
+  }
+  await router.push(path);
+}
 </script>
 
 <template>
@@ -310,7 +331,7 @@ async function changeDestinationCoords(payload: { lat: number; lng: number }) {
       v-if="displayErrorMessage === false"
       class="header fixed top-0 w-full h-auto z-50"
     >
-      <nav class="navbar container mx-auto px-2 py-4 flex items-center">
+      <nav class="navbar container mx-auto px-2 py-4 flex items-start">
         <DropdownMenu>
           <DropdownMenuTrigger>
             <button
@@ -350,149 +371,62 @@ async function changeDestinationCoords(payload: { lat: number; lng: number }) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Sheet>
-          <SheetTrigger as-child>
-            <button
-              :disabled="geocodingBtnDisabled"
-              class="right ml-2 flex items-center justify-between text-left bg-primary-foreground text-primary overflow-hidden shadow-lg w-full rounded-md px-3 py-3 disabled:bg-gray-100 disabled:text-gray-400 transition-all"
-            >
-              <ReverseGeocoding :component-type="addressTypePage as any" />
-              <ChevronRight :size="18" />
-            </button>
-          </SheetTrigger>
-          <SheetContent
-            class="h-screen overflow-hidden flex flex-col"
-            side="bottom"
+        <!-- Reverse Geocoding Component -->
+        <button
+          v-if="showReverseGeocodingComponent"
+          :disabled="geocodingBtnDisabled"
+          class="right ml-2 flex items-center justify-between text-left bg-primary-foreground text-primary overflow-hidden shadow-lg w-full rounded-md px-3 py-3 disabled:bg-gray-100 disabled:text-gray-400 transition-all"
+        >
+          <ReverseGeocoding :component-type="addressTypePage" />
+        </button>
+        <div
+          v-if="!showReverseGeocodingComponent"
+          class="ml-2 flex flex-col justify-between text-left overflow-hidden w-full rounded-md space-y-2 disabled:bg-gray-100 disabled:text-gray-400 transition-all"
+        >
+          <button
+            @click="goBackTo('/ride/setOrigin')"
+            class="flex custom-shadow items-center justify-between bg-primary-foreground text-primary overflow-hidden shadow-xl w-full rounded-md px-3 py-2"
           >
-            <SheetHeader class="w-full flex items-center flex-row space-y-0">
-              <SheetClose as-child>
-                <MainButton variant="ghost" size="icon">
-                  <ArrowLeft />
-                </MainButton>
-              </SheetClose>
-              <h1
-                class="title text-xl text-foreground ml-2 font-semibold font-poppins"
-              >
-                Joy qidirish
-              </h1>
-            </SheetHeader>
-            <div
-              class="search-place-modal w-full bg-primary-foreground overflow-y-auto h-screen z-[100]"
-            >
-              <div class="form-part flex items-center justify-between">
-                <Input
-                  type="text"
-                  v-model="placeName"
-                  @input="
-                    debounce(
-                      async () =>
-                        await searchPlacesStore.searchPlaces(placeName),
-                      1000
-                    )
-                  "
-                  placeholder="Joy izlash"
-                  class="outline-none focus-visible:ring-0 focus-visible:outline-none focus-visible:ring-transparent text-lg placeholder:text-base font-manrope focus-visible:border-primary"
-                />
-                <SheetClose as-child>
-                  <button
-                    class="py-2 rounded text-primary-foreground bg-primary px-2 ml-4 font-manrope font-semibold"
-                  >
-                    Xarita
-                  </button></SheetClose
+          <p class="font-manrope font-bold flex flex-row items-start w-[80%]">
+              <Locate class="mr-2 shrink-0 mt-2" :size="18" />
+              <span class="right w-full text-left"
+                ><p class="text-[12px] font-poppins font-bold opacity-50">
+                  Qayerdan
+                </p>
+                <p
+                  class="text-lg overflow-hidden whitespace-nowrap text-ellipsis -mt-2"
                 >
-              </div>
-              <div
-                v-show="!typing && !places?.length && !notFound"
-                class="suggestion text-center mt-4 font-manrope"
-              >
-                O'zingizga kerakli joy nomini izlang, masalan:
-                <b>dehqon bozor</b>,
-                <b>hokimiyat</b>
-              </div>
-              <div v-show="typing" class="typing mt-6">
-                <SkeletonLoading v-for="i in 5" :key="i" />
-              </div>
-              <div
-                v-show="places?.length && !typing && !notFound"
-                class="results mt-4 overflow-x-hidden overflow-y-scroll h-[80%] w-full"
-              >
-                <!-- @vue-skip -->
-                <div
-                  v-for="place in places"
-                  :key="place.place_id"
-                  class="result overflow-x-hidden w-full"
+                  {{
+                    originAddress?.name || originAddress?.displayName
+                  }}
+                </p>
+              </span>
+            </p>
+            <Settings2 v-show="route.fullPath !== '/ride/taxi'" />
+          </button>
+
+          <button
+            @click="goBackTo('/ride/setDestination')"
+            class="flex items-center custom-shadow relative justify-between bg-primary-foreground text-primary overflow-hidden shadow-xl w-full rounded-md px-3 py-2"
+          >
+            <p class="font-manrope font-bold flex flex-row items-start w-[80%]">
+              <Flag class="mr-2 shrink-0 mt-2" :size="18" />
+              <span class="right w-full text-left"
+                ><p class="text-[12px] font-poppins font-bold opacity-50">
+                  Qayerga
+                </p>
+                <p
+                  class="text-lg overflow-hidden whitespace-nowrap text-ellipsis -mt-2"
                 >
-                  <SheetClose as-child>
-                    <button
-                      v-show="addressTypePage === 'origin'"
-                      @click="
-                        changeOriginCoords({ lat: +place.lat, lng: +place.lon })
-                      "
-                      class="flex items-start justify-start py-4 border-t overflow-x-hidden w-full"
-                    >
-                      <div class="icon mr-2">
-                        <MapPin class="w-8 h-8" />
-                      </div>
-                      <div class="overflow-x-hidden text-left w-full">
-                        <h3
-                          class="place-name font-bold text-left overflow-hidden text-ellipsis whitespace-nowrap"
-                        >
-                          {{ place.name }}
-                        </h3>
-                        <p
-                          class="place-detailed text-ellipsis whitespace-nowrap overflow-hidden text-sm w-full"
-                        >
-                          {{ place.display_name }}
-                        </p>
-                      </div>
-                    </button>
-                    <button
-                      v-show="addressTypePage === 'destination'"
-                      @click="
-                        changeDestinationCoords({
-                          lat: +place.lat,
-                          lng: +place.lon,
-                        })
-                      "
-                      class="flex items-start justify-start py-4 border-t overflow-x-hidden w-full"
-                    >
-                      <div class="icon mr-2">
-                        <MapPin class="w-8 h-8" />
-                      </div>
-                      <div class="overflow-x-hidden text-left w-full">
-                        <h3
-                          class="place-name font-bold text-left overflow-hidden text-ellipsis whitespace-nowrap"
-                        >
-                          {{ place.name }}
-                        </h3>
-                        <p
-                          class="place-detailed text-ellipsis whitespace-nowrap overflow-hidden text-sm w-full"
-                        >
-                          {{ place.display_name }}
-                        </p>
-                      </div>
-                    </button>
-                  </SheetClose>
-                </div>
-              </div>
-              <p
-                v-show="places?.length && !typing && !notFound"
-                class="text-sm text-gray-400 text-center mt-2"
-              >
-                Ko'proq ko'rish uchun pastga torting
-              </p>
-              <div
-                v-show="!places?.length && !typing && notFound"
-                class="not-found my-10 text-center flex flex-col items-center justify-center"
-              >
-                <CircleSlash2 class="w-16 h-16 text-[#71717A]" />
-                <h4 class="text-xl font-semibold text-[#71717A] mt-4">
-                  Joy topilmadi
-                </h4>
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
+                  {{
+                    destinationAddress?.name || destinationAddress?.displayName
+                  }}
+                </p>
+              </span>
+            </p>
+            <Settings2 />
+          </button>
+        </div>
       </nav>
     </header>
     <Marker
@@ -525,6 +459,10 @@ async function changeDestinationCoords(payload: { lat: number; lng: number }) {
 </template>
 
 <style>
+.custom-shadow {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
 img[alt="Google"] {
   display: none;
 }

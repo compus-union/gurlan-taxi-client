@@ -8,6 +8,7 @@ import {
   WaitingDuringRideScreen,
 } from "@/components/ride";
 import { onMounted, ref } from "vue";
+import { onBeforeRouteLeave } from "vue-router";
 
 type RideStatus =
   | "CLIENT_SEARCH_FOR_TAXI"
@@ -20,7 +21,11 @@ type RideStatus =
   | "RIDE_FINISHED";
 
 const rideStatus = ref<RideStatus>("RIDE_FINISHED");
-</script>
+
+onBeforeRouteLeave(async(to, from, next) => {
+  return next(false)
+})
+</script> 
 
 <template>
   <div class="ride-page flex flex-col w-full h-auto">
