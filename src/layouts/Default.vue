@@ -387,7 +387,7 @@ async function goBackTo(path: string) {
             @click="goBackTo('/ride/setOrigin')"
             class="flex custom-shadow items-center justify-between bg-primary-foreground text-primary overflow-hidden shadow-xl w-full rounded-md px-3 py-2"
           >
-          <p class="font-manrope font-bold flex flex-row items-start w-[80%]">
+            <p class="font-manrope font-bold flex flex-row items-start w-[80%]">
               <Locate class="mr-2 shrink-0 mt-2" :size="18" />
               <span class="right w-full text-left"
                 ><p class="text-[12px] font-poppins font-bold opacity-50">
@@ -396,9 +396,7 @@ async function goBackTo(path: string) {
                 <p
                   class="text-lg overflow-hidden whitespace-nowrap text-ellipsis -mt-1"
                 >
-                  {{
-                    originAddress?.name || originAddress?.displayName
-                  }}
+                  {{ originAddress?.name || originAddress?.displayName }}
                 </p>
               </span>
             </p>
@@ -424,7 +422,7 @@ async function goBackTo(path: string) {
                 </p>
               </span>
             </p>
-            <Settings2  v-show="route.fullPath !== '/ride/taxi'"/>
+            <Settings2 v-show="route.fullPath !== '/ride/taxi'" />
           </button>
         </div>
       </nav>
