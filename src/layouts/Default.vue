@@ -394,7 +394,7 @@ async function goBackTo(path: string) {
                   Qayerdan
                 </p>
                 <p
-                  class="text-lg overflow-hidden whitespace-nowrap text-ellipsis -mt-2"
+                  class="text-lg overflow-hidden whitespace-nowrap text-ellipsis -mt-1"
                 >
                   {{
                     originAddress?.name || originAddress?.displayName
@@ -416,7 +416,7 @@ async function goBackTo(path: string) {
                   Qayerga
                 </p>
                 <p
-                  class="text-lg overflow-hidden whitespace-nowrap text-ellipsis -mt-2"
+                  class="text-lg overflow-hidden whitespace-nowrap text-ellipsis -mt-1"
                 >
                   {{
                     destinationAddress?.name || destinationAddress?.displayName
@@ -424,7 +424,7 @@ async function goBackTo(path: string) {
                 </p>
               </span>
             </p>
-            <Settings2 />
+            <Settings2  v-show="route.fullPath !== '/ride/taxi'"/>
           </button>
         </div>
       </nav>
