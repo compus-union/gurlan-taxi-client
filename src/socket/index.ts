@@ -22,7 +22,7 @@ export async function initConnection(socketId: string) {
 
 socket.on("connect", async () => {
   await initConnection(socket.id as string);
-  
+
   state.value.socketId = socket.id as string;
 
   state.value.connected = true;

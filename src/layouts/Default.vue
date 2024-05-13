@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Preferences } from "@capacitor/preferences";
 import { onBeforeRouteLeave, useRouter, useRoute } from "vue-router";
-import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useMaps } from "@/store/maps";
 import { useAuth } from "@/store/auth";
 import { ResponseStatus } from "@/constants";
@@ -37,7 +37,7 @@ import ReverseGeocoding from "@/components/functional/ReverseGeocoding.vue";
 import { useLoading } from "@/store/loading";
 import { useSearchPlaces } from "@/store/searchPlaces";
 import { useGeocoding } from "@/store/geocoding";
-import { state, initConnection } from "@/socket";
+import { state } from "@/socket";
 
 const originStore = useOriginCoords();
 const destinationStore = useDestination();
@@ -70,10 +70,6 @@ const { lat: destinationLat, lng: destinationLng } =
   storeToRefs(destinationStore);
 
 const typing = ref(false);
-
-onMounted(async () => {
-  await initConnection();
-});
 
 console.log(state.value.connected);
 
