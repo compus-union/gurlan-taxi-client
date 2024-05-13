@@ -37,6 +37,7 @@ import ReverseGeocoding from "@/components/functional/ReverseGeocoding.vue";
 import { useLoading } from "@/store/loading";
 import { useSearchPlaces } from "@/store/searchPlaces";
 import { useGeocoding } from "@/store/geocoding";
+import { state, initConnection } from "@/socket";
 
 const originStore = useOriginCoords();
 const destinationStore = useDestination();
@@ -69,6 +70,12 @@ const { lat: destinationLat, lng: destinationLng } =
   storeToRefs(destinationStore);
 
 const typing = ref(false);
+
+onMounted(async () => {
+  await initConnection();
+});
+
+console.log(state.value.connected);
 
 const createLoading = async (message: string) => {
   const loading = await loadingController.create({ message });
@@ -402,7 +409,6 @@ async function goBackTo(path: string) {
             </p>
             <Settings2 v-show="route.fullPath !== '/ride/taxi'" />
           </button>
-
           <button
             @click="goBackTo('/ride/setDestination')"
             class="flex items-center custom-shadow relative justify-between bg-primary-foreground text-primary overflow-hidden shadow-xl w-full rounded-md px-3 py-2"
