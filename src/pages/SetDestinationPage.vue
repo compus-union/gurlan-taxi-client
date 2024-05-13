@@ -7,13 +7,13 @@ import router from "@/router";
 import { onBeforeRouteLeave } from "vue-router";
 import { useOriginCoords } from "@/store/origin";
 import {
-  Flag,
   Check,
   ChevronLeft,
   Search,
   CircleSlash2,
   MapPin,
   Loader,
+  ArrowLeft,
 } from "lucide-vue-next";
 import { useDestination } from "@/store/destination";
 import { useLoading } from "@/store/loading";
@@ -23,10 +23,13 @@ import {
   SheetClose,
   SheetContent,
   SheetTrigger,
+  SheetHeader,
 } from "@/components/ui/sheet";
 import { loadingController } from "@ionic/vue";
 import { useRoutes } from "@/store/routes";
 import { toast } from "vue-sonner";
+import SheetTitle from "@/components/ui/sheet/SheetTitle.vue";
+import SheetDescription from "@/components/ui/sheet/SheetDescription.vue";
 
 const Input = defineAsyncComponent(
   () => import("@/components/ui/input/Input.vue")
@@ -55,7 +58,7 @@ const {
   coords: destinationCoords,
 } = storeToRefs(destinationStore);
 const { loading } = storeToRefs(loadingStore);
-const { destinationAddress, notFound, errorMessage, originAddress } =
+const { destinationAddress, notFound, originAddress } =
   storeToRefs(geocodingStore);
 const { mapMoving } = storeToRefs(mapsStore);
 const { notFound: searchPlaceNotFound, places } =
@@ -228,26 +231,6 @@ const buttonDisabled = computed(() => {
     <div
       class="main-content bg-primary-foreground text-foreground p-6 custom-style"
     >
-      <h1 class="text-primary font-bold text-xl mb-4 font-poppins">
-        Boradigan manzilingiz
-      </h1>
-      <p
-        v-show="
-          destinationAddress?.name ||
-          destinationAddress?.displayName ||
-          errorMessage
-        "
-        class="text-primary flex items-start mb-4 font-semibold font-manrope"
-      >
-        <Flag class="w-[20px] h-[20px] mr-2" />
-        {{
-          notFound
-            ? errorMessage
-            : loading || mapMoving
-            ? "Aniqlanmoqda..."
-            : destinationAddress?.name || destinationAddress?.displayName
-        }}
-      </p>
       <MainButton
         :disabled="buttonDisabled"
         @click="letsGo"
@@ -272,11 +255,30 @@ const buttonDisabled = computed(() => {
             >
           </MainButton>
         </SheetTrigger>
-        <SheetContent class="h-screen overflow-hidden flex" side="bottom">
-          <div
-            class="search-place-modal w-full bg-primary-foreground mt-3 overflow-y-auto h-screen z-[100]"
+        <SheetContent
+          class="h-screen overflow-hidden flex flex-col"
+          side="bottom"
+        >
+          <SheetHeader
+            class="w-full flex items-start space-x-4 flex-row space-y-0"
           >
-            <div class="form-group">
+            <SheetClose as-child>
+              <MainButton variant="ghost" size="icon">
+                <ArrowLeft />
+              </MainButton>
+            </SheetClose>
+            <div class="titles text-left">
+              <SheetTitle> Joy qidirish </SheetTitle>
+              <SheetDescription
+                >O'zingizga kerakli joy nomini izlang. Dehqon bozor, buyum
+                bozor, 6-maktab</SheetDescription
+              >
+            </div>
+          </SheetHeader>
+          <div
+            class="search-place-modal w-full bg-primary-foreground overflow-y-auto h-screen z-[100]"
+          >
+            <div class="form-part flex items-center justify-between">
               <Input
                 type="text"
                 v-model="placeName"
@@ -287,16 +289,15 @@ const buttonDisabled = computed(() => {
                   )
                 "
                 placeholder="Joy izlash"
-                class="outline-none focus-visible:ring-0 focus-visible:outline-none"
+                class="outline-none focus-visible:ring-0 focus-visible:outline-none focus-visible:ring-transparent text-lg placeholder:text-base font-manrope focus-visible:border-primary"
               />
-            </div>
-            <div
-              v-show="!typing && !places?.length && !notFound"
-              class="suggestion text-center mt-4"
-            >
-              O'zingizga kerakli joy nomini izlang, masalan:
-              <b>dehqon bozor</b>,
-              <b>hokimiyat</b>
+              <SheetClose as-child>
+                <button
+                  class="py-2 rounded text-primary-foreground bg-primary px-2 ml-4 font-manrope font-semibold"
+                >
+                  Xarita
+                </button></SheetClose
+              >
             </div>
             <div v-show="typing" class="typing mt-6">
               <SkeletonLoading v-for="i in 5" :key="i" />

@@ -18,6 +18,7 @@ import { useDestination } from "@/store/destination";
 import { Separator } from "@/components/ui/separator";
 import { useOriginCoords } from "@/store/origin";
 import { toast } from "vue-sonner";
+import config from "@/config";
 
 const router = useRouter();
 const geocodingStore = useGeocoding();
@@ -27,9 +28,9 @@ const destinationStore = useDestination();
 const originStore = useOriginCoords();
 
 const { destinationAddress, originAddress } = storeToRefs(geocodingStore);
-const { price, distance, duration } =
-  storeToRefs(routesStore);
-const { sharedMap, defaultZoom, isRadarVisible, markerVisible } = storeToRefs(mapsStore);
+const { price, distance, duration } = storeToRefs(routesStore);
+const { sharedMap, defaultZoom, isRadarVisible, markerVisible } =
+  storeToRefs(mapsStore);
 const { coords: destinationCoords } = storeToRefs(destinationStore);
 const { coords: originCoords } = storeToRefs(originStore);
 
@@ -62,7 +63,7 @@ type PlanType = "STANDARD" | "COMFORT" | "MICROVAN";
 
 const rideType = ref<RideTaxi>("taxi");
 
-const activePlan = ref<PlanType>("COMFORT");
+const activePlan = ref<PlanType>("STANDARD");
 
 async function changeActivePlan(plan: PlanType) {
   if (activePlan.value === plan) return;
@@ -76,8 +77,8 @@ onMounted(async () => {
 
   pane.value = new CupertinoPane(".sheet-pane", {
     breaks: {
-      top: { enabled: true, height: 560 },
-      middle: { enabled: true, height: 440 },
+      top: { enabled: true, height: 410 },
+      middle: { enabled: true, height: 200 },
       bottom: { enabled: true, height: 40 },
     },
     initialBreak: "top",
@@ -109,7 +110,7 @@ async function callTaxi() {
     );
     await mapsStore.disableEvents();
     isRadarVisible.value = true;
-    markerVisible.value = false
+    markerVisible.value = false;
   } catch (error: any) {
     console.log(error);
 
@@ -179,7 +180,7 @@ async function callTaxi() {
             >
               <img
                 loading="lazy"
-                :src="plan.img"
+                :src="config.SERVER_PUBLIC_URL + plan.img"
                 :alt="plan.name"
                 class="w-full h-full transition z-50"
               />
@@ -204,56 +205,7 @@ async function callTaxi() {
         class="promo-code mt-2 placeholder:font-manrope font-manrope"
         placeholder="Promokod kiriting"
       />
-      <div class="addresses mt-3 space-y-1">
-        <div class="address origin flex items-center justify-between">
-          <div
-            class="text-part flex items-center font-medium font-manrope flex-1 min-w-0"
-          >
-            <User class="w-4 h-4 mr-4" stroke-width="2px" />
-            <p
-              class="overflow-hidden whitespace-nowrap w-full"
-              style="text-overflow: ellipsis"
-            >
-              {{ originAddress?.name || originAddress?.displayName }}
-            </p>
-          </div>
-          <div class="button-part">
-            <MainButton @click="goHome" variant="ghost" size="icon"
-              ><Settings2 class="w-4 h-4"
-            /></MainButton>
-          </div>
-        </div>
-        <div class="seperators flex items-center">
-          <Separator
-            orientation="vertical"
-            class="h-10 w-1 rounded bg-black mx-[6px]"
-          />
-          <Separator class="ml-2" />
-        </div>
-        <div class="address destination flex items-center justify-between">
-          <div
-            class="text-part flex items-center font-medium font-manrope flex-1 min-w-0"
-          >
-            <Flag class="w-4 h-4 mr-4" stroke-width="2px" />
-            <p
-              class="overflow-hidden whitespace-nowrap w-full"
-              style="text-overflow: ellipsis"
-            >
-              {{ destinationAddress?.name || destinationAddress?.displayName }}
-            </p>
-          </div>
-          <div class="button-part">
-            <MainButton @click="goBack" variant="ghost" size="icon"
-              ><Settings2 class="w-4 h-4"
-            /></MainButton>
-          </div>
-        </div>
-      </div>
-      <p
-        class="text-sm opacity-50 my-2 overflow-hidden whitespace-nowrap text-ellipsis"
-      >
-        {{ distance?.kmFull }}, {{ duration?.full }}
-      </p>
+      <!-- Promokod info & functional components here -->
       <MainButton
         @click="callTaxi"
         class="flex items-center transition-all py-6 text-lg font-manrope font-semibold w-full mb-2"

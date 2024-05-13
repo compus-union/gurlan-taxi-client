@@ -28,6 +28,8 @@ import { LayerGroup, Map } from "leaflet";
 import { Geolocation } from "@capacitor/geolocation";
 import { useLoading } from "@/store/loading";
 import { useClient } from "@/store/client";
+import SheetTitle from "@/components/ui/sheet/SheetTitle.vue";
+import SheetDescription from "@/components/ui/sheet/SheetDescription.vue";
 
 const MainButton = defineAsyncComponent(
   () => import("@/components/ui/button/Button.vue")
@@ -187,7 +189,6 @@ const buttonDisabled = computed(() => {
 
 <template>
   <div class="home-page h-auto flex flex-col">
-    <ReverseGeocoding component-type="origin" />
     <MainButton
       @click="goBackToLocation"
       size="icon"
@@ -213,7 +214,6 @@ const buttonDisabled = computed(() => {
             <MapPin class="w-5 h-5 mr-2" /> Qayerga boramiz?
           </span></MainButton
         >
-        <!-- <MainButton @click="$router.push('/options/profile')">Test</MainButton> -->
         <Sheet>
           <SheetTrigger as-child>
             <MainButton
@@ -226,20 +226,23 @@ const buttonDisabled = computed(() => {
             class="h-screen overflow-hidden flex flex-col"
             side="bottom"
           >
-            <SheetHeader class="w-full flex items-center flex-row space-y-0">
+            <SheetHeader class="w-full flex items-start space-x-4 flex-row space-y-0">
               <SheetClose as-child>
                 <MainButton variant="ghost" size="icon">
                   <ArrowLeft />
                 </MainButton>
               </SheetClose>
-              <h1 class="title text-xl text-foreground ml-2 font-semibold">
-                Joy qidirish
-              </h1>
+             <div class="titles text-left">
+              <SheetTitle> Joy qidirish </SheetTitle>
+              <SheetDescription
+                >O'zingizga kerakli joy nomini izlang. Dehqon bozor, buyum bozor, 6-maktab</SheetDescription
+              >
+             </div>
             </SheetHeader>
             <div
               class="search-place-modal w-full bg-primary-foreground overflow-y-auto h-screen z-[100]"
             >
-              <div class="form-group">
+              <div class="form-part flex items-center justify-between">
                 <Input
                   type="text"
                   v-model="placeName"
@@ -251,16 +254,15 @@ const buttonDisabled = computed(() => {
                     )
                   "
                   placeholder="Joy izlash"
-                  class="outline-none focus-visible:ring-0 focus-visible:outline-none"
+                  class="outline-none focus-visible:ring-0 focus-visible:outline-none focus-visible:ring-transparent text-lg placeholder:text-base font-manrope focus-visible:border-primary"
                 />
-              </div>
-              <div
-                v-show="!typing && !places?.length && !notFound"
-                class="suggestion text-center mt-4"
-              >
-                O'zingizga kerakli joy nomini izlang, masalan:
-                <b>dehqon bozor</b>,
-                <b>hokimiyat</b>
+                <SheetClose as-child>
+                  <button
+                    class="py-2 rounded text-primary-foreground bg-primary px-2 ml-4 font-manrope font-semibold"
+                  >
+                    Xarita
+                  </button></SheetClose
+                >
               </div>
               <div v-show="typing" class="typing mt-6">
                 <SkeletonLoading v-for="i in 5" :key="i" />
@@ -319,6 +321,7 @@ const buttonDisabled = computed(() => {
             </div>
           </SheetContent>
         </Sheet>
+        <!-- <MainButton @click="$router.push('/options/profile')">Test</MainButton> -->
       </div>
     </div>
   </div>

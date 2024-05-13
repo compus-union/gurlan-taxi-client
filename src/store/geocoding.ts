@@ -28,6 +28,8 @@ export const useGeocoding = defineStore("geocoding-store", () => {
     lng: number,
     type: "origin" | "destination"
   ) {
+    console.log(type);
+    
     try {
       if (!lat && !lng) return;
       await loadingStore.setLoading(true);

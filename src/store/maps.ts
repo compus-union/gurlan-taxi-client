@@ -2,7 +2,7 @@ import { defineStore, storeToRefs } from "pinia";
 import { useOriginCoords } from "./origin";
 import { useDestination } from "./destination";
 import { computed, ref, watch } from "vue";
-import L, { marker } from "leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useRoute } from "vue-router";
 import RealLocationPointIcon from "@/assets/real-location-point.svg";

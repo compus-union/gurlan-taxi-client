@@ -100,7 +100,7 @@ async function resetLogin() {
 
     await Preferences.clear();
     await router.push({ path: "/auth/login" });
-    toast.info("Boshqatdan ro'yxatdan o'tishingiz mumkin", {duration: 4000});
+    toast.info("Boshqatdan ro'yxatdan o'tishingiz mumkin", { duration: 4000 });
   } catch (error) {
     alert(error);
   } finally {
@@ -136,15 +136,15 @@ async function sendConfirmationCodeAgain() {
 <template>
   <Card class="w-full">
     <CardHeader>
-      <CardTitle>Tasdiqlash</CardTitle>
-      <CardDescription
+      <CardTitle class="text-lg font-bold">Tasdiqlash</CardTitle>
+      <CardDescription class="text-base"
         >Telefon raqamingizga tasdiqlash kodi yuborildi. Shu orqali tizimga
         kirishni yakunlang.</CardDescription
       >
     </CardHeader>
     <CardContent class="form">
       <div class="form-group mb-4">
-        <Label for="confirmationCode"> Tasdiqlash kodi </Label>
+        <Label for="confirmationCode" class="text-lg"> Tasdiqlash kodi </Label>
         <Input
           v-maska
           data-maska="######"
@@ -152,17 +152,18 @@ async function sendConfirmationCodeAgain() {
           id="confirmationCode"
           autofocus
           type="text"
+          class="text-lg py-6"
           v-model.trim="authStore.clientDetails.confirmationCode"
         />
       </div>
 
       <div class="form-group mt-4 flex flex-col items-center space-y-2">
-        <Button :disabled="buttonDisabled" @click="confirm" class="w-full"
+        <Button :disabled="buttonDisabled" @click="confirm" class="w-full text-lg py-6"
           >Jo'natish</Button
         >
         <Button
-          :disabled="sendCodeAgainBtnDisabled"
-          class="w-full"
+          v-show="!sendCodeAgainBtnDisabled"
+          class="w-full text-lg py-6"
           variant="secondary"
           @click="sendConfirmationCodeAgain"
           >Kodni boshqatdan olish</Button
