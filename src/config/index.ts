@@ -1,7 +1,7 @@
 const config = {
-  SERVER_URL: "http://192.168.1.15:3000/api/v1",
-  GOOGLE_MAPS_API_KEY: "AIzaSyDKUe31BzfxFHUc4harDoHY61VSpLC3d4g",
-  SERVER_PUBLIC_URL: "http://192.168.1.15:3000"
-};
+	SERVER_URL: import.meta.env.VITE_SERVER_API_URL,
+	SERVER_PUBLIC_URL: import.meta.env.VITE_SERVER_PUBLIC_URL,
+	MAPTILE: import.meta.env.VITE_MAPTILE,
+}
 
-export default config;
+export default config

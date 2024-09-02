@@ -7,7 +7,7 @@ import {
   SearchingScreen,
   WaitingDuringRideScreen,
 } from "@/components/ride";
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 
 type RideStatus =
@@ -25,7 +25,7 @@ const rideStatus = ref<RideStatus>("CLIENT_SEARCH_FOR_TAXI");
 onBeforeRouteLeave(async(to, from, next) => {
   return next(false)
 })
-</script> 
+</script>
 
 <template>
   <div class="ride-page flex flex-col w-full h-auto">

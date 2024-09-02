@@ -27,7 +27,6 @@
     "@ionic/vue": "^7.6.6",
     "@jcesarmobile/ssl-skip": "^0.2.0",
     "@maptiler/leaflet-maptilersdk": "^2.0.0",
-    "@marcoschulte/vue3-progress": "^0.0.7",
     "@radix-icons/vue": "^1.0.0",
     "@vueuse/core": "^10.7.2",
     "axios": "^1.6.6",
@@ -45,7 +44,7 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "vue": "^3.4.15",
-    "vue-router": "^4.2.5",
+    "vue-router": "^4.4.3",
     "vue-sonner": "^1.1.2",
     "vue-star-rating": "^2.1.0",
     "vue3-page-transition": "^0.1.5"
